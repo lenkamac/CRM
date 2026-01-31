@@ -110,4 +110,4 @@ class CustomPasswordChangeView(PasswordChangeView):
 # Logout
 def my_logout(request):
     logout(request)
-    return redirect('core:index')
+    return redirect('index')

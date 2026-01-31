@@ -21,13 +21,14 @@ from django.urls import path, include
 from django.contrib.auth import views
 from userprofile.forms import LoginForm
 from userprofile.views import my_logout
+from core.views import index, contact
 
 urlpatterns = ([
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
+    path('', index, name='index'),
+    path('contact/', contact, name='contact'),
     path('dashboard/', include('dashboard.urls')),
-    path('dashboard/teams/', include('core.urls')),
-    path('dashboard/projects/', include('core.urls')),
+    path('dashboard/', include('core.urls')),
     path('dashboard/account/', include('userprofile.urls')),
     path('dashboard/leads/', include('lead.urls')),
     path('dashboard/tasks/', include('task.urls')),

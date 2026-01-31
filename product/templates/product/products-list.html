@@ -41,8 +41,12 @@
             <div class="row justify-content-center">
                 <div class="col-12">
                     <div class="card products-card shadow-sm">
-                        <div class="card-header text-white">
-                            <h5 class="fw-bolder">All Products</h5>
+                        <div class="card-header text-white d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bolder mb-0">All Products</h5>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-light currency-toggle active" data-currency="EUR">€ EUR</button>
+                                <button type="button" class="btn btn-sm btn-light currency-toggle" data-currency="USD">$ USD</button>
+                            </div>
                         </div>
                         <div class="card-body">
                             {% if products %}
@@ -63,9 +67,9 @@
                                             <tr>
                                                 <td class="text-start text-nowrap">{{ product.name }}</td>
                                                 <td>{{ product.description|truncatewords:10 }}</td>
-                                                <td>${{ product.net_price }}</td>
+                                                <td class="price-cell" data-eur="{{ product.net_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.net_price }}</span></td>
                                                 <td>{{ product.sold_quantity }}</td>
-                                                <td>€{{ product.get_total_price }}</td>
+                                                <td class="price-cell" data-eur="{{ product.get_total_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.get_total_price }}</span></td>
                                                 <td class="text-center text-nowrap">
                                                     <a href="{% url 'product:product_detail' product.id %}" class="btn btn-view fw-bolder">
                                                         <i class="bi bi-eye"></i> View
@@ -94,16 +98,45 @@
         </div>
 
     <script>
-            // Automatically hide alert messages after 3 seconds (3000 milliseconds)
+        // Automatically hide alert messages after 3 seconds (3000 milliseconds)
         document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          document.querySelectorAll('.alert').forEach(function(alert) {
-            // Fade out for a smooth effect (optional)
-            alert.style.transition = "opacity 0.5s linear";
-            alert.style.opacity = 0;
-            setTimeout(function() { alert.remove(); }, 500); // remove from DOM after fade out
-          });
-        }, 3000); // Show message for 3 seconds
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    // Fade out for a smooth effect (optional)
+                    alert.style.transition = "opacity 0.5s linear";
+                    alert.style.opacity = 0;
+                    setTimeout(function() { alert.remove(); }, 500); // remove from DOM after fade out
+                });
+            }, 3000); // Show message for 3 seconds
+        });
+
+        // Currency conversion functionality
+        const EUR_TO_USD = 1.08; // Exchange rate (update as needed)
+
+        document.querySelectorAll('.currency-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const currency = this.dataset.currency;
+
+                // Update active button
+                document.querySelectorAll('.currency-toggle').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                // Convert all prices
+                document.querySelectorAll('.price-cell').forEach(cell => {
+                    const eurPrice = parseFloat(cell.dataset.eur);
+                    const symbol = cell.querySelector('.currency-symbol');
+                    const valueSpan = cell.querySelector('.price-value');
+
+                    if (currency === 'USD') {
+                        const usdPrice = (eurPrice * EUR_TO_USD).toFixed(2);
+                        symbol.textContent = '$';
+                        valueSpan.textContent = usdPrice;
+                    } else {
+                        symbol.textContent = '€';
+                        valueSpan.textContent = eurPrice.toFixed(2);
+                    }
+                });
+            });
         });
     </script>
 

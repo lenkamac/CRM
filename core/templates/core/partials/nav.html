@@ -7,7 +7,7 @@
         <button class="btn btn-light d-md-none me-2" type="button" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
-        <a class="navbar-brand mb-auto" href="{% url 'core:index' %}">Lenka's CRM System</a>
+        <a class="navbar-brand mb-auto" href="{% url 'index' %}">Lenka's CRM System</a>
         <!-- Toggler for responsive menu -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,7 +21,7 @@
                 {% else %}
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:index' %}">Home</a>
+                        <a class="nav-link" href="{% url 'index' %}">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
@@ -30,7 +30,7 @@
                         <a class="nav-link" href="{% url 'userprofile:register' %}">Sign up</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:contact' %}">Contact</a>
+                        <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                     </li>
                 {% endif %}
             </ul>

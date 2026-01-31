@@ -1,14 +1,9 @@
 from django.urls import path
 from . import views
 
-urlpatterns = [
-    path('', views.index, name='index'),
-    path('contact/', views.contact, name='contact'),
-]
-
 app_name = "core"
 
-urlpatterns += [
+urlpatterns = [
     path("teams/", views.TeamListView.as_view(), name="teams_manage"),
     path("teams/add/", views.TeamCreateView.as_view(), name="team_add"),
     path("teams/<int:pk>/edit/", views.TeamUpdateView.as_view(), name="team_edit"),
