@@ -5,6 +5,7 @@
 
     {% block css %}
     	<link rel="stylesheet" href="{% static 'calendarapp/css/calendar.css' %}">
+    	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     {% endblock %}
 
     {% include 'core/partials/offcanvas_menu.html' %}
@@ -76,12 +77,20 @@
                                     <input type="text" class="form-control" id="eventTitle" name="title" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="eventStart" class="form-label">Start</label>
-                                    <input type="datetime-local" class="form-control" id="eventStart" name="start" required>
+                                    <label for="eventStartDate" class="form-label">Start Date</label>
+                                    <input type="text" class="form-control" id="eventStartDate" name="start_date" placeholder="dd.mm.yyyy" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="eventEnd" class="form-label">End</label>
-                                    <input type="datetime-local" class="form-control" id="eventEnd" name="end">
+                                    <label for="eventStartTime" class="form-label">Start Time</label>
+                                    <input type="text" class="form-control" id="eventStartTime" name="start_time" placeholder="HH:MM" pattern="[0-9]{2}:[0-9]{2}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="eventEndDate" class="form-label">End Date</label>
+                                    <input type="text" class="form-control" id="eventEndDate" name="end_date" placeholder="dd.mm.yyyy">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="eventEndTime" class="form-label">End Time</label>
+                                    <input type="text" class="form-control" id="eventEndTime" name="end_time" placeholder="HH:MM" pattern="[0-9]{2}:[0-9]{2}">
                                 </div>
                                     <div class="mb-3">
                                     <label for="eventDesc" class="form-label">Description</label>
@@ -113,12 +122,20 @@
                                     <input type="text" id="editEventTitle" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="editEventStart" class="form-label">Start date, time</label>
-                                    <input type="datetime-local" id="editEventStart" class="form-control" required>
+                                    <label for="editEventStartDate" class="form-label">Start Date</label>
+                                    <input type="text" id="editEventStartDate" class="form-control" placeholder="dd.mm.yyyy" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="editEventEnd" class="form-label">End date, time</label>
-                                    <input type="datetime-local" id="editEventEnd" class="form-control">
+                                    <label for="editEventStartTime" class="form-label">Start Time</label>
+                                    <input type="text" id="editEventStartTime" class="form-control" placeholder="HH:MM" pattern="[0-9]{2}:[0-9]{2}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editEventEndDate" class="form-label">End Date</label>
+                                    <input type="text" id="editEventEndDate" class="form-control" placeholder="dd.mm.yyyy">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editEventEndTime" class="form-label">End Time</label>
+                                    <input type="text" id="editEventEndTime" class="form-control" placeholder="HH:MM" pattern="[0-9]{2}:[0-9]{2}">
                                 </div>
                                 <div class="mb-3">
                                     <label>Description</label>
@@ -155,6 +172,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
     <script>
         // Pass event URL from Django to JS file
         var calendarEventsUrl = "{% url 'calendarapp:events_json' %}";

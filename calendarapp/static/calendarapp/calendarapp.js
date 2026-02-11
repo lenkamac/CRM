@@ -1,26 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    // === Add flatpickr initialization at the start of this function ===
-    flatpickr("#eventStart", {
-        enableTime: true,
-        dateFormat: "Y-m-d\\TH:i",
-        time_24hr: true
-    });
-    flatpickr("#eventEnd", {
-        enableTime: true,
-        dateFormat: "Y-m-d\\TH:i",
-        time_24hr: true
-    });
-    flatpickr("#editEventStart", {
-        enableTime: true,
-        dateFormat: "Y-m-d\\TH:i",
-        time_24hr: true
-    });
-    flatpickr("#editEventEnd", {
-        enableTime: true,
-        dateFormat: "Y-m-d\\TH:i",
-        time_24hr: true
-    });
+    // Initialize flatpickr for date fields if flatpickr is available
+    if (typeof flatpickr !== 'undefined') {
+        // Set German locale globally or use explicit format
+        const flatpickrConfig = {
+            dateFormat: "d.m.Y",
+            altInput: false,
+            allowInput: true,
+            // Parse input in dd.mm.yyyy format
+            parseDate: (datestr, format) => {
+                const parts = datestr.split('.');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const year = parseInt(parts[2], 10);
+                    return new Date(year, month, day);
+                }
+                return new Date(datestr);
+            },
+            // Format output as dd.mm.yyyy
+            formatDate: (date, format) => {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            }
+        };
+
+        flatpickr("#eventStartDate", flatpickrConfig);
+        flatpickr("#eventEndDate", flatpickrConfig);
+        flatpickr("#editEventStartDate", flatpickrConfig);
+        flatpickr("#editEventEndDate", flatpickrConfig);
+    }
 
 
     var calendarEl = document.getElementById('calendar');
@@ -37,14 +48,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear previous form values
             document.getElementById('addEventForm').reset();
 
-            // Pre-fill the "Start" field with clicked date
-            // Convert date to "YYYY-MM-DDTHH:MM" format
-            // If using dayGrid, time is 00:00
-            const dateStr = info.dateStr.length > 10 ? info.dateStr : info.dateStr + 'T00:00';
-            document.getElementById('eventStart').value = dateStr;
-
-            // Optionally, also pre-fill "End" field (e.g., 1 hour after start)
-            document.getElementById('eventEnd').value = "";
+            // Pre-fill the "Start Date" field with clicked date in dd.mm.yyyy format
+            const clickedDate = new Date(info.dateStr);
+            const day = String(clickedDate.getDate()).padStart(2, '0');
+            const month = String(clickedDate.getMonth() + 1).padStart(2, '0');
+            const year = clickedDate.getFullYear();
+            document.getElementById('eventStartDate').value = `${day}.${month}.${year}`;
+            document.getElementById('eventStartTime').value = "09:00";
 
             // Show the add event modal
             var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
@@ -78,8 +88,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Prefill and show the edit modal
                 document.getElementById('editEventId').value = info.event.id;
                 document.getElementById('editEventTitle').value = info.event.title;
-                document.getElementById('editEventStart').value = toDatetimeLocal(info.event.start);
-                document.getElementById('editEventEnd').value = info.event.end ? toDatetimeLocal(info.event.end) : '';
+
+                // Split datetime into date and time parts
+                const startDateTime = splitDateTime(info.event.start);
+                document.getElementById('editEventStartDate').value = startDateTime.date;
+                document.getElementById('editEventStartTime').value = startDateTime.time;
+
+                if (info.event.end) {
+                    const endDateTime = splitDateTime(info.event.end);
+                    document.getElementById('editEventEndDate').value = endDateTime.date;
+                    document.getElementById('editEventEndTime').value = endDateTime.time;
+                } else {
+                    document.getElementById('editEventEndDate').value = '';
+                    document.getElementById('editEventEndTime').value = '';
+                }
+
                 document.getElementById('editEventDesc').value = info.event.extendedProps.description || "";
                 var editModal = new bootstrap.Modal(document.getElementById('editEventModal'));
                 editModal.show();
@@ -121,11 +144,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('addEventForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Combine date and time fields
+        const startDateTime = combineDateTimeToISO(
+            document.getElementById('eventStartDate').value,
+            document.getElementById('eventStartTime').value
+        );
+        const endDateTime = combineDateTimeToISO(
+            document.getElementById('eventEndDate').value,
+            document.getElementById('eventEndTime').value
+        );
+
         // Gather form data
         var formData = {
             title: document.getElementById('eventTitle').value,
-            start: localToUTC(document.getElementById('eventStart').value),
-            end: localToUTC(document.getElementById('eventEnd').value),
+            start: startDateTime,
+            end: endDateTime,
             description: document.getElementById('eventDesc').value,
         };
 
@@ -169,10 +202,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('editEventForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const eventId = document.getElementById('editEventId').value;
+
+        // Combine date and time fields
+        const startDateTime = combineDateTimeToISO(
+            document.getElementById('editEventStartDate').value,
+            document.getElementById('editEventStartTime').value
+        );
+        const endDateTime = combineDateTimeToISO(
+            document.getElementById('editEventEndDate').value,
+            document.getElementById('editEventEndTime').value
+        );
+
         const data = {
             title: document.getElementById('editEventTitle').value,
-            start: localToUTC(document.getElementById('editEventStart').value),
-            end: localToUTC(document.getElementById('editEventEnd').value),
+            start: startDateTime,
+            end: endDateTime,
             description: document.getElementById('editEventDesc').value,
         };
 
@@ -223,19 +267,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function toDatetimeLocal(date) {
-    if (!date) return '';
-    const d = (date instanceof Date) ? date : new Date(date);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().slice(0,16);
+// Helper function to combine date (dd.mm.yyyy) and time (HH:MM) into ISO string
+function combineDateTimeToISO(dateStr, timeStr) {
+    if (!dateStr || !timeStr) return null;
+
+    // Parse date from dd.mm.yyyy format
+    const dateParts = dateStr.split('.');
+    if (dateParts.length !== 3) return null;
+
+    const day = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+    const year = parseInt(dateParts[2], 10);
+
+    // Parse time from HH:MM format
+    const timeParts = timeStr.split(':');
+    if (timeParts.length !== 2) return null;
+
+    const hours = parseInt(timeParts[0], 10);
+    const minutes = parseInt(timeParts[1], 10);
+
+    // Create date object and convert to ISO
+    const dateTime = new Date(year, month, day, hours, minutes);
+    return dateTime.toISOString();
+}
+
+// Helper function to split ISO datetime into date (dd.mm.yyyy) and time (HH:MM)
+function splitDateTime(isoString) {
+    if (!isoString) return { date: '', time: '' };
+
+    const d = new Date(isoString);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    return {
+        date: `${day}.${month}.${year}`,
+        time: `${hours}:${minutes}`
+    };
 }
 
 
-// format for date and time
+// format for date and time display (dd.mm.yyyy HH:MM in 24-hour format)
 function formatDateDisplay(dateString) {
     const d = new Date(dateString);
     const pad = n => n < 10 ? '0' + n : n;
-    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ` +
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ` +
            `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
@@ -416,21 +494,21 @@ function openEditModal(eventId) {
                 document.getElementById('editEventId').value = event.id;
                 document.getElementById('editEventTitle').value = event.title;
 
-                // Format dates for the datetime-local / flatpickr inputs
-                const startVal = toDatetimeLocal(event.start);
-                const endVal = event.end ? toDatetimeLocal(event.end) : '';
+                // Split datetime into date and time parts
+                const startDateTime = splitDateTime(event.start);
+                document.getElementById('editEventStartDate').value = startDateTime.date;
+                document.getElementById('editEventStartTime').value = startDateTime.time;
 
-                document.getElementById('editEventStart').value = startVal;
-                document.getElementById('editEventEnd').value = endVal;
+                if (event.end) {
+                    const endDateTime = splitDateTime(event.end);
+                    document.getElementById('editEventEndDate').value = endDateTime.date;
+                    document.getElementById('editEventEndTime').value = endDateTime.time;
+                } else {
+                    document.getElementById('editEventEndDate').value = '';
+                    document.getElementById('editEventEndTime').value = '';
+                }
+
                 document.getElementById('editEventDesc').value = event.description || "";
-
-                // If you are using flatpickr, we need to update its internal state
-                if (document.getElementById('editEventStart')._flatpickr) {
-                    document.getElementById('editEventStart')._flatpickr.setDate(startVal);
-                }
-                if (document.getElementById('editEventEnd')._flatpickr) {
-                    document.getElementById('editEventEnd')._flatpickr.setDate(endVal);
-                }
 
                 // Show the modal
                 var editModalEl = document.getElementById('editEventModal');
