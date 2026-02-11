@@ -14,8 +14,8 @@ class Client(models.Model):
     )
 
     status = models.CharField(max_length=255, choices=CHOICES_STATUS, default='', blank=True, null=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
     company = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True, null=True)

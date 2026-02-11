@@ -35,8 +35,8 @@ class Lead(models.Model):
         (direct, 'Direct'),
     )
 
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
     company = models.CharField(max_length=255, blank=True, null=True)
     status_sale = models.CharField(max_length=255, choices=STATUS, default='', blank=True, null=True)
     email = models.EmailField()
