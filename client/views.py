@@ -13,7 +13,9 @@ from django.views.generic import ListView, DetailView, CreateView, DeleteView, U
 
 from client.forms import AddCommentForm, AddFileForm, PurchaseForm
 from client.models import Client, Comment, ClientFile, Purchase
+from product.models import Product
 from task.models import Task
+import json
 
 
 # Create your views here.
@@ -57,22 +59,22 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
         task_page_number = self.request.GET.get('task_page')
         tasks_page = task_paginator.get_page(task_page_number)
 
-        # Add purchases pagination with total calculation
+        # Add purchases pagination
         purchase_list = Purchase.objects.filter(client_id=self.kwargs.get('pk')).select_related('product').order_by(
             '-created_at')
-
-        # Add total to each purchase - use property instead of field
-        for purchase in purchase_list:
-            purchase.total = purchase.total_price  # Use the property
 
         purchase_paginator = Paginator(purchase_list, 10)
         purchase_page_number = self.request.GET.get('purchase_page')
         purchases_page = purchase_paginator.get_page(purchase_page_number)
 
+        # Get all products with prices for JavaScript
+        products = Product.objects.all().values('id', 'name', 'net_price')
+        products_dict = {str(p['id']): str(p['net_price']) for p in products}
 
         context['comments'] = comments_page
         context['tasks'] = tasks_page
         context['purchases'] = purchases_page
+        context['products_json'] = json.dumps(products_dict)
 
         return context
 
@@ -88,7 +90,8 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
                 purchase.created_by = request.user
                 try:
                     purchase.save()
-                    messages.success(request, f'Purchase added successfully! Total: ${purchase.total_price:.2f}')
+                    currency_symbol = purchase.get_currency_display()
+                    messages.success(request, f'Purchase added successfully! Total: {currency_symbol}{purchase.total:.2f}')
                 except Exception as e:
                     messages.error(request, f'Error: {str(e)}')
                 return redirect('client:detail', pk=self.object.pk)

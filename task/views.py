@@ -200,6 +200,7 @@ def delete_task_comment(request, comment_id):
 
 @login_required
 def task_add_client(request, client_id):
+    from datetime import datetime
     client = get_object_or_404(Client, pk=client_id)
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -215,6 +216,13 @@ def task_add_client(request, client_id):
         # If due_date is an empty string, set it to None
         if due_date == '':
             due_date = None
+
+        # Convert date format from dd.mm.yyyy to YYYY-MM-DD
+        if due_date:
+            try:
+                due_date = datetime.strptime(due_date, '%d.%m.%Y').strftime('%Y-%m-%d')
+            except ValueError:
+                pass  # If conversion fails, keep original format
 
         # Add other fields as needed
         if title:
@@ -242,6 +250,7 @@ def task_comments_partial(request, pk):
 
 @login_required
 def task_add_lead(request, lead_id):
+    from datetime import datetime
     lead = get_object_or_404(Lead, pk=lead_id)
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -257,6 +266,13 @@ def task_add_lead(request, lead_id):
         # If due_date is an empty string, set it to None
         if due_date == '':
             due_date = None
+
+        # Convert date format from dd.mm.yyyy to YYYY-MM-DD
+        if due_date:
+            try:
+                due_date = datetime.strptime(due_date, '%d.%m.%Y').strftime('%Y-%m-%d')
+            except ValueError:
+                pass  # If conversion fails, keep original format
 
         if title:
             Task.objects.create(

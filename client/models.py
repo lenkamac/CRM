@@ -60,9 +60,19 @@ class ClientFile(models.Model):
 
 
 class Purchase(models.Model):
+    EUR = 'EUR'
+    USD = 'USD'
+
+    CURRENCY_CHOICES = (
+        (EUR, '€'),
+        (USD, '$'),
+    )
+
     client = models.ForeignKey(Client, related_name='purchases', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='purchases', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Leave empty to use product's net price")
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default=EUR)
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='client_purchases', on_delete=models.CASCADE)
@@ -70,20 +80,22 @@ class Purchase(models.Model):
     def __str__(self):
         return f'{self.client} - {self.product.name} ({self.quantity})'
 
-    @property
-    def purchase_price(self):
-        """Calculate purchase price from product's net_price"""
-        return self.product.net_price
+    def get_purchase_price(self):
+        """Return purchase price or product's net price if not set"""
+        return self.purchase_price if self.purchase_price else self.product.net_price
 
     @property
-    def total_price(self):
+    def total(self):
         """Calculate total price"""
-        return self.quantity * self.product.net_price
+        return self.quantity * self.get_purchase_price()
 
     def save(self, *args, **kwargs):
-        # Only track sold items (no quantity field in Product anymore)
-        if not self.pk:  # Only on creation
-            # Just increment sold_quantity
+        # Set purchase_price to product's net_price if not provided
+        if self.purchase_price is None:
+            self.purchase_price = self.product.net_price
+
+        # Only track sold items on creation
+        if not self.pk:
             self.product.sold_quantity += self.quantity
             self.product.save()
 

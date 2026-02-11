@@ -16,8 +16,8 @@ class ClientAdmin(admin.ModelAdmin):
     is_converted.short_description = 'Converted from lead'
 
 class PurchaseAdmin(admin.ModelAdmin):
-    list_display = ('client', 'product', 'quantity', 'total_price', 'notes')
-    list_filter = ('client', 'product')
+    list_display = ('client', 'product', 'quantity', 'purchase_price', 'currency', 'total', 'notes')
+    list_filter = ('client', 'product', 'currency')
     search_fields = ('client__company', 'product__name')
 
 

@@ -422,11 +422,11 @@
                                             <div class="row justify-content-center">
                                                 <div class="col-lg-6 py-lg-1">
                                                     <label for="id_due_date" class="form-label">Due Date</label>
-                                                    <input type="date" class="form-control" id="id_due_date" name="due_date">
+                                                    <input type="text" class="form-control" id="id_due_date" name="due_date" placeholder="dd.mm.yyyy">
                                                 </div>
                                                 <div class="col-lg-6 py-lg-1">
                                                     <label for="id_due_time" class="form-label">Due Time</label>
-                                                    <input type="time" class="form-control" id="id_due_time" name="due_time">
+                                                    <input type="text" class="form-control" id="id_due_time" name="due_time" placeholder="HH:MM (24-hour format)" pattern="[0-9]{2}:[0-9]{2}">
                                                 </div>
                                             </div>
                                         </div>
@@ -457,10 +457,43 @@
                     </div>
                     <!-- Add Purchase Form -->
                     <div class="col-12 pt-2">
-                        <form method="post">
+                        <form method="post" id="purchase-form">
                             {% csrf_token %}
-                            {{ purchaseform.as_p }}
-                            <button type="submit" name="add_purchase" class="btn fw-bolder" style="background-color: #517e7e; color: white;">Add Purchase</button>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="{{ purchaseform.product.id_for_label }}" class="form-label">{{ purchaseform.product.label }}</label>
+                                    {{ purchaseform.product }}
+                                    <small class="text-muted d-block mt-1">Product Price: <span id="product-net-price">-</span></small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="{{ purchaseform.quantity.id_for_label }}" class="form-label">{{ purchaseform.quantity.label }}</label>
+                                    {{ purchaseform.quantity }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="{{ purchaseform.purchase_price.id_for_label }}" class="form-label">{{ purchaseform.purchase_price.label }}</label>
+                                    {{ purchaseform.purchase_price }}
+                                    <small class="text-muted d-block mt-1">{{ purchaseform.purchase_price.help_text }}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="{{ purchaseform.currency.id_for_label }}" class="form-label">{{ purchaseform.currency.label }}</label>
+                                    {{ purchaseform.currency }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Total Price</label>
+                                    <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <label for="{{ purchaseform.notes.id_for_label }}" class="form-label">{{ purchaseform.notes.label }}</label>
+                                    {{ purchaseform.notes }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <button type="submit" name="add_purchase" class="btn fw-bolder" style="background-color: #517e7e; color: white;">Add Purchase</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -474,6 +507,7 @@
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Price</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Currency</th>
                                         <th class="text-center">Date</th>
                                         <th class="text-start">Notes</th>
                                     </tr>
@@ -483,9 +517,10 @@
                                     <tr>
                                         <td class="text-start">{{ purchase.product.name }}</td>
                                         <td class="text-center">{{ purchase.quantity }}</td>
-                                        <td class="text-center">€{{ purchase.purchase_price }}</td>
-                                        <td class="text-center">€{{ purchase.total|floatformat:2 }}</td>
-                                        <td class="text-center">{{ purchase.created_at|date:"Y-m-d H:i" }}</td>
+                                        <td class="text-center">{{ purchase.get_purchase_price|floatformat:2 }}</td>
+                                        <td class="text-center">{{ purchase.total|floatformat:2 }}</td>
+                                        <td class="text-center">{{ purchase.get_currency_display }}</td>
+                                        <td class="text-center">{{ purchase.created_at|date:"M-d-Y H:i" }}</td>
                                         <td class="text-start">
                                             {% if purchase.notes %}
                                                 {{ purchase.notes|truncatewords:10 }}
@@ -496,7 +531,7 @@
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="5" class="text-center">No purchases yet</td>
+                                        <td colspan="7" class="text-center">No purchases yet</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -622,14 +657,79 @@
     <script>
     // Automatically hide alert messages after 3 seconds (3000 milliseconds)
     document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-      document.querySelectorAll('.alert').forEach(function(alert) {
-        // Fade out for a smooth effect (optional)
-        alert.style.transition = "opacity 0.5s linear";
-        alert.style.opacity = 0;
-        setTimeout(function() { alert.remove(); }, 500); // remove from DOM after fade out
-      });
-    }, 3000); // Show message for 3 seconds
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                // Fade out for a smooth effect (optional)
+                alert.style.transition = "opacity 0.5s linear";
+                alert.style.opacity = 0;
+                setTimeout(function() { alert.remove(); }, 500); // remove from DOM after fade out
+            });
+        }, 3000); // Show message for 3 seconds
+
+        // Purchase form calculation
+        const productsData = {{ products_json|safe }};
+        const productSelect = document.getElementById('id_product');
+        const quantityInput = document.getElementById('id_quantity');
+        const purchasePriceInput = document.getElementById('id_purchase_price');
+        const currencySelect = document.getElementById('id_currency');
+        const totalPriceDisplay = document.getElementById('total-price-display');
+        const productNetPriceDisplay = document.getElementById('product-net-price');
+
+        function updateProductPrice() {
+            const productId = productSelect.value;
+            if (productId && productsData[productId]) {
+                const netPrice = parseFloat(productsData[productId]);
+                productNetPriceDisplay.textContent = '€' + netPrice.toFixed(2);
+
+                // If purchase price is empty, use net price for calculation
+                if (!purchasePriceInput.value) {
+                    calculateTotal();
+                }
+            } else {
+                productNetPriceDisplay.textContent = '-';
+                totalPriceDisplay.value = '0.00';
+            }
+        }
+
+        function calculateTotal() {
+            const productId = productSelect.value;
+            const quantity = parseFloat(quantityInput.value) || 0;
+            let price = parseFloat(purchasePriceInput.value);
+
+            // If no custom price, use product's net price
+            if (!price && productId && productsData[productId]) {
+                price = parseFloat(productsData[productId]);
+            }
+
+            const total = quantity * (price || 0);
+            const currency = currencySelect.options[currencySelect.selectedIndex].text;
+
+            totalPriceDisplay.value = currency + total.toFixed(2);
+        }
+
+        // Event listeners
+        if (productSelect) {
+            productSelect.addEventListener('change', function() {
+                updateProductPrice();
+                calculateTotal();
+            });
+        }
+
+        if (quantityInput) {
+            quantityInput.addEventListener('input', calculateTotal);
+        }
+
+        if (purchasePriceInput) {
+            purchasePriceInput.addEventListener('input', calculateTotal);
+        }
+
+        if (currencySelect) {
+            currencySelect.addEventListener('change', calculateTotal);
+        }
+
+        // Initialize on page load
+        updateProductPrice();
+        calculateTotal();
     });
     </script>
 
