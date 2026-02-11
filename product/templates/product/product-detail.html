@@ -23,19 +23,23 @@
         <div class="row mb-4 justify-content-center">
             <div class="col-12">
                 <div class="card products-card shadow-sm">
-                    <div class="card-header text-white">
+                    <div class="card-header text-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">Product Information</h4>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-sm btn-light currency-toggle active" data-currency="EUR">€ EUR</button>
+                            <button type="button" class="btn btn-sm btn-light currency-toggle" data-currency="USD">$ USD</button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-6 text-start">
                                 <div class="col-sm-12 fw-bolder py-1">Product ID: <span>{{ product.id }}</span></div>
                                 <div class="col-sm-12 fw-bolder">Name: <span>{{ product.name }}</span></div>
-                                <div class="col-sm-12 fw-bolder py-1">Net Price: <span>${{ product.net_price }}</span></div>
+                                <div class="col-sm-12 fw-bolder py-1">Net Price: <span class="price-cell" data-eur="{{ product.net_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.net_price }}</span></span></div>
                             </div>
                             <div class="col-6 bg-white">
                                 <div class="col-sm-12 fw-bolder py-1">Total Sold Quantity: <span>{{ product.sold_quantity }}</span></div>
-                                <div class="col-sm-12 fw-bolder">Total Revenue: <span>€{{ product.get_total_price }}</span></div>
+                                <div class="col-sm-12 fw-bolder">Total Revenue: <span class="price-cell" data-eur="{{ product.get_total_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.get_total_price }}</span></span></div>
                             </div>
                         {% if product.description %}
                             <div class="col-12 border border-2">
@@ -79,8 +83,8 @@
                                                 </a>
                                             </td>
                                             <td>{{ purchase.quantity }}</td>
-                                            <td>${{ purchase.purchase_price }}</td>
-                                            <td>${{ purchase.total_price }}</td>
+                                            <td class="price-cell" data-eur="{{ purchase.purchase_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ purchase.purchase_price }}</span></td>
+                                            <td class="price-cell" data-eur="{{ purchase.total_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ purchase.total_price }}</span></td>
                                             <td class="text-start text-nowrap">{{ purchase.notes|default:"-" }}</td>
                                         </tr>
                                         {% endfor %}
@@ -120,4 +124,34 @@
 
 
     </div>
+
+    <script>
+        const exchangeRate = 1.10;
+
+        document.querySelectorAll('.currency-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const currency = this.dataset.currency;
+
+                // Update active state
+                document.querySelectorAll('.currency-toggle').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update all price cells
+                document.querySelectorAll('.price-cell').forEach(cell => {
+                    const symbol = cell.querySelector('.currency-symbol');
+                    const priceValue = cell.querySelector('.price-value');
+                    const eurPrice = parseFloat(cell.dataset.eur);
+
+                    if (currency === 'USD') {
+                        const usdPrice = (eurPrice * exchangeRate).toFixed(2);
+                        symbol.textContent = '$';
+                        priceValue.textContent = usdPrice;
+                    } else {
+                        symbol.textContent = '€';
+                        priceValue.textContent = eurPrice.toFixed(2);
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

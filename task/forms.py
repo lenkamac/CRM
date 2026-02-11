@@ -1,6 +1,18 @@
 from django import forms
+from django.forms.widgets import TimeInput
 
 from .models import Task, TaskComment
+
+
+class Time24HourInput(TimeInput):
+    input_type = 'text'
+    format = '%H:%M'
+
+    def __init__(self, attrs=None, format=None):
+        default_attrs = {'placeholder': 'HH:MM (24-hour format)', 'pattern': '[0-9]{2}:[0-9]{2}'}
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs, format=format or self.format)
 
 
 class TaskForm(forms.ModelForm):
@@ -8,8 +20,8 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = ['title', 'description', 'status', 'priority', 'lead', 'client', 'assigned_to','due_date', 'due_time']
         widgets = {
-            'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'due_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'due_date': forms.DateInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'dd.mm.yyyy'}),
+            'due_time': Time24HourInput(attrs={'class': 'form-control'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
@@ -55,13 +67,11 @@ class TaskEditForm(forms.ModelForm):
         fields = ['title', 'description', 'due_date', 'due_time', 'status', 'priority', 'assigned_to' ]
         widgets = {
             'due_date': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control'
+                'type': 'text',
+                'class': 'form-control',
+                'placeholder': 'dd.mm.yyyy'
             }),
-            'due_time': forms.TimeInput(attrs={
-                'type': 'time',
-                'class': 'form-control'
-            }),
+            'due_time': Time24HourInput(attrs={'class': 'form-control'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),

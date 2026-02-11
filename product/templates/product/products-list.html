@@ -57,8 +57,6 @@
                                                 <th class="text-start">Name</th>
                                                 <th class="text-center">Description</th>
                                                 <th class="text-center text-nowrap">Net Price</th>
-                                                <th class="text-center text-nowrap">Sold Quantity</th>
-                                                <th class="text-center text-nowrap">Total Price</th>
                                                 <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
@@ -68,8 +66,6 @@
                                                 <td class="text-start text-nowrap">{{ product.name }}</td>
                                                 <td>{{ product.description|truncatewords:10 }}</td>
                                                 <td class="price-cell" data-eur="{{ product.net_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.net_price }}</span></td>
-                                                <td>{{ product.sold_quantity }}</td>
-                                                <td class="price-cell" data-eur="{{ product.get_total_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.get_total_price }}</span></td>
                                                 <td class="text-center text-nowrap">
                                                     <a href="{% url 'product:product_detail' product.id %}" class="btn btn-view fw-bolder">
                                                         <i class="bi bi-eye"></i> View
