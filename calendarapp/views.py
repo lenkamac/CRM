@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, time
 
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -7,6 +8,7 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 
 from .models import Event
+from task.models import Task
 
 
 # html page for event and calendar
@@ -20,11 +22,32 @@ def events_json(request):
     events = []
     for event in Event.objects.all():
         events.append({
-            'id': event.id,
+            'id': f'event-{event.id}',
             'title': event.title,
             'start': event.start.isoformat(),
             'end': event.end.isoformat() if event.end else None,
             'description': event.description,
+            'type': 'event',
+        })
+
+    # Add tasks
+    for task in Task.objects.filter(due_date__isnull=False):
+        # Combine due_date and due_time
+        if task.due_time:
+            start_dt = datetime.combine(task.due_date, task.due_time)
+        else:
+            start_dt = datetime.combine(task.due_date, time(0, 0))
+
+        events.append({
+            'id': f'task-{task.id}',
+            'title': task.title,
+            'start': start_dt.isoformat(),
+            'description': f"Priority: {task.get_priority_display()}\nStatus: {task.get_status_display()}\nAssigned to: {task.assigned_to.get_full_name() if task.assigned_to else 'Unassigned'}",
+            'priority': task.priority,
+            'status': task.status,
+            'assigned_to': task.assigned_to.username if task.assigned_to else None,
+            'type': 'task',
+            'backgroundColor': 'red' if task.priority == 'high' else 'orange' if task.priority == 'medium' else 'green',
         })
     return JsonResponse(events, safe=False)
 
@@ -94,6 +117,40 @@ def upcoming_events_json(request):
         })
     return JsonResponse({
         'events': events,
+        'page': page_obj.number,
+        'num_pages': paginator.num_pages,
+        'has_next': page_obj.has_next(),
+        'has_prev': page_obj.has_previous(),
+    })
+
+
+# paginator for all tasks
+def all_tasks_json(request):
+    page_number = int(request.GET.get('page', 1))
+    page_size = 5
+    # Get all tasks ordered by due_date
+    all_tasks_qs = Task.objects.filter(due_date__isnull=False).order_by('due_date', 'due_time', 'id')
+    paginator = Paginator(all_tasks_qs, page_size)
+    page_obj = paginator.get_page(page_number)
+    tasks = []
+    for task in page_obj.object_list:
+        # Combine due_date and due_time
+        if task.due_time:
+            start_dt = datetime.combine(task.due_date, task.due_time)
+        else:
+            start_dt = datetime.combine(task.due_date, time(0, 0))
+
+        tasks.append({
+            'id': f'task-{task.id}',
+            'title': task.title,
+            'start': start_dt.isoformat(),
+            'priority': task.priority,
+            'status': task.status,
+            'assigned_to': task.assigned_to.username if task.assigned_to else None,
+            'type': 'task',
+        })
+    return JsonResponse({
+        'tasks': tasks,
         'page': page_obj.number,
         'num_pages': paginator.num_pages,
         'has_next': page_obj.has_next(),

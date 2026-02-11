@@ -62,6 +62,30 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         eventClick: function(info) {
+            // Check if this is a task
+            const isTask = info.event.extendedProps.type === 'task';
+
+            if (isTask) {
+                // For tasks, show task details directly
+                let taskDetails = `<strong>${info.event.title}</strong><br>`;
+                taskDetails += `<small>Due: ${formatDateDisplay(info.event.start)}</small><br>`;
+                if (info.event.extendedProps.priority) {
+                    taskDetails += `<small>Priority: ${info.event.extendedProps.priority}</small><br>`;
+                }
+                if (info.event.extendedProps.status) {
+                    taskDetails += `<small>Status: ${info.event.extendedProps.status}</small><br>`;
+                }
+                if (info.event.extendedProps.assigned_to) {
+                    taskDetails += `<small>Assigned to: ${info.event.extendedProps.assigned_to}</small><br>`;
+                }
+                if (info.event.extendedProps.description) {
+                    taskDetails += `<br><small class="text-muted">${info.event.extendedProps.description}</small>`;
+                }
+
+                alert(taskDetails.replace(/<br>/g, '\n').replace(/<\/?[^>]+(>|$)/g, ""));
+                return;
+            }
+
             // Store event id and title in the modal for easy access
             document.getElementById('eventActionEventId').value = info.event.id;
             document.getElementById('eventActionModalTitle').textContent = info.event.title;
@@ -86,7 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editEventBtn').onclick = function() {
                 actionModal.hide();
                 // Prefill and show the edit modal
-                document.getElementById('editEventId').value = info.event.id;
+                // Extract the actual event ID (remove 'event-' prefix)
+                const actualId = info.event.id.replace('event-', '');
+                document.getElementById('editEventId').value = actualId;
                 document.getElementById('editEventTitle').value = info.event.title;
 
                 // Split datetime into date and time parts
@@ -111,7 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('deleteEventBtn').onclick = function() {
                 actionModal.hide();
                 if (confirm('Are you sure you want to delete this event?')) {
-                    fetch(`delete_event/${info.event.id}/`, {
+                    // Extract the actual event ID (remove 'event-' prefix)
+                    const actualId = info.event.id.replace('event-', '');
+                    fetch(`delete_event/${actualId}/`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRFToken': getCookie('csrftoken'),
@@ -341,9 +369,79 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// paginated tasks
+function loadAllTasks(page=1) {
+    fetch(`all_tasks/?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            const ul = document.getElementById('upcoming-tasks-list');
+            ul.innerHTML = '';
+
+            data.tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+
+                // Priority badge color
+                let priorityColor = 'secondary';
+                if (task.priority === 'high') priorityColor = 'danger';
+                else if (task.priority === 'medium') priorityColor = 'warning';
+                else if (task.priority === 'low') priorityColor = 'success';
+
+                // Status badge color
+                let statusColor = 'secondary';
+                if (task.status === 'completed') statusColor = 'success';
+                else if (task.status === 'in_progress') statusColor = 'primary';
+                else if (task.status === 'canceled') statusColor = 'dark';
+
+                let display = `<strong>${task.title}</strong><br>
+                    <small>Due: ${formatDateDisplay(task.start)}</small><br>`;
+
+                if (task.priority) {
+                    display += `<span class="badge bg-${priorityColor} me-1">${task.priority}</span>`;
+                }
+                if (task.status) {
+                    display += `<span class="badge bg-${statusColor}">${task.status}</span>`;
+                }
+                if (task.assigned_to) {
+                    display += `<br><small class="text-muted">Assigned to: ${task.assigned_to}</small>`;
+                }
+
+                li.innerHTML = display;
+                ul.appendChild(li);
+            });
+
+            // Pagination controls
+            const paginationDiv = document.getElementById('tasks-pagination');
+            paginationDiv.innerHTML = '';
+            if (data.has_prev) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'btn btn-secondary btn-sm me-2';
+                prevBtn.textContent = 'Previous';
+                prevBtn.onclick = () => {
+                    loadAllTasks(data.page - 1);
+                };
+                paginationDiv.appendChild(prevBtn);
+            }
+            if (data.has_next) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'btn btn-secondary btn-sm';
+                nextBtn.textContent = 'Next';
+                nextBtn.onclick = () => {
+                    loadAllTasks(data.page + 1);
+                };
+                paginationDiv.appendChild(nextBtn);
+            }
+
+            if (data.tasks.length === 0) {
+                ul.innerHTML = '<li class="list-group-item">No tasks!</li>';
+            }
+        });
+}
+
 // upcomming events
 document.addEventListener('DOMContentLoaded', function () {
     loadUpcomingEvents();
+    loadAllTasks();
     fetch(calendarEventsUrl)
         .then(response => response.json())
         .then(function(events) {
