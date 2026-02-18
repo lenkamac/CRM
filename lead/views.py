@@ -208,7 +208,7 @@ def convert_lead_to_client(request, lead_id):
         return redirect("lead:detail", pk=lead.id)
 
     # Create a new Client based on the Lead
-    client = Client.objects.create(
+    Client.objects.create(
         company=lead.company,
         first_name=lead.first_name,
         last_name=lead.last_name,
@@ -224,31 +224,6 @@ def convert_lead_to_client(request, lead_id):
         created_by=request.user,
         converted_from_lead=lead,
     )
-
-    # Transfer all comments from lead to client
-    from client.models import Comment as ClientComment, ClientFile
-    for lead_comment in lead.comments.all():
-        ClientComment.objects.create(
-            client=client,
-            content=lead_comment.content,
-            created_by=lead_comment.created_by,
-            created_at=lead_comment.created_at,
-        )
-
-    # Transfer all files from lead to client
-    for lead_file in lead.files.all():
-        ClientFile.objects.create(
-            client=client,
-            file=lead_file.file,
-            created_by=lead_file.created_by,
-            created_at=lead_file.created_at,
-        )
-
-    # Transfer all tasks from lead to client
-    lead.tasks_lead.all().update(client=client, lead=None)
-
-    # Transfer all projects from lead to client
-    lead.projects.all().update(client=client, lead=None)
 
     lead.converted_to_client = True
     lead.save(update_fields=["converted_to_client"])
