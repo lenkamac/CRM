@@ -37,7 +37,13 @@ class Client(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.last_name} {self.first_name}'
+        if self.last_name or self.first_name:
+            name_parts = [self.last_name, self.first_name]
+            name = ' '.join(filter(None, name_parts))
+            if self.company:
+                return f'{name} - {self.company}'
+            return name
+        return self.company or 'Unnamed Client'
 
 class Comment(models.Model):
     client = models.ForeignKey(Client, related_name='comments', on_delete=models.CASCADE)

@@ -60,7 +60,13 @@ class Lead(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        if self.last_name or self.first_name:
+            name_parts = [self.last_name, self.first_name]
+            name = ' '.join(filter(None, name_parts))
+            if self.company:
+                return f'{name} - {self.company}'
+            return name
+        return self.company or 'Unnamed Lead'
 
 
 # Lead Files
