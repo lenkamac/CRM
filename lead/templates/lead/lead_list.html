@@ -22,7 +22,7 @@
          }
     </style>
 
-	<div class="container mx-auto pt-3" id="lead-container">
+	<div class="container-fluid mx-auto pt-3" id="lead-container">
 
         <div class="row pt-md-3 justify-content-center">
             <div class="col-sm-12">
@@ -73,16 +73,21 @@
                                         </div>
 
                                         <div class="col-sm-12 col-md-12 pt-md-2">
-                                            <div class="row py-2 justify-content-center justify-content-sm-center">
-                                                <a class="btn add-button mx-2 fw-bolder" href="{% url 'lead:add' %}">Add lead</a>
-                                                <a class="btn export-button mx-2" href="{% url 'lead:export' %}">Export to csv</a>
-                                                <!-- Button to delete selected clients -->
-                                                <button type="submit"
-                                                        form="bulk-delete-form"
-                                                        class="btn-delete-selected mx-2" id="delete-selected-btn"
-                                                        onclick="return confirm('Are you sure you want to delete selected leads?');">
-                                                    Delete Selected
-                                                </button>
+                                            <div class="row py-2 align-items-center">
+                                                <div class="col text-start">
+                                                    <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
+                                                </div>
+                                                <div class="col text-end">
+                                                    <!-- Button to delete selected clients -->
+                                                    <button type="submit"
+                                                            form="bulk-delete-form"
+                                                            class="btn-delete-selected mx-2" id="delete-selected-btn"
+                                                            onclick="return confirm('Are you sure you want to delete selected leads?');">
+                                                        Delete Selected
+                                                    </button>
+                                                    <a class="btn export-button mx-2" href="{% url 'lead:export' %}">Export to csv</a>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -100,7 +105,7 @@
                                         <table class="table">
                                             <thead class="th-custom">
                                                 <tr>
-                                                    <th class="text-start">
+                                                    <th class="text-center">
                                                         <!-- Select All checkbox -->
                                                         <label for="select-all"></label>
                                                         <input type="checkbox" id="select-all" />
@@ -119,7 +124,7 @@
                                                 <tbody>
                                                     {% for lead in object_list %}
                                                         <tr>
-                                                            <td class="text-start">
+                                                            <td class="text-center">
                                                                 <label>
                                                                     <input type="checkbox"
                                                                            name="lead_ids"
@@ -140,10 +145,10 @@
                                                                 {% endif %}
                                                             </td>
                                                             <td class="text-center d-flex justify-content-center align-items-center text-nowrap">
-                                                                <a href="{% url 'lead:detail' lead.pk %}"><i class="bi bi-info-circle px-1"></i></a>
-                                                                <a href="{% url 'lead:edit' lead.pk %}"><i class="bi bi-pencil-square px-1"></i></a>
-                                                                <button type="submit" class="bg-transparent border-0">
-                                                                    <i class="bi bi-trash3 px-1"></i>
+                                                                <a href="{% url 'lead:detail' lead.pk %}"><i class="bi bi-info-circle px-2"></i></a>
+                                                                <a href="{% url 'lead:edit' lead.pk %}"><i class="bi bi-pencil-square px-2"></i></a>
+                                                                <button type="submit" class="bg-transparent border-0"  onclick="return confirm('Are you sure you want to delete this lead? This action cannot be undone.');">
+                                                                    <i class="bi bi-trash3 px-2"></i>
                                                                 </button>
                                                             </td>
                                                         </tr>

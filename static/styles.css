@@ -6,7 +6,7 @@
 }
 
 html {
-    font-size: 16px; /* Base font size - 1rem = 16px */
+    font-size: 14px; /* Base font size - 1rem = 16px */
     -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape */
     -ms-text-size-adjust: 100%;
     scroll-behavior: smooth;
@@ -24,8 +24,8 @@ body {
     padding-bottom: 58px;
     min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
-    font-size: 1rem;
+    line-height: 1.4;
+    font-size: 0.9rem;
 }
 
 /* Navbar */
@@ -53,7 +53,7 @@ body {
 .nav-link {
     color: black;
     text-align: center;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     padding: 2px;
 }
@@ -78,7 +78,7 @@ body {
     color: #710c0c;
     text-align: center;
     text-decoration: none;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
     padding: 12px;
 }
@@ -186,7 +186,7 @@ table {
 }
 .th-custom tr th {
     background-color: rgb(217, 221, 221);
-    font-size: 1.2rem;
+    font-size: 1rem;
     border: 1px solid #3b4869;
     text-align: center;
 }
@@ -198,7 +198,7 @@ table {
 }
 .tbody tr td {
     border: 1px solid #3b4869;
-    font-size: 16px;
+    font-size: 1rem;
     text-align: center;
 }
 
@@ -264,34 +264,35 @@ table {
 
 /* custom button*/
 .add-button {
-    background-color: #ABABAF;
-    width: auto;
-    color: black;
-    font-size: 1.3rem;
-    height: 40px;
+    background-color: #517e7e;
+    width: 150px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 .add-button:hover {
     background-color: #697272;
     color: white;
 }
 .export-button {
-    background-color: #353E46;
-    color: white;
+    background-color: #c0c6c6;
+    color: black;
     width: auto;
-    font-size: 1.3rem;
-    height: 40px;
+    font-size: 1.1rem;
+    height: 30px;
 }
 .export-button:hover {
-    background-color: #697272;
+    background-color: #4d5a6f;
     color: white;
 }
 .btn-delete-selected {
-    width: auto;
-    background-color: #697272;
+    width: 160px;
+    background-color: #910404;
     color: #e9ecf6;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+    font-weight: bold;
     border: none;
-    height: 40px;
+    height: 30px;
     border-radius: 5px;
 }
 

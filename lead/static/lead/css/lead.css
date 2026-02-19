@@ -1,4 +1,8 @@
-
+/* lead container*/
+#lead-container {
+   padding-left: 245px;
+    padding-right: 155px;
+}
 /* lead delete form*/
 #lead_delete_form {
     display: inline;
@@ -71,7 +75,6 @@
         height: 100vh;
     }
 }
-
 @media (max-width: 991px) {
     #lead-container {
         font-size: 0.7rem;
