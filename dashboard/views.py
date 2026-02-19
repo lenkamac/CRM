@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.db.models import Count, Sum, F
 from django.db.models.functions import TruncDate
+from django.views.decorators.cache import never_cache
 from lead.models import Lead
 from client.models import Client, Purchase
 from product.models import Product
@@ -15,10 +16,11 @@ app_name = 'dashboard'
 
 # Create your views here.
 @login_required
+@never_cache
 def dashboard(request):
-    lead_count = Lead.objects.filter(created_by=request.user).count()
+    lead_count = Lead.objects.filter(created_by=request.user, converted_to_client=False).count()
     client_count = Client.objects.filter(created_by=request.user).count()
-    latest_leads = Lead.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    latest_leads = Lead.objects.filter(created_by=request.user, converted_to_client=False).order_by('-created_at')[:5]
     latest_clients = Client.objects.filter(created_by=request.user).order_by('-created_at')[:5]
 
     # Get time period filter from request
@@ -47,7 +49,7 @@ def dashboard(request):
         start_date = None
 
     # Generate leads over time data for the graph
-    leads_query = Lead.objects.filter(created_by=request.user)
+    leads_query = Lead.objects.filter(created_by=request.user, converted_to_client=False)
 
     # Apply date filter if not 'all'
     if start_date:
@@ -62,7 +64,7 @@ def dashboard(request):
     )
 
     # Generate WON leads over time
-    won_leads_query = Lead.objects.filter(created_by=request.user, status=Lead.WON)
+    won_leads_query = Lead.objects.filter(created_by=request.user, status=Lead.WON, converted_to_client=False)
     if start_date:
         won_leads_query = won_leads_query.filter(created_at__gte=start_date)
 
@@ -75,7 +77,7 @@ def dashboard(request):
     )
 
     # Generate LOST leads over time
-    lost_leads_query = Lead.objects.filter(created_by=request.user, status=Lead.LOST)
+    lost_leads_query = Lead.objects.filter(created_by=request.user, status=Lead.LOST, converted_to_client=False)
     if start_date:
         lost_leads_query = lost_leads_query.filter(created_at__gte=start_date)
 
@@ -88,7 +90,7 @@ def dashboard(request):
     )
 
     # Generate CONTACTED leads over time
-    contacted_leads_query = Lead.objects.filter(created_by=request.user, status=Lead.CONTACTED)
+    contacted_leads_query = Lead.objects.filter(created_by=request.user, status=Lead.CONTACTED, converted_to_client=False)
     if start_date:
         contacted_leads_query = contacted_leads_query.filter(created_at__gte=start_date)
 
@@ -154,9 +156,9 @@ def dashboard(request):
     client_counts_filled = [client_dict.get(date, 0) for date in all_dates]
 
     # Count leads by status
-    won_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.WON).count()
-    lost_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.LOST).count()
-    contacted_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.CONTACTED).count()
+    won_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.WON, converted_to_client=False).count()
+    lost_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.LOST, converted_to_client=False).count()
+    contacted_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.CONTACTED, converted_to_client=False).count()
 
     # ===== PURCHASE DATA FOR GRAPH =====
     # Calculate purchase date range
