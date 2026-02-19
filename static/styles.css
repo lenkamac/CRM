@@ -306,27 +306,29 @@ table {
 .btn-edit{
     font-weight: bold;
     color: #353E46;
-    font-size: 18px;
+    font-size: 1.2rem;
     border: none;
 }
 .btn-edit:hover {
     color: #697272;
-    font-weight: bold;
-    font-size: 22px;
     border: none;
 }
 .btn-delete {
     font-weight: bold;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: #bb0808;
 }
 .btn-delete:hover {
-    font-weight: bold;
-    font-size: 22px;
     color: #b02a37;
 }
 .btn-update {
     background-color: orange;
+}
+.save-btn {
+    background-color: #4f8a8b;
+    color: white;
+    font-size: 1rem;
+    width: 80px;
 }
 
 .btn-search {
@@ -361,7 +363,6 @@ table {
     width: 100px;
     font-weight: bold;
     font-size: 1.1rem;
-    height: 38px;
 }
 .comment-btn:hover {
     background-color: #353E46;

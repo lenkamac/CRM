@@ -124,11 +124,12 @@ def task_edit(request, pk):
     if not (request.user == task.created_by or request.user == task.assigned_to):
         raise PermissionDenied("You don't have permission to edit this task.")
 
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            next_url = request.POST.get('next') or request.GET.get('next')
             if next_url:
                 return redirect(next_url)
             else:
@@ -139,7 +140,8 @@ def task_edit(request, pk):
     return render(request, 'task/task_form.html', {
         'form': form,
         'title': 'Edit Task',
-        'task': task
+        'task': task,
+        'next':next_url
     })
 
 
