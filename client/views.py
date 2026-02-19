@@ -274,3 +274,4 @@ def delete_client_file(request, client_id, file_id):
         file_instance.delete()
         messages.success(request, "File deleted successfully.")
     return redirect('client:detail', pk=client_id)
+
