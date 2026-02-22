@@ -109,7 +109,7 @@ def upcoming_events_json(request):
     events = []
     for event in page_obj.object_list:
         events.append({
-            'id': event.id,
+            'id': f'event-{event.id}',
             'title': event.title,
             'start': event.start.isoformat(),
             'end': event.end.isoformat() if event.end else None,
@@ -126,10 +126,12 @@ def upcoming_events_json(request):
 
 # paginator for all tasks
 def all_tasks_json(request):
+    from datetime import date
     page_number = int(request.GET.get('page', 1))
     page_size = 5
-    # Get all tasks ordered by due_date
-    all_tasks_qs = Task.objects.filter(due_date__isnull=False).order_by('due_date', 'due_time', 'id')
+    # Get tasks from today onwards, ordered by due_date
+    today = date.today()
+    all_tasks_qs = Task.objects.filter(due_date__isnull=False, due_date__gte=today).order_by('due_date', 'due_time', 'id')
     paginator = Paginator(all_tasks_qs, page_size)
     page_obj = paginator.get_page(page_number)
     tasks = []

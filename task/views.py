@@ -70,6 +70,8 @@ def task_detail(request, pk):
 # Add this new view function
 @login_required
 def task_add(request):
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
@@ -77,6 +79,8 @@ def task_add(request):
             task.created_by = request.user
             task.save()
             messages.success(request, 'Task was created successfully.')
+            if next_url:
+                return redirect(next_url)
             return redirect('task:task_list')
     else:
         initial_data = {}
@@ -89,7 +93,8 @@ def task_add(request):
 
     return render(request, 'task/task_form.html', {
         'form': form,
-        'title': 'Add Task'
+        'title': 'Add Task',
+        'next': next_url
     })
 
 
