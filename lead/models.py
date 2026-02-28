@@ -27,11 +27,11 @@ class Lead(models.Model):
         (LOST, 'Lost'),
     )
 
-    resale = 'resale'
+    reseller = 'reseller'
     direct = 'direct'
 
     STATUS = (
-        (resale, 'Resale'),
+        (reseller, 'Reseller'),
         (direct, 'Direct'),
     )
 
@@ -42,8 +42,8 @@ class Lead(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True)
-    city = models.CharField(max_length=255, blank=True)
     zipcode = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=255, blank=True)
     country = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
     priority = models.CharField(max_length=255, choices=CHOICES_PRIORITY, default=MEDIUM)

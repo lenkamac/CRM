@@ -5,11 +5,11 @@ from product.models import Product
 
 # Create your models here.
 class Client(models.Model):
-    resale = 'resale'
+    reseller = 'reseller'
     direct = 'direct'
 
     CHOICES_STATUS = (
-        (resale, 'Resale'),
+        (reseller, 'Reseller'),
         (direct, 'Direct'),
     )
 
@@ -20,8 +20,8 @@ class Client(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True)
-    city = models.CharField(max_length=255, blank=True)
     zipcode = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=255, blank=True)
     country = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
     website = models.URLField(blank=True, null=True)
