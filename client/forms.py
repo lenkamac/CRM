@@ -58,6 +58,6 @@ class PurchaseForm(forms.ModelForm):
         # Show all products
         self.fields['product'].queryset = Product.objects.all()
         # Display product name with price
-        self.fields['product'].label_from_instance = lambda obj: f"{obj.name} - €{obj.net_price}"
+        self.fields['product'].label_from_instance = lambda obj: f"{obj.name}"
         # Make purchase_price optional
         self.fields['purchase_price'].required = False

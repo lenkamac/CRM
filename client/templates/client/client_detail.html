@@ -533,7 +533,7 @@
                                     <div class="col-md-4">
                                         <label for="{{ purchaseform.product.id_for_label }}" class="form-label">{{ purchaseform.product.label }}</label>
                                         {{ purchaseform.product }}
-                                        <small class="text-muted d-block mt-1">Product - Product Price: </small>
+                                        <small class="text-muted d-block mt-1">Product Price: <span id="product-net-price-eur" class="fw-bold">-</span> / <span id="product-net-price-usd" class="fw-bold">-</span></small>
                                     </div>
                                     <div class="col-md-2">
                                         <label for="{{ purchaseform.quantity.id_for_label }}" class="form-label">{{ purchaseform.quantity.label }}</label>
@@ -701,20 +701,28 @@
         const purchasePriceInput = document.getElementById('id_purchase_price');
         const currencySelect = document.getElementById('id_currency');
         const totalPriceDisplay = document.getElementById('total-price-display');
-        const productNetPriceDisplay = document.getElementById('product-net-price');
+        const productNetPriceEurDisplay = document.getElementById('product-net-price-eur');
+        const productNetPriceUsdDisplay = document.getElementById('product-net-price-usd');
+
+        // Conversion rate (you can adjust this or fetch from an API)
+        const EUR_TO_USD = 1.10;
 
         function updateProductPrice() {
             const productId = productSelect.value;
             if (productId && productsData[productId]) {
-                const netPrice = parseFloat(productsData[productId]);
-                productNetPriceDisplay.textContent = '€' + netPrice.toFixed(2);
+                const netPriceEur = parseFloat(productsData[productId]);
+                const netPriceUsd = netPriceEur * EUR_TO_USD;
+
+                productNetPriceEurDisplay.textContent = '€' + netPriceEur.toFixed(2);
+                productNetPriceUsdDisplay.textContent = '$' + netPriceUsd.toFixed(2);
 
                 // If purchase price is empty, use net price for calculation
                 if (!purchasePriceInput.value) {
                     calculateTotal();
                 }
             } else {
-                productNetPriceDisplay.textContent = '-';
+                productNetPriceEurDisplay.textContent = '-';
+                productNetPriceUsdDisplay.textContent = '-';
                 totalPriceDisplay.value = '0.00';
             }
         }
@@ -724,15 +732,22 @@
             const quantity = parseFloat(quantityInput.value) || 0;
             let price = parseFloat(purchasePriceInput.value);
 
-            // If no custom price, use product's net price
+            // If no custom price, use product's net price (in EUR)
             if (!price && productId && productsData[productId]) {
                 price = parseFloat(productsData[productId]);
             }
 
-            const total = quantity * (price || 0);
-            const currency = currencySelect.options[currencySelect.selectedIndex].text;
+            const selectedCurrency = currencySelect.value;
+            const currencySymbol = currencySelect.options[currencySelect.selectedIndex].text;
 
-            totalPriceDisplay.value = currency + total.toFixed(2);
+            // Convert to USD if USD is selected
+            if (selectedCurrency === 'USD' && price) {
+                price = price * EUR_TO_USD;
+            }
+
+            const total = quantity * (price || 0);
+
+            totalPriceDisplay.value = currencySymbol + total.toFixed(2);
         }
 
         // Event listeners
