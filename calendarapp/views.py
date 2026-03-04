@@ -38,6 +38,20 @@ def events_json(request):
         else:
             start_dt = datetime.combine(task.due_date, time(0, 0))
 
+        # Get client or lead information
+        client_or_lead_name = None
+        client_or_lead_type = None
+        client_or_lead_id = None
+
+        if task.client:
+            client_or_lead_name = str(task.client)
+            client_or_lead_type = 'client'
+            client_or_lead_id = task.client.id
+        elif task.lead:
+            client_or_lead_name = str(task.lead)
+            client_or_lead_type = 'lead'
+            client_or_lead_id = task.lead.id
+
         events.append({
             'id': f'task-{task.id}',
             'title': task.title,
@@ -46,6 +60,9 @@ def events_json(request):
             'priority': task.priority,
             'status': task.status,
             'assigned_to': task.assigned_to.username if task.assigned_to else None,
+            'client_or_lead': client_or_lead_name,
+            'client_or_lead_type': client_or_lead_type,
+            'client_or_lead_id': client_or_lead_id,
             'type': 'task',
             'backgroundColor': 'red' if task.priority == 'high' else 'orange' if task.priority == 'medium' else 'green',
         })
@@ -142,6 +159,20 @@ def all_tasks_json(request):
         else:
             start_dt = datetime.combine(task.due_date, time(0, 0))
 
+        # Get client or lead information
+        client_or_lead_name = None
+        client_or_lead_type = None
+        client_or_lead_id = None
+
+        if task.client:
+            client_or_lead_name = str(task.client)
+            client_or_lead_type = 'client'
+            client_or_lead_id = task.client.id
+        elif task.lead:
+            client_or_lead_name = str(task.lead)
+            client_or_lead_type = 'lead'
+            client_or_lead_id = task.lead.id
+
         tasks.append({
             'id': f'task-{task.id}',
             'title': task.title,
@@ -149,6 +180,9 @@ def all_tasks_json(request):
             'priority': task.priority,
             'status': task.status,
             'assigned_to': task.assigned_to.username if task.assigned_to else None,
+            'client_or_lead': client_or_lead_name,
+            'client_or_lead_type': client_or_lead_type,
+            'client_or_lead_id': client_or_lead_id,
             'type': 'task',
         })
     return JsonResponse({

@@ -400,9 +400,18 @@ function loadAllTasks(page=1) {
 
                 let display = `
                     <div class="d-flex justify-content-between align-items-start w-100">
-                        <div class="flex-grow-1">
-                            <strong>${task.title}</strong><br>
-                            <small>Due: ${formatDateDisplay(task.start)}</small><br>`;
+                        <div class="flex-grow-1">`;
+
+                if (task.client_or_lead && task.client_or_lead_type && task.client_or_lead_id) {
+                    const relatedText = task.client_or_lead_type === 'client' ? 'Related to Client' : 'Related to Lead';
+                    const detailUrl = task.client_or_lead_type === 'client'
+                        ? `/dashboard/clients/${task.client_or_lead_id}/`
+                        : `/dashboard/leads/${task.client_or_lead_id}/`;
+                    display += `<div class="text-muted" style="font-size: 0.95rem;">${relatedText}: <a href="${detailUrl}" class="text-decoration-none fw-semibold">${task.client_or_lead}</a></div>`;
+                }
+
+                display += `<strong>${task.title}</strong><br>
+                            Due: ${formatDateDisplay(task.start)}<br>`;
 
                 if (task.priority) {
                     display += `<span class="badge bg-${priorityColor} me-1">${task.priority}</span>`;
@@ -418,13 +427,13 @@ function loadAllTasks(page=1) {
                         </div>
                         <div class="task-actions d-flex gap-1 ms-2">
                             <button class="btn btn-sm btn-outline-info p-1" onclick="showTaskDetail('${taskId}')" title="View">
-                                <i class="bi bi-info-circle"></i>
+                                <i class="bi bi-info-circle" style="font-size: 0.8rem;"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-primary p-1" onclick="editTask('${taskId}')" title="Edit">
-                                <i class="bi bi-pencil-square"></i>
+                                <i class="bi bi-pencil-square"  style="font-size: 0.8rem;"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-danger p-1" onclick="deleteTask('${taskId}')" title="Delete">
-                                <i class="bi bi-trash3"></i>
+                                <i class="bi bi-trash3" style="font-size: 0.8rem;"></i>
                             </button>
                         </div>
                     </div>
