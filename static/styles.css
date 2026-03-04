@@ -268,7 +268,7 @@ table {
     width: 150px;
     color: white;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 .add-button:hover {
     background-color: #697272;
@@ -278,7 +278,7 @@ table {
     background-color: #c0c6c6;
     color: black;
     width: auto;
-    font-size: 1.1rem;
+    font-size: 1rem;
     height: 30px;
 }
 .export-button:hover {
@@ -289,7 +289,7 @@ table {
     width: 160px;
     background-color: #910404;
     color: #e9ecf6;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: bold;
     border: none;
     height: 30px;
@@ -315,7 +315,7 @@ table {
 }
 .btn-delete {
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #bb0808;
 }
 .btn-delete:hover {

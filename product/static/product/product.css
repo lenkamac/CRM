@@ -1,7 +1,7 @@
 /* Product list*/
 #product-list {
-    margin-left: 235px;
-    font-size: 1.1rem;
+    padding-left: 245px;
+    padding-right: 155px;
 }
 
 .products-card {
@@ -35,7 +35,8 @@
 
 /* Product detail page */
 #product-detail {
-    margin-left: 265px;
+    padding-left: 245px;
+    padding-right: 155px;
 }
 
 .btn-edit-product {

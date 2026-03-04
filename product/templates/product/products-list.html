@@ -14,14 +14,14 @@
 
 	{% include 'core/partials/offcanvas_menu.html' %}
 
-        <div class="container mx-auto pt-3" id="product-list">
+        <div class="container-fluid mx-auto pt-3" id="product-list">
             <div class="row justify-content-center">
                 <div class="col-12 py-3 text-center">
-                    <h1 class="mt-sm-0 pt-sm-3 fw-bolder">Products</h1>
+                    <h2 class="mt-sm-0 pt-sm-3 fw-bolder">Products</h2>
                 </div>
                 <div class="col-12 pb-3 text-center">
                     <a href="{% url 'product:add_product' %}" class="btn justify-content-center align-items-center" id="btn-add-product">
-                        <i class="bi bi-plus-circle"></i> Add Product
+                        <i class="bi bi-plus-circle px-2"></i> Add Product
                     </a>
                 </div>
                 <div class="col-12">

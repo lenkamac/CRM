@@ -111,7 +111,7 @@ class AddFileView(LoginRequiredMixin, View):
 class LeadCreateView(LoginRequiredMixin, CreateView):
     model = Lead
     success_url = reverse_lazy('lead:list')
-    fields = ('company', 'first_name', 'last_name','phone', 'address', 'city', 'country', 'zipcode', 'email', 'description',
+    fields = ('company', 'first_name', 'last_name','phone', 'address', 'zipcode', 'city', 'country', 'email', 'description',
                   'website', 'priority', 'status', 'status_sale')
 
     def get_context_data(self, **kwargs):
@@ -148,7 +148,7 @@ class LeadUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Edit Lead'
         return context
 
-    fields = ('company', 'first_name', 'last_name', 'phone','email', 'address', 'city', 'zipcode', 'description', 'website',
+    fields = ('company', 'first_name', 'last_name', 'phone','email', 'address', 'zipcode', 'city', 'description', 'website',
               'priority', 'status', 'status_sale')
     success_url = reverse_lazy('lead:list')
 
