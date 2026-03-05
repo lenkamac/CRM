@@ -104,7 +104,7 @@ body {
     top: 50px; /* Set the top offset */
     left: 0;
     bottom: 60px;
-    width: 250px; /* Set your desired width */
+    width: 200px; /* Set your desired width */
     z-index: 1045; /* Set appropriate z-index */
     background-color: #C7C8CB; /* Optional: Customize the background color */
     border-right: 1px solid #b9b9bb; /* Optional: Add a border */
@@ -114,7 +114,7 @@ body {
     text-decoration: none;
     color: black;
     font-weight: bold;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     text-align: center;
     padding: 20px;
     margin: 7px;
@@ -125,7 +125,7 @@ body {
 }
 .offcanvas-custom ul li a {
     color:black;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     text-decoration: none;
     display: block;
     padding: 10px 15px;
@@ -402,16 +402,20 @@ table {
 }
 
 /* Priority colors */
+.priority-urgent {
+    color: #ff0000;
+    font-weight: bold;
+}
 .priority-high {
-   color: red; /* Rot */
+   color: #eb9334; /* Rot */
    font-weight: bold;
 }
 .priority-medium {
-   color: orange;
+   color: #688eb4;
    font-weight: bold;
 }
 .priority-low {
-   color: blue;
+   color: #b2abab;
    font-weight: bold;
 }
 

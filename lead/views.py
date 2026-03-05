@@ -157,6 +157,28 @@ class LeadUpdateView(LoginRequiredMixin, UpdateView):
         return queryset.filter(created_by=self.request.user, pk=self.kwargs.get('pk'))
 
 
+# Edit Comment View
+class EditCommentView(LoginRequiredMixin, View):
+    def post(self, request, lead_id, comment_id):
+        lead = get_object_or_404(Lead, id=lead_id)
+        comment = get_object_or_404(Comment, id=comment_id, lead=lead)
+
+        # Restrict to the owner or an admin
+        if request.user != comment.created_by and not request.user.is_staff:
+            return HttpResponseForbidden("You are not authorized to edit this comment.")
+
+        # Update the comment
+        content = request.POST.get("content")
+        if content:
+            comment.content = content
+            comment.save()
+            messages.success(request, "Comment updated successfully.")
+        else:
+            messages.error(request, "Content cannot be empty.")
+
+        return redirect('lead:detail', pk=lead_id)
+
+
 # Export leads in csv
 @login_required
 def leads_export(request):
@@ -199,6 +221,7 @@ def leads_bulk_delete(request):
 
 
 # Convert lead to client
+@login_required
 def convert_lead_to_client(request, lead_id):
     # Retrieve the Lead instance by ID
     lead = get_object_or_404(Lead, id=lead_id, created_by=request.user)
@@ -289,28 +312,6 @@ def delete_comment(request, lead_id, comment_id):
         messages.error(request, "You do not have permission to delete this comment.")
 
     return redirect('lead:detail', pk=lead.id)
-
-
-# Edit Comment View
-class EditCommentView(LoginRequiredMixin, View):
-    def post(self, request, lead_id, comment_id):
-        lead = get_object_or_404(Lead, id=lead_id)
-        comment = get_object_or_404(Comment, id=comment_id, lead=lead)
-
-        # Restrict to the owner or an admin
-        if request.user != comment.created_by and not request.user.is_staff:
-            return HttpResponseForbidden("You are not authorized to edit this comment.")
-
-        # Update the comment
-        content = request.POST.get("content")
-        if content:
-            comment.content = content
-            comment.save()
-            messages.success(request, "Comment updated successfully.")
-        else:
-            messages.error(request, "Content cannot be empty.")
-
-        return redirect('lead:detail', pk=lead_id)
 
 
 # Delete lead file

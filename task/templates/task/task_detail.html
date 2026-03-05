@@ -97,11 +97,13 @@
 
                                             <h6 class="mt-3 fw-bolder">Priority</h6>
                                                 {% if task.priority == 'high' %}
-                                                    <span class="badge bg-danger">High</span>
+                                                    <span class="badge bg-warning">High</span>
                                                 {% elif task.priority == 'medium' %}
-                                                    <span class="badge bg-warning">Medium</span>
+                                                    <span class="badge bg-info">Medium</span>
                                                 {% elif task.priority == 'low' %}
-                                                    <span class="badge bg-info">Low</span>
+                                                    <span class="badge bg-secondary">Low</span>
+                                                {% elif task.priority == 'urgent' %}
+                                                    <span class="badge bg-danger">Urgent</span>
                                                 {% elif task.priority == '' %}
                                                     <span>n/a</span>
                                                 {% endif %}

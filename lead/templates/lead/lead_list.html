@@ -78,14 +78,28 @@
                                                     <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <!-- Button to delete selected clients -->
-                                                    <button type="submit"
-                                                            form="bulk-delete-form"
-                                                            class="btn-delete-selected mx-2" id="delete-selected-btn"
-                                                            onclick="return confirm('Are you sure you want to delete selected leads?');">
-                                                        Delete Selected
-                                                    </button>
-                                                    <a class="btn export-button mx-2" href="{% url 'lead:export' %}">Export to csv</a>
+                                                    <!-- Dropdown for actions -->
+                                                    <div class="dropdown d-inline-block">
+                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
+                                                            <li>
+                                                                <button type="submit"
+                                                                        form="bulk-delete-form"
+                                                                        class="dropdown-item text-danger"
+                                                                        onclick="return confirm('Are you sure you want to delete selected leads?');">
+                                                                    <i class="bi bi-trash3 me-2"></i>Delete Selected
+                                                                </button>
+                                                            </li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{% url 'lead:export' %}">
+                                                                    <i class="bi bi-download me-2"></i>Export to CSV
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
 
                                             </div>
@@ -114,6 +128,7 @@
                                                     <th class="text-start">Company</th>
                                                     <th class="text-start">Name</th>
                                                     <th class="text-start">Email</th>
+                                                    <th class="text-center">Priority</th>
                                                     <th class="text-center">Status</th>
                                                     <th class="text-center text-nowrap">Status sales</th>
                                                     <th>Action</th>
@@ -136,7 +151,16 @@
                                                             <td class="text-start text-nowrap">{{ lead.company }}</td>
                                                             <td class="text-start text-nowrap">{{ lead.last_name }} {{ lead.first_name }}</td>
                                                             <td class="text-start text-nowrap">{{ lead.email }}</td>
-                                                            <td class="text-center text-nowrap">{{ lead.get_status_display }}</td>
+                                                            <td class="text-center text-nowrap"><span class="{% if lead.priority == 'low' %}text-dark-bg-subtle fw-bolder
+                                                                    {% elif lead.priority == 'medium' %}text-info fw-bolder{% elif lead.priority == 'high' %}text-warning fw-bolder
+                                                                    {% elif lead.priority == 'urgent' %}text-danger fw-bolder{% endif %}">
+                                                                {{ lead.priority }}
+                                                            </span></td>
+                                                            <td class="text-center text-nowrap">
+                                                                <span class="{% if lead.status == 'won' %}text-success{% elif lead.status == 'lost' %}text-warning{% endif %}">
+                                                                    {{ lead.get_status_display }}
+                                                                </span>
+                                                            </td>
                                                             <td class="text-center text-nowrap">
                                                                 {% if lead.status_sale %}
                                                                     {{ lead.status_sale }}

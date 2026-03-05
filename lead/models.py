@@ -8,20 +8,22 @@ class Lead(models.Model):
     LOW = 'low'
     MEDIUM = 'medium'
     HIGH = 'high'
+    URGENT = 'urgent'
 
     CHOICES_PRIORITY = (
         (LOW, 'Low'),
         (MEDIUM, 'Medium'),
         (HIGH, 'High'),
+        (URGENT, 'Urgent'),
     )
 
-    Open = 'open'
+    OPEN = 'open'
     CONTACTED = 'contacted'
     WON = 'won'
     LOST = 'lost'
 
     CHOICES_STATUS = (
-        (Open, 'Open'),
+        (OPEN, 'Open'),
         (CONTACTED, 'Contacted'),
         (WON, 'Won'),
         (LOST, 'Lost'),
