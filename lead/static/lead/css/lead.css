@@ -75,12 +75,15 @@
         height: 100vh;
     }
 }
-@media (max-width: 991px) {
+@media (max-width: 1070px) {
     #lead-container {
         font-size: 0.7rem;
-        margin: 25px auto;
         width: 100%;
-        padding: 25px;
+        padding-left: 170px;
+        padding-right: 25px;
         height: 100vh;
+    }
+    .pagination {
+        font-size: 0.7rem;
     }
 }

@@ -224,6 +224,10 @@ table {
 .icon-bold {
   -webkit-text-stroke: 0.8px currentColor;
 }
+.bi-list {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
 
 /* status */
 .status-open {
@@ -798,10 +802,9 @@ main {
         font-size: 0.8rem;
     }
 }
-@media (max-width: 991.98px) {
+@media (max-width: 1070px) {
     .container {
-        max-width: 900px;
-        padding-left: 180px;
+        max-width: 1040px;
     }
     .footer {
         height: 38px;
@@ -810,14 +813,14 @@ main {
         bottom: 0;
     }
     .offcanvas-custom {
-        width: 160px;
+        width: 150px;
         bottom: 38px;
     }
     .offcanvas-a {
-        font-size: 1.1rem;
+        font-size: 0.9rem;
     }
     .offcanvas-custom ul li a {
-        font-size: 1.1rem;
+        font-size: 0.9rem;
     }
 
     h3 {
@@ -910,359 +913,5 @@ main {
 
     .form-label {
         font-size: 0.8rem;
-    }
-}
-@media (max-width: 1199.98px) {
-    .container {
-        max-width: 1150px;
-        padding-left: 210px;
-    }
-    .offcanvas-custom {
-        width: 180px;
-        bottom: 45px;
-    }
-    .offcanvas-a {
-        font-size: 1.1rem;
-    }
-    .offcanvas-custom ul li a {
-        font-size: 1.1rem;
-    }
-    .footer {
-        height: 45px;
-        padding: 8px;
-        font-size: 0.9rem;
-        bottom: 0;
-    }
-    h3 {
-        font-size: 1.2rem;
-    }
-
-    .bi-trash3 {
-        font-size: 0.7rem;
-    }
-    .bi-info-circle {
-        font-size: 0.7rem;
-    }
-    .bi-pencil-square {
-        font-size: 0.7rem;
-    }
-    .bi-download {
-        font-size: 0.7rem;
-    }
-
-    .add-button {
-        font-size: 1rem;
-        height: 30px;
-        width: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .export-button {
-        font-size: 1rem;
-        height: 30px;
-        width: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .btn-edit {
-        font-size: 1rem;
-        height: 30px;
-    }
-    .btn-delete {
-        font-size: 1rem;
-    }
-    .btn-delete-selected {
-        font-size: 1rem;
-        height: 30px;
-    }
-    .back-to-dashboard {
-        font-size: 1.1rem;
-    }
-    .btn-update {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .btn-secondary {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .btn-primary {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .comment-btn {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-
-    .th-custom tr th {
-        font-size: 1rem;
-    }
-    table thead th {
-        font-size: 1rem;
-    }
-    table tbody td {
-        font-size: 1rem;
-    }
-    table tbody td a {
-        font-size: 1rem;
-    }
-
-    .files-p {
-        font-size: 1rem;
-    }
-    .download-a {
-        font-size: 0.9rem;
-    }
-
-    .form-label {
-        font-size: 1rem;
-    }
-}
-@media (max-width: 1399.98px) {
-    .container {
-        max-width: 1350px;
-        padding-left: 230px;
-    }
-    .offcanvas-custom {
-        width: 200px;
-        bottom: 45px;
-    }
-    .offcanvas-a {
-        font-size: 1.2rem;
-    }
-    .offcanvas-custom ul li a {
-        font-size: 1.2rem;
-    }
-    .footer {
-        height: 45px;
-        padding: 8px;
-        font-size: 0.9rem;
-        bottom: 0;
-    }
-    h3 {
-        font-size: 1.3rem;
-    }
-
-    .bi-trash3 {
-        font-size: 0.7rem;
-    }
-    .bi-info-circle {
-        font-size: 0.7rem;
-    }
-    .bi-pencil-square {
-        font-size: 0.7rem;
-    }
-    .bi-download {
-        font-size: 0.7rem;
-    }
-
-    .add-button {
-        font-size: 1rem;
-        height: 30px;
-        width: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .export-button {
-        font-size: 1rem;
-        height: 30px;
-        width: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .btn-edit {
-        font-size: 1rem;
-        height: 30px;
-    }
-    .btn-delete {
-        font-size: 1rem;
-    }
-    .btn-delete-selected {
-        font-size: 1rem;
-        height: 30px;
-    }
-    .back-to-dashboard {
-        font-size: 1.1rem;
-    }
-    .btn-update {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .btn-secondary {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .btn-primary {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .comment-btn {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-
-    .th-custom tr th {
-        font-size: 1.1rem;
-    }
-    table thead th {
-        font-size: 1.1rem;
-    }
-    table tbody td {
-        font-size: 1.1rem;
-    }
-    table tbody td a {
-        font-size: 1.1rem;
-    }
-
-    .files-p {
-        font-size: 1rem;
-    }
-    .download-a {
-        font-size: 0.9rem;
-    }
-
-    .form-label {
-        font-size: 1.1rem;
-    }
-}
-@media (max-width: 1599.98px) {
-    .container {
-        max-width: 1550px;
-        padding-left: 250px;
-    }
-    .offcanvas-custom {
-        width: 220px;
-        bottom: 45px;
-    }
-}
-@media (max-width: 1799.98px) {
-    .container {
-        max-width: 1750px;
-        padding-left: 270px;
-    }
-    .offcanvas-custom {
-        width: 240px;
-    }
-    .offcanvas-a {
-        font-size: 1.3rem;
-    }
-}
-@media (min-width: 2150px) {
-    .container {
-        min-width: 1990px;
-        padding-left: 280px;
-    }
-    .offcanvas-custom {
-        width: 280px;
-    }
-    .offcanvas-a {
-        font-size: 1.6rem;
-    }
-    .offcanvas-custom ul li a {
-        font-size: 1.6rem;
-    }
-    h3, h4 {
-        font-size: 1.5rem;
-    }
-
-    .bi-trash3 {
-        font-size: 0.7rem;
-    }
-    .bi-info-circle {
-        font-size: 0.7rem;
-    }
-    .bi-pencil-square {
-        font-size: 0.7rem;
-    }
-    .bi-download {
-        font-size: 0.7rem;
-    }
-
-    .add-button {
-        font-size: 1rem;
-        height: 30px;
-        width: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .export-button {
-        font-size: 1rem;
-        height: 30px;
-        width: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .btn-edit {
-        font-size: 1rem;
-        height: 30px;
-    }
-    .btn-delete {
-        font-size: 1rem;
-    }
-    .btn-delete-selected {
-        font-size: 1rem;
-        height: 30px;
-    }
-    .back-to-dashboard {
-        font-size: 1.1rem;
-    }
-    .btn-update {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .btn-secondary {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .btn-primary {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-    .comment-btn {
-        font-size: 0.9rem;
-        height: 30px;
-    }
-
-    .th-custom tr th {
-        font-size: 1.3rem;
-    }
-    table thead th {
-        font-size: 1.3rem;
-    }
-    table tbody td {
-        font-size: 1.3rem;
-    }
-    table tbody td a {
-        font-size: 1.3rem;
-    }
-
-    .files-p {
-        font-size: 1rem;
-    }
-    .download-a {
-        font-size: 0.9rem;
-    }
-
-    .form-label {
-        font-size: 1.3rem;
     }
 }

@@ -49,15 +49,15 @@
              <div class="col-12 col-lg-4">
                  <div class="card card-detail">
                      <div class="card-detail-header position-relative">
-                         <h4 class="card-title text-center">
+                         <h4 class="card-title text-center py-1">
                              <i class="fa-solid fa-id-card"></i>
                              {{ lead.last_name }} {{ lead.first_name }}
                          </h4>
-                         <div class="position-absolute top-50 end-0 translate-middle-y pe-2">
+                         <div class="position-absolute top-50 end-0 translate-middle-y pe-2 py-2">
                              <div class="dropdown">
                                 <button class="btn btn-link text-white p-0" type="button" id="leadActionsMenu"
                                         data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v" style="font-size: 1.2rem;"></i>
+                                    <i class="bi bi-list"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="leadActionsMenu">
                                     <li>
@@ -236,11 +236,11 @@
                                 <p class="not-found-message">No comments found for this lead.</p>
                             {% endfor %}
                         </div>
-                        <div class="row mx-2 justify-content-center mt-2">
+                        <div class="row justify-content-center mt-2">
                             <!-- Pagination -->
                             <div class="col-lg-12">
                                 <div class="row justify-content-center">
-                                    <div class="col-2 text-center">
+                                    <div class="col-4 col-lg-2 text-center">
                                         <nav>
                                             <ul class="pagination">
                                                 {% if comments.has_previous %}
@@ -287,7 +287,7 @@
                         <h5 class="text-white text-center pt-2 fw-bolder">
                             <i class="fa fa-thumb-tack mx-lg-2 px-lg-2" aria-hidden="true"></i>Tasks</h5>
                     </div>
-                    <div class="col-8">
+                    <div class="col-12">
                         <div class="row mx-1 mt-3 bg-transparent">
                             <div class="col-12">
                                 <div class="table-responsive-custom">
@@ -403,12 +403,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-4 " style="background-color: #e7eaea;">
+                    <div class="col-12 px-4 py-2" >
                         <!-- The task creation form: -->
-                        <div class="row">
+                        <div class="row mx-2" style="background-color: #c5cbcb; border: 1px solid black;">
                             <form method="post" action="{% url 'task:task_add_lead' lead.id %}">
                                 {% csrf_token %}
-                                <div class="col-lg-12">
+                                <div class="col-lg-12 py-1">
                                     <div class="row">
                                         <div class="col-lg-12 text-center pb-lg-2">
                                             <h5 class="pt-2 fw-bolder">Add Task</h5>
@@ -546,15 +546,11 @@
                 </div>
             </div>
 
-            <div class="col-12 py-3">
+            <div class="col-12 mb-3 pb-4">
                 <!-- Section for back to leads, delete, edit and convert lead -->
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <a class="back-to-dashboard" href="{% url 'lead:list' %}">
-                        <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Leads
-                    </a>
-
-
-                </div>
+                <a class="back-to-dashboard" href="{% url 'lead:list' %}">
+                    <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Leads
+                </a>
             </div>
         </div>
     </div>

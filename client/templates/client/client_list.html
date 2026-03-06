@@ -72,20 +72,33 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-12 col-md-12 pt-md-2">
-                                            <div class="row py-2 justify-content-center justify-content-sm-center">
+                                            <div class="row py-2 align-items-center">
                                                 <div class="col text-start">
-                                                    <a class="btn add-button mx-2 fw-bolder" href="{% url 'client:add' %}"><i class="fas fa-plus px-2"></i>Add client</a>
+                                                    <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'client:add' %}"><i class="fas fa-plus px-2"></i>Add client</a>
                                                 </div>
-
                                                 <div class="col text-end">
-                                                    <!-- Button to delete selected clients -->
-                                                    <button type="submit"
-                                                        form="bulk-client-delete-form"
-                                                        class="btn-delete-selected mx-2" id="delete-selected-btn"
-                                                        onclick="return confirm('Are you sure you want to delete selected clients?');">
-                                                        Delete Selected
-                                                    </button>
-                                                    <a class="btn export-button mx-2" href="{% url 'client:export' %}">Export to csv</a>
+                                                    <!-- Dropdown for actions -->
+                                                    <div class="dropdown d-inline-block">
+                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
+                                                            <li>
+                                                                <button type="submit"
+                                                                        form="bulk-client-delete-form"
+                                                                        class="dropdown-item text-danger"
+                                                                        onclick="return confirm('Are you sure you want to delete selected clients?');">
+                                                                    <i class="bi bi-trash3 me-2"></i>Delete Selected
+                                                                </button>
+                                                            </li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{% url 'client:export' %}">
+                                                                    <i class="bi bi-download me-2"></i>Export to CSV
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
 
                                             </div>
