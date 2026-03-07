@@ -717,8 +717,12 @@
         const productNetPriceEurDisplay = document.getElementById('product-net-price-eur');
         const productNetPriceUsdDisplay = document.getElementById('product-net-price-usd');
 
-        // Conversion rate (you can adjust this or fetch from an API)
-        const EUR_TO_USD = 1.10;
+        // Real-time conversion rate from backend
+        const EUR_TO_USD = {{ exchange_rate|safe }};
+
+        // Debug: Log the exchange rate and products data
+        console.log('Exchange Rate (EUR to USD):', EUR_TO_USD);
+        console.log('Products Data:', productsData);
 
         function updateProductPrice() {
             const productId = productSelect.value;

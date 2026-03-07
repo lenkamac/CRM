@@ -1,11 +1,12 @@
  #calendar-container {
-     padding-left: 195px;
-    padding-right: 85px;
+     padding-left: 115px;
+    padding-right: 25px;
+     margin-right: 0;
  }
  
   #calendar {
     width: 100%;
-    min-height: 60vh;   /* Adjust as needed (e.g., 60vh, 80vh) */
+    min-height: 80vh;   /* Adjust as needed (e.g., 60vh, 80vh) */
     height: auto;       /* You can use a fixed px or vh value */
     background: white;
     box-shadow: 0 4px 24px rgba(0,0,0,0.07);

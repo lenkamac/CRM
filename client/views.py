@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
@@ -15,6 +15,7 @@ from client.forms import AddCommentForm, AddFileForm, PurchaseForm
 from client.models import Client, Comment, ClientFile, Purchase
 from product.models import Product
 from task.models import Task
+from core.currency_service import CurrencyConverter
 import json
 
 
@@ -71,10 +72,17 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
         products = Product.objects.all().values('id', 'name', 'net_price')
         products_dict = {str(p['id']): str(p['net_price']) for p in products}
 
+        # Get current exchange rate for frontend calculation
+        try:
+            exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+        except Exception:
+            exchange_rate = 1.10  # Fallback rate
+
         context['comments'] = comments_page
         context['tasks'] = tasks_page
         context['purchases'] = purchases_page
         context['products_json'] = json.dumps(products_dict)
+        context['exchange_rate'] = json.dumps(exchange_rate)
 
         return context
 
@@ -274,4 +282,20 @@ def delete_client_file(request, client_id, file_id):
         file_instance.delete()
         messages.success(request, "File deleted successfully.")
     return redirect('client:detail', pk=client_id)
+
+
+# Get exchange rate API endpoint
+@login_required
+def get_exchange_rate(request):
+    """API endpoint to get real-time exchange rate"""
+    from_currency = request.GET.get('from', 'EUR')
+    to_currency = request.GET.get('to', 'USD')
+
+    rate = float(CurrencyConverter.get_exchange_rate(from_currency, to_currency))
+
+    return JsonResponse({
+        'from': from_currency,
+        'to': to_currency,
+        'rate': rate
+    })
 

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 from lead.models import Lead
 from product.models import Product
+from core.currency_service import CurrencyConverter
 
 # Create your models here.
 class Client(models.Model):
@@ -75,9 +76,6 @@ class Purchase(models.Model):
         (USD, '$'),
     )
 
-    # Conversion rate
-    EUR_TO_USD = Decimal('1.10')
-
     client = models.ForeignKey(Client, related_name='purchases', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='purchases', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
@@ -91,12 +89,12 @@ class Purchase(models.Model):
         return f'{self.client} - {self.product.name} ({self.quantity})'
 
     def get_purchase_price(self):
-        """Return purchase price in the selected currency"""
+        """Return purchase price in the selected currency using real-time exchange rates"""
         base_price = self.purchase_price if self.purchase_price else self.product.net_price
 
         # Convert to USD if currency is USD (assuming base price is in EUR)
         if self.currency == self.USD:
-            return base_price * self.EUR_TO_USD
+            return CurrencyConverter.convert(base_price, 'EUR', 'USD')
 
         return base_price
 
