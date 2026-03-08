@@ -10,8 +10,8 @@
       </div>
       <p class="comment-content" id="comment-content-{{ comment.id }}">{{ comment.content|linebreaks }}</p>
       <!-- ...edit/delete buttons as before -->
-        <button class="delete-comment-btn px-lg-3 bg-danger fw-bolder" data-comment-id="{{ comment.id }}" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</button>
-        <button class="edit-comment-btn px-lg-3 mx-lg-2 text-bg-warning" data-comment-id="{{ comment.id }}">Edit</button>
+        <button class="btn-task-delete px-lg-3 bg-danger fw-bolder" data-comment-id="{{ comment.id }}" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</button>
+        <button class="btn-task-comment px-lg-3 mx-lg-2 text-bg-warning" data-comment-id="{{ comment.id }}">Edit</button>
 
         <form class="edit-comment-form" id="edit-comment-form-{{ comment.id }}" style="display: none;">
             <textarea name="content" id="edit-comment-textarea-{{ comment.id }}">{{ comment.content }}</textarea>

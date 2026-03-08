@@ -91,18 +91,66 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
 
         # Handle purchase form submission
         if 'add_purchase' in request.POST:
-            form = PurchaseForm(request.POST)
-            if form.is_valid():
-                purchase = form.save(commit=False)
-                purchase.client = self.object
-                purchase.created_by = request.user
+            cart_data = request.POST.get('cart_data', '')
+            general_notes = request.POST.get('notes', '')
+
+            if cart_data and cart_data != '':
+                # Handle multiple purchases from cart
                 try:
-                    purchase.save()
-                    currency_symbol = purchase.get_currency_display()
-                    messages.success(request, f'Purchase added successfully! Total: {currency_symbol}{purchase.total:.2f}')
+                    cart_items = json.loads(cart_data)
+
+                    if len(cart_items) == 0:
+                        messages.error(request, 'Please add at least one product to the cart')
+                        return redirect('client:detail', pk=self.object.pk)
+
+                    purchase_count = 0
+                    total_amount_eur = 0
+                    total_amount_usd = 0
+
+                    for item in cart_items:
+                        product = Product.objects.get(id=item['productId'])
+                        purchase = Purchase(
+                            client=self.object,
+                            product=product,
+                            quantity=item['quantity'],
+                            purchase_price=item['price'],
+                            currency=item['currency'],
+                            notes=f"{item.get('notes', '')}\n{general_notes}".strip(),
+                            created_by=request.user
+                        )
+                        purchase.save()
+                        purchase_count += 1
+
+                        # Calculate totals
+                        if item['currency'] == 'EUR':
+                            total_amount_eur += item['quantity'] * item['price']
+                        else:
+                            # Convert USD to EUR for display
+                            exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                            total_amount_eur += (item['quantity'] * item['price']) / exchange_rate
+                            total_amount_usd += item['quantity'] * item['price']
+
+                    # Convert EUR total to USD for display
+                    if total_amount_eur > 0 and total_amount_usd == 0:
+                        exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                        total_amount_usd = total_amount_eur * exchange_rate
+                    elif total_amount_usd > 0 and total_amount_eur == 0:
+                        exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                        total_amount_eur = total_amount_usd / exchange_rate
+
+                    messages.success(request,
+                        f'{purchase_count} purchase(s) added successfully! Total: €{total_amount_eur:.2f} / ${total_amount_usd:.2f}')
+                except json.JSONDecodeError:
+                    messages.error(request, 'Invalid cart data')
+                except Product.DoesNotExist:
+                    messages.error(request, 'One or more products not found')
                 except Exception as e:
                     messages.error(request, f'Error: {str(e)}')
-                return redirect('client:detail', pk=self.object.pk)
+            else:
+                # No cart data - prevent submission
+                messages.error(request, 'Please add products to the cart before completing the purchase')
+
+            return redirect('client:detail', pk=self.object.pk)
 
         # Let other POST handlers continue (comments, files, etc.)
         return super().get(request, *args, **kwargs)

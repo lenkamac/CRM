@@ -2,10 +2,7 @@
     padding-left: 245px;
     padding-right: 155px;
 }
-#task-detail {
-    padding-left: 245px;
-    padding-right: 155px;
-}
+
 .card-header {
     background-color: #364a69;
 }
@@ -20,6 +17,19 @@
     color: white;
     font-weight: bold;
     background-color: #5d718d;
+}
+
+.btn-task-comment {
+    border: none;
+}
+
+.btn-task-comment:hover {
+    background-color: #5d718d;
+    color: white;
+}
+.btn-task-delete {
+    border: none;
+    color: white;
 }
 
 
@@ -50,7 +60,6 @@
 
 
 }
-
 @media (max-width: 768px) {
     #task-list {
         font-size: 0.6rem;
