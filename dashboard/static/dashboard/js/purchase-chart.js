@@ -15,7 +15,11 @@
     function initPurchaseChart(data) {
         purchaseChartData = data;
 
-        if (!purchaseChartData || Object.keys(purchaseChartData.products).length === 0) {
+        // Check if there's any data in either currency
+        const hasEurData = purchaseChartData.products_eur && Object.keys(purchaseChartData.products_eur).length > 0;
+        const hasUsdData = purchaseChartData.products_usd && Object.keys(purchaseChartData.products_usd).length > 0;
+
+        if (!purchaseChartData || (!hasEurData && !hasUsdData)) {
             showNoDataMessage();
             return;
         }
@@ -30,9 +34,10 @@
     function renderPurchaseChart() {
         const chartType = document.getElementById('purchaseChartType').value;
         const dataType = document.getElementById('purchaseDataType').value;
+        const currency = document.getElementById('purchaseCurrency').value;
 
-        const traces = createTraces(chartType, dataType);
-        const layout = createLayout(dataType);
+        const traces = createTraces(chartType, dataType, currency);
+        const layout = createLayout(dataType, currency);
         const config = createConfig();
 
         Plotly.newPlot('purchaseChart', traces, layout, config);
@@ -41,7 +46,7 @@
     /**
      * Create chart traces for each product
      */
-    function createTraces(chartType, dataType) {
+    function createTraces(chartType, dataType, currency) {
         const traces = [];
         const colors = [
             '#0d6efd', '#198754', '#dc3545', '#ffc107',
@@ -50,8 +55,11 @@
         ];
         let colorIndex = 0;
 
-        Object.keys(purchaseChartData.products).forEach(productName => {
-            const productData = purchaseChartData.products[productName];
+        // Select the correct product data based on currency
+        const products = currency === 'EUR' ? purchaseChartData.products_eur : purchaseChartData.products_usd;
+
+        Object.keys(products).forEach(productName => {
+            const productData = products[productName];
             const color = colors[colorIndex % colors.length];
 
             const trace = {
@@ -74,7 +82,7 @@
                     width: 3,
                     shape: 'spline'
                 } : undefined,
-                hovertemplate: createHoverTemplate(dataType, productName)
+                hovertemplate: createHoverTemplate(dataType, productName, currency)
             };
 
             traces.push(trace);
@@ -97,7 +105,9 @@
     /**
      * Create hover template
      */
-    function createHoverTemplate(dataType, productName) {
+    function createHoverTemplate(dataType, productName, currency) {
+        const currencySymbol = currency === 'EUR' ? '€' : '$';
+
         if (dataType === 'quantity') {
             return '<b>' + productName + '</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
@@ -106,7 +116,7 @@
         } else {
             return '<b>' + productName + '</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
-                   'Amount: $%{y:,.2f}<br>' +
+                   'Amount: ' + currencySymbol + '%{y:,.2f}<br>' +
                    '<extra></extra>';
         }
     }
@@ -114,7 +124,9 @@
     /**
      * Create chart layout
      */
-    function createLayout(dataType) {
+    function createLayout(dataType, currency) {
+        const currencySymbol = currency === 'EUR' ? '€' : '$';
+
         return {
             title: {
                 text: dataType === 'quantity'
@@ -139,13 +151,14 @@
             },
             yaxis: {
                 title: {
-                    text: dataType === 'quantity' ? 'Quantity Sold' : 'Revenue ($)',
+                    text: dataType === 'quantity' ? 'Quantity Sold' : 'Revenue (' + currencySymbol + ')',
                     font: { size: 14, color: '#666' }
                 },
                 gridcolor: '#e5e5e5',
                 showgrid: true,
                 zeroline: false,
-                tickformat: dataType === 'amount' ? '$,.2f' : ','
+                tickformat: dataType === 'amount' ? ',.2f' : ',',
+                tickprefix: dataType === 'amount' ? currencySymbol : ''
             },
             hovermode: 'closest',
             showlegend: true,
@@ -184,6 +197,7 @@
             displayModeBar: true,
             displaylogo: false,
             modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            scrollZoom: false,
             toImageButtonOptions: {
                 format: 'png',
                 filename: 'purchase_chart_' + new Date().toISOString().split('T')[0],
@@ -210,12 +224,43 @@
     }
 
     /**
+     * Update total revenue and items display based on selected currency
+     */
+    function updateRevenueDisplay(currency) {
+        const revenueDisplay = document.getElementById('totalRevenueDisplay');
+        const itemsDisplay = document.getElementById('totalItemsDisplay');
+
+        if (revenueDisplay) {
+            const eurRevenue = parseFloat(revenueDisplay.dataset.eur);
+            const usdRevenue = parseFloat(revenueDisplay.dataset.usd);
+
+            if (currency === 'EUR') {
+                revenueDisplay.textContent = '€' + eurRevenue.toFixed(2);
+            } else {
+                revenueDisplay.textContent = '$' + usdRevenue.toFixed(2);
+            }
+        }
+
+        if (itemsDisplay) {
+            const eurItems = parseInt(itemsDisplay.dataset.eur);
+            const usdItems = parseInt(itemsDisplay.dataset.usd);
+
+            if (currency === 'EUR') {
+                itemsDisplay.textContent = eurItems;
+            } else {
+                itemsDisplay.textContent = usdItems;
+            }
+        }
+    }
+
+    /**
      * Attach event listeners to filter controls
      */
     function attachEventListeners() {
         // Update chart without page reload
         const chartTypeSelect = document.getElementById('purchaseChartType');
         const dataTypeSelect = document.getElementById('purchaseDataType');
+        const currencySelect = document.getElementById('purchaseCurrency');
 
         if (chartTypeSelect) {
             chartTypeSelect.addEventListener('change', renderPurchaseChart);
@@ -223,6 +268,13 @@
 
         if (dataTypeSelect) {
             dataTypeSelect.addEventListener('change', renderPurchaseChart);
+        }
+
+        if (currencySelect) {
+            currencySelect.addEventListener('change', function() {
+                updateRevenueDisplay(this.value);
+                renderPurchaseChart();
+            });
         }
 
         // Reload page for product and period changes

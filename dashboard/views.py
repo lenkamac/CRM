@@ -185,11 +185,11 @@ def dashboard(request):
     if purchase_product_filter != 'all':
         purchases_query = purchases_query.filter(product_id=purchase_product_filter)
 
-    # Get purchase data grouped by date and product
+    # Get purchase data grouped by date, product, and currency
     purchase_data = (
         purchases_query
         .annotate(date=TruncDate('created_at'))
-        .values('date', 'product__name', 'product_id')
+        .values('date', 'product__name', 'product_id', 'currency')
         .annotate(
             total_quantity=Sum('quantity'),
             total_amount=Sum(F('quantity') * F('product__net_price'))
@@ -197,30 +197,66 @@ def dashboard(request):
         .order_by('date', 'product__name')
     )
 
-    # Organize data by product
-    purchase_products = {}
+    # Organize data by product and currency
+    purchase_products_eur = {}
+    purchase_products_usd = {}
     purchase_dates_set = set()
 
     for item in purchase_data:
         date_str = item['date'].strftime('%Y-%m-%d')
         product_name = item['product__name']
+        currency = item['currency']
         purchase_dates_set.add(date_str)
 
-        if product_name not in purchase_products:
-            purchase_products[product_name] = {'dates': [], 'quantities': [], 'amounts': []}
+        # Separate by currency
+        if currency == 'EUR':
+            if product_name not in purchase_products_eur:
+                purchase_products_eur[product_name] = {'dates': [], 'quantities': [], 'amounts': []}
 
-        purchase_products[product_name]['dates'].append(date_str)
-        purchase_products[product_name]['quantities'].append(item['total_quantity'])
-        purchase_products[product_name]['amounts'].append(float(item['total_amount']))
+            purchase_products_eur[product_name]['dates'].append(date_str)
+            purchase_products_eur[product_name]['quantities'].append(item['total_quantity'])
+            purchase_products_eur[product_name]['amounts'].append(float(item['total_amount']))
+        else:  # USD
+            if product_name not in purchase_products_usd:
+                purchase_products_usd[product_name] = {'dates': [], 'quantities': [], 'amounts': []}
+
+            # For USD, we need to convert the amount
+            purchase_products_usd[product_name]['dates'].append(date_str)
+            purchase_products_usd[product_name]['quantities'].append(item['total_quantity'])
+            # Get actual USD amount with conversion
+            usd_amount = 0
+            for purchase in purchases_query.filter(
+                created_at__date=item['date'],
+                product_id=item['product_id'],
+                currency='USD'
+            ):
+                usd_amount += float(purchase.total)
+            purchase_products_usd[product_name]['amounts'].append(usd_amount)
 
     # Get all products for filter dropdown
     all_products = Product.objects.all().order_by('name')
 
-    # Calculate summary statistics
-    total_revenue = purchases_query.aggregate(
+    # Calculate summary statistics by currency
+    from decimal import Decimal
+    from core.currency_service import CurrencyConverter
+
+    # EUR revenue (base currency)
+    eur_purchases = purchases_query.filter(currency='EUR')
+    eur_revenue = eur_purchases.aggregate(
         total=Sum(F('quantity') * F('product__net_price'))
-    )['total'] or 0
-    total_items = purchases_query.aggregate(Sum('quantity'))['quantity__sum'] or 0
+    )['total'] or Decimal('0')
+    eur_items = eur_purchases.aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    # USD revenue (converted purchases)
+    usd_purchases = purchases_query.filter(currency='USD')
+    usd_revenue = Decimal('0')
+    for purchase in usd_purchases:
+        usd_revenue += purchase.total
+    usd_items = usd_purchases.aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    # Calculate total revenue in EUR (EUR sales + USD sales converted to EUR)
+    usd_revenue_in_eur = CurrencyConverter.convert(usd_revenue, 'USD', 'EUR')
+    total_revenue_eur = eur_revenue + usd_revenue_in_eur
 
     context = {
         'lead_count': lead_count,
@@ -240,13 +276,18 @@ def dashboard(request):
         # Purchase data
         'purchase_chart_data': json.dumps({
             'dates': sorted(list(purchase_dates_set)),
-            'products': purchase_products
+            'products_eur': purchase_products_eur,
+            'products_usd': purchase_products_usd
         }),
         'all_products': all_products,
         'selected_purchase_product': purchase_product_filter,
         'selected_purchase_period': purchase_period,
-        'total_revenue': float(total_revenue),
-        'total_items': total_items,
+        'total_revenue_eur': float(eur_revenue),
+        'total_revenue_usd': float(usd_revenue),
+        'total_revenue_all_in_eur': float(total_revenue_eur),
+        'total_items_eur': eur_items,
+        'total_items_usd': usd_items,
+        'total_items': eur_items + usd_items,
     }
 
     return render(request, 'dashboard/dashboard.html', context)

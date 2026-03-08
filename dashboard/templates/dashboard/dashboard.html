@@ -199,7 +199,11 @@
                             <div class="card text-white" style="background-color: #4d5a6f;">
                                 <div class="card-body text-center">
                                     <h6 class="card-title">Total Revenue</h6>
-                                    <p class="fs-4 mb-0">${{ total_revenue|floatformat:2 }}</p>
+                                    <p id="totalRevenueDisplay" class="fs-4 mb-0"
+                                       data-eur="{{ total_revenue_eur|floatformat:2 }}"
+                                       data-usd="{{ total_revenue_usd|floatformat:2 }}">
+                                        ${{ total_revenue_usd|floatformat:2 }}
+                                    </p>
                                 </div>
                             </div>
 
@@ -208,7 +212,27 @@
                         <div class="card text-white" style="background-color: #677569;">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Products Sold</h6>
+                                <p id="totalItemsDisplay" class="fs-4 mb-0"
+                                   data-eur="{{ total_items_eur }}"
+                                   data-usd="{{ total_items_usd }}">
+                                    {{ total_items_usd }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card text-white" style="background-color: #8b7d6b;">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Total Products Sold</h6>
                                 <p class="fs-4 mb-0">{{ total_items }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card text-white" style="background-color: #5d6d7e;">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Total Revenue (EUR)</h6>
+                                <p class="fs-4 mb-0">€{{ total_revenue_all_in_eur|floatformat:2 }}</p>
                             </div>
                         </div>
                     </div>
@@ -216,7 +240,7 @@
 
                 <!-- Purchase Filters -->
                 <div class="row mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-3 col-lg-2">
                         <label for="purchaseProduct" class="form-label fw-bolder fs-6">
                             <i class="bi bi-box"></i> Product:
                         </label>
@@ -230,7 +254,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 col-lg-2">
                         <label for="purchasePeriod" class="form-label fw-bolder fs-6 pt-1">
                             <i class="bi bi-calendar-range"></i> Time Period:
                         </label>
@@ -244,7 +268,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 col-lg-2">
                         <label for="purchaseChartType" class="form-label fw-bolder fs-6 pt-1">
                             <i class="bi bi-bar-chart"></i> Chart Type:
                         </label>
@@ -255,13 +279,23 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 col-lg-2">
                         <label for="purchaseDataType" class="form-label fw-bolder fs-6 pt-1">
                             <i class="bi bi-graph-up"></i> Data Type:
                         </label>
                         <select id="purchaseDataType" class="form-select form-select-sm">
                             <option value="quantity" selected>Quantity</option>
-                            <option value="amount">Amount ($)</option>
+                            <option value="amount">Amount</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 col-lg-2">
+                        <label for="purchaseCurrency" class="form-label fw-bolder fs-6 pt-1">
+                            <i class="bi bi-currency-exchange"></i> Currency:
+                        </label>
+                        <select id="purchaseCurrency" class="form-select form-select-sm">
+                            <option value="USD" selected>USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
                         </select>
                     </div>
                 </div>
