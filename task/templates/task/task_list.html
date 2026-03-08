@@ -63,6 +63,7 @@
                                     <label class="form-label">Priority</label>
                                     <select name="priority" class="form-select">
                                         <option value="">All</option>
+                                        <option value="urgent" {% if request.GET.priority == 'urgent' %}selected{% endif %}>Urgent</option>
                                         <option value="high" {% if request.GET.priority == 'high' %}selected{% endif %}>High</option>
                                         <option value="medium" {% if request.GET.priority == 'medium' %}selected{% endif %}>Medium</option>
                                         <option value="low" {% if request.GET.priority == 'low' %}selected{% endif %}>Low</option>
@@ -140,10 +141,12 @@
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                {% if task.priority == 'high' %}
+                                                {% if task.priority == 'urgent' %}
                                                     <span class="badge bg-danger">High</span>
+                                                {% elif task.priority == 'high' %}
+                                                    <span class="badge bg-warning">High</span>
                                                 {% elif task.priority == 'medium' %}
-                                                    <span class="badge bg-warning">Medium</span>
+                                                    <span class="badge bg-success">Medium</span>
                                                 {% elif task.priority == 'low' %}
                                                     <span class="badge bg-info">Low</span>
                                                 {% else %}

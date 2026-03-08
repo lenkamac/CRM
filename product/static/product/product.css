@@ -28,9 +28,20 @@
 
 .btn-view {
     color: white;
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: bold;
     background-color: #688eb4;
+}
+.btn-warning {
+    font-size: 0.8rem;
+}
+.btn-delete {
+    font-size: 0.8rem;
+    background-color: #c0392b;
+    color: white;
+}
+.bi-trash {
+    font-size: 0.8rem;
 }
 
 /* Product detail page */
