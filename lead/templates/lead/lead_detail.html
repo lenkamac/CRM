@@ -160,10 +160,10 @@
                      <div class="card-footer mt-2">
                          <div class="row justify-content-start">
                              <div class="col-12 pb-1">
-                                 <span class="fw-bolder">Created at:</span> {{ lead.created_at|date:"M-d-Y H:i" }}
+                                 <span class="fw-bolder">Created at:</span> {{ lead.created_at|date:"d.m.Y H:i" }}
                              </div>
                              <div class="col-12">
-                                  <span class="fw-bolder">Modifed at:</span> {{ lead.modified_at|date:"M-d-Y H:i" }}
+                                  <span class="fw-bolder">Modifed at:</span> {{ lead.modified_at|date:"d.m.Y H:i" }}
                              </div>
                          </div>
                      </div>
@@ -183,7 +183,7 @@
                             {% for comment in comments %}
                                 <div class="col-lg-12 mb-0">
                                     <div class="fw-bolder fs-6 my-0 bg-light">
-                                        @{{ comment.created_by }} {{ comment.created_at|date:"M-d-Y H:i" }}
+                                        @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
                                     </div>
                                 </div>
                                 <div class="col-lg-12 my-0 pb-0 comment-content">
@@ -307,7 +307,7 @@
                                         <tbody class="tbody-custom">
                                             {% for task in tasks %}
                                                 <tr>
-                                                    <td class="text-start text-nowrap">{{ task.created_at|date:'M-d-Y' }}</td>
+                                                    <td class="text-start text-nowrap">{{ task.created_at|date:'d.m.Y' }}</td>
                                                     <td class="text-start text-nowrap">{{ task.title }}</td>
                                                     <td class="text-center text-nowrap">
                                                         {% if task.due_date %}
@@ -484,7 +484,7 @@
                             <div class="row justify-content-sm-start">
                                 <div class="col-12 mt-2">
                                     <strong class="px-2">@{{ file.created_by }}</strong>
-                                    {{ file.created_at|date:"M-d-Y H:i" }}
+                                    {{ file.created_at|date:"d.m.Y H:i" }}
                                 </div>
                             </div>
                             <div class="row mx-4 pt-1 justify-content-sm-start justify-content-md-start">

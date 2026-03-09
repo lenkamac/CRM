@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        firstDay: 1,  // Monday (0=Sunday, 1=Monday, etc.)
         events: calendarEventsUrl,  // We'll define this in template!
         eventTimeFormat: {  // uppercase H for 24h, lowercase i for minutes
             hour: '2-digit',

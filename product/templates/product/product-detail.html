@@ -76,7 +76,7 @@
                                     <tbody>
                                         {% for purchase in purchases %}
                                         <tr>
-                                            <td class="text-start text-nowrap">{{ purchase.created_at|date:"Y-m-d H:i" }}</td>
+                                            <td class="text-start text-nowrap">{{ purchase.created_at|date:"d.m.Y H:i" }}</td>
                                             <td class="text-start text-nowrap">
                                                 <a href="{% url 'client:detail' purchase.client.id %}">
                                                     {{ purchase.client.last_name }}, {{ purchase.client.first_name }}
