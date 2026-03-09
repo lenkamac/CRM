@@ -316,9 +316,12 @@
     <script>
         function updateDateTime() {
             const now = new Date();
-            // Format: e.g. Thursday, 2025-09-18 14:05:03
-            const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-            const datePart = now.toLocaleDateString(undefined, options);
+            // Format: e.g. Monday, 9.3.2026 14:05:03
+            const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const datePart = `${weekday}, ${day}.${month}.${year}`;
             const timePart = now.toLocaleTimeString(undefined, { hour12: false });
             document.getElementById('dashboard-datetime').textContent = datePart + ' ' + timePart;
         }
