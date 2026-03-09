@@ -39,7 +39,7 @@
                             </div>
                             <div class="col-6 bg-white">
                                 <div class="col-sm-12 fw-bolder py-1">Total Sold Quantity: <span>{{ product.sold_quantity }}</span></div>
-                                <div class="col-sm-12 fw-bolder">Total Revenue: <span class="price-cell" data-eur="{{ product.get_total_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.get_total_price }}</span></span></div>
+                                <div class="col-sm-12 fw-bolder">Total Revenue: <span>€{{ product.get_total_price }}</span></div>
                             </div>
                         {% if product.description %}
                             <div class="col-12 border border-2">
@@ -83,8 +83,8 @@
                                                 </a>
                                             </td>
                                             <td class="text-center">{{ purchase.quantity }}</td>
-                                            <td class="price-cell text-center" data-eur="{{ purchase.purchase_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ purchase.purchase_price }}</span></td>
-                                            <td class="price-cell text-center" data-eur="{{ purchase.total }}"><span class="currency-symbol">€</span><span class="price-value">{{ purchase.total }}</span></td>
+                                            <td class="text-center"><span class="currency-symbol">{% if purchase.currency == 'USD' %}${% else %}€{% endif %}</span><span class="price-value">{{ purchase.get_purchase_price }}</span></td>
+                                            <td class="text-center"><span class="currency-symbol">{% if purchase.currency == 'USD' %}${% else %}€{% endif %}</span><span class="price-value">{{ purchase.total }}</span></td>
                                             <td class="text-start text-nowrap">{{ purchase.notes|default:"-" }}</td>
                                         </tr>
                                         {% endfor %}
@@ -145,10 +145,24 @@
                     if (currency === 'USD') {
                         const usdPrice = (eurPrice * exchangeRate).toFixed(2);
                         symbol.textContent = '$';
-                        priceValue.textContent = usdPrice;
+
+                        // For total cells, calculate from unit price * quantity
+                        if (cell.classList.contains('total-cell')) {
+                            const quantity = parseInt(cell.dataset.quantity);
+                            priceValue.textContent = (usdPrice * quantity).toFixed(2);
+                        } else {
+                            priceValue.textContent = usdPrice;
+                        }
                     } else {
                         symbol.textContent = '€';
-                        priceValue.textContent = eurPrice.toFixed(2);
+
+                        // For total cells, calculate from unit price * quantity
+                        if (cell.classList.contains('total-cell')) {
+                            const quantity = parseInt(cell.dataset.quantity);
+                            priceValue.textContent = (eurPrice * quantity).toFixed(2);
+                        } else {
+                            priceValue.textContent = eurPrice.toFixed(2);
+                        }
                     }
                 });
             });
