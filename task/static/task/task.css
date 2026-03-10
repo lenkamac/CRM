@@ -1,12 +1,19 @@
 #task-list {
     padding-left: 220px;
 }
+#task-detail {
+    padding-left: 220px;
+}
 
 .card-header {
     background-color: #364a69;
 }
 .form-label {
     color: #353E46;
+    font-weight: bold;
+}
+.titel-link {
+    color: #677569;
     font-weight: bold;
 }
 
@@ -21,7 +28,10 @@
 .btn-task-comment {
     border: none;
 }
-
+.comment-btn-task{
+    width: 80px;
+    background-color: #b6c0b7;
+}
 .btn-task-comment:hover {
     background-color: #5d718d;
     color: white;
@@ -30,11 +40,17 @@
     border: none;
     color: white;
 }
+.task-contact {
+    color: #5d718d;
+}
+.contact-name {
+    text-decoration: none;
+}
 
 #company-name a{
     font-weight: bold;
     text-decoration: none;
-    color: #5d6677;
+    color: #0a3fac;
 }
 #company-name a:hover {
     color: #3ba48c;

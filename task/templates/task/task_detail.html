@@ -4,11 +4,15 @@
 {% block title %}{{ task.title }} - Task Detail{% endblock %}
 
 {% block content %}
+    {% block css %}
+    	<link rel="stylesheet" href="{% static 'task/task.css' %}">
+    {% endblock %}
+
     {% include 'core/partials/offcanvas_menu.html' %}
 
-    <div class="container pt-5" id="task-detail">
+    <div class="container-fluid mx-auto pt-3" id="task-detail">
 
-        <div class="row justify-content-center mt-lg-4">
+        <div class="row mt-lg-4">
             <div class="col-12">
                 <!-- Back button and actions -->
                 <div class="row">
@@ -17,7 +21,7 @@
                             <a href="{% url 'task:task_list' %}" class="btn btn-outline-secondary fw-bolder">
                                 <i class="fas fa-arrow-left"></i> Back to Tasks
                             </a>
-                            <div class="btn-group">
+                            <div class="btn-group text-end">
                                 <a href="{% url 'task:task_edit' task.pk %}" class="btn btn-outline-secondary fw-bolder">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
@@ -29,117 +33,189 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row justify-content-center bg-white rounded-3 border border-2">
             <div class="col-12">
-                <!-- Task Details Card -->
+                <!-- Task Details -->
                 <div class="row justify-content-center">
-                    <div class="card mt-lg-3 pt-lg-3">
-                        <div class="card-header mt-md-2" style="background-color: #C7C8CB;">
-                            <h3 class="card-title text-center fw-bolder">{{ task.title }}</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-sm-12 col-md-12 col-lg-8">
-                                    <!-- Task Description -->
-                                    <div class="mb-4">
-                                        <h5 class="fw-bolder">Description</h5>
-                                        <p class="text-muted">{{ task.description|linebreaks }}</p>
+                    <div class="col-12">
+                        <h4 class="text-center fw-bolder">{{ task.title }}</h4>
+                    </div>
+                    <div class="col-6">
+                        <div class="row pt-2">
+                            <div class="col-12">
+                                <div class="row pt-3">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder fs-6">Due Date, Time</h6>
                                     </div>
-
-                                    <!-- Related Items -->
-                                    <div class="mb-4 pt-lg-3">
-                                        <h5 class="fw-bolder">Related To</h5>
-                                        {% if task.lead %}
-                                            <p>Lead: <a href="{% url 'lead:detail' task.lead.pk %}">{{ task.lead.first_name }} {{ task.lead.last_name }}</a></p>
-                                        {% elif task.client %}
-                                            <p>Client: <a href="{% url 'client:detail' task.client.pk %}">{{ task.client.first_name }} {{ task.client.last_name }}</a></p>
+                                    <div class="col-4">
+                                        {% if task.due_date and task.due_time %}
+                                            <p class="fw-bolder text-start fs-6">{{ task.due_date }}, {{ task.due_time }}</p>
+                                        {% elif task.due_date %}
+                                            <p class="fw-bolder text-start fs-6">{{ task.due_date }}</p>
                                         {% else %}
-                                            <p class="text-muted">No related items</p>
+                                            <p class="text-muted fw-bolder fs-6">No due date, time set</p>
                                         {% endif %}
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="row pt-2">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder fs-6">Company</h6>
+                                    </div>
+                                    <div class="col-4">
+                                        {% if task.lead.company %}
+                                            <a href="{% url 'lead:detail' task.lead.pk %}"><span class="fw-bolder text-start fs-6 task-contact">{{ task.lead.company }}</span></a>
+                                        {% elif task.due_date %}
+                                            <a href="{% url 'client:detail' task.client.pk %}"><span class="fw-bolder text-start fs-6 task-contact">{{ task.client.company }}</span></a>
+                                        {% else %}
+                                            <p class="text-muted fw-bolder">No company</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <!-- Task Comments -->
-                                    <div class="mb-4 pt-3 pt-lg-3">
-                                        <h5 class="fw-bolder mb-0">Comments</h5>
-                                        <div class="card-body pb-0">
-                                            {% if task_comments %}
-                                                <div id="task-comments">
-                                                    {% include "task/partials/_comments.html" with comments=task.comments.all %}
-                                                </div>
-                                            {% else %}
-                                                <p class="text-muted">No comments yet.</p>
-                                            {% endif %}
-                                        </div>
+                            <!-- Related Items -->
+                            <div class="col-12">
+                                <div class="row justify-content-start pt-2">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder">Related To</h6>
+                                    </div>
+                                    <div class="col-4">
+                                        {% if task.lead %}
+                                            <span class="fs-6">Lead</span>
+                                        {% elif task.client %}
+                                            <span class="fs-6">Client</span>
+                                        {% else %}
+                                            <span class="text-muted">No related items</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
 
-                                        <div class="mb-4">
-                                            <form method="post" action="{% url 'task:add_task_comment' task.pk %}">
-                                                {% csrf_token %}
-                                                <div class="card-body fw-bolder" autofocus>Add Comment: {{ form.content }}</div>
-                                                <button class="comment-btn my-3">Submit</button>
-                                            </form>
-                                        </div>
+                            <div class="col-12">
+                                <div class="row justify-content-start pt-2">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder">Contact</h6>
+                                    </div>
+                                    <div class="col-4">
+                                        {% if task.lead.last_name %}
+                                            <a href="{% url 'lead:detail' task.lead.pk %}" class="contact-name fs-6">{{ task.lead.first_name }} {{ task.lead.last_name }}</a>
+                                        {% elif task.client.last_name %}
+                                            <a href="{% url 'client:detail' task.client.pk %}" class="contact-name fs-6">{{ task.client.first_name }} {{ task.client.last_name }}</a>
+                                        {% else %}
+                                            <p class="text-muted">No contact assigned</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 pt-4">
+                                <div class="row justify-content-start pt-2">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder fs-6">Status</h6>
+                                    </div>
+                                    <div class="col-2">
+                                        {% if task.status == 'todo' %}
+                                            <span class="badge bg-secondary fs-6">To Do</span>
+                                        {% elif task.status == 'in_progress' %}
+                                            <span class="badge bg-primary fs-6">In Progress</span>
+                                        {% elif task.status == 'completed' %}
+                                            <span class="badge bg-success fs-6">Completed</span>
+                                        {% elif task.status == 'canceled' %}
+                                            <span class="badge bg-danger fs-6">Canceled</span>
+                                        {% else %}
+                                            <span class="badge bg-black fs-6">------</span>
+                                        {% endif %}
                                     </div>
                                 </div>
 
-                                <div class="col-sm-12 col-md-12 col-lg-4">
-                                    <!-- Task Status Info -->
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            <h6 class="fw-bolder">Status</h6>
-                                                {% if task.status == 'todo' %}
-                                                    <span class="badge bg-secondary">To Do</span>
-                                                {% elif task.status == 'in_progress' %}
-                                                    <span class="badge bg-primary">In Progress</span>
-                                                {% elif task.status == 'completed' %}
-                                                    <span class="badge bg-success">Completed</span>
-                                                {% else %}
-                                                    <span class="badge bg-danger">Canceled</span>
-                                                {% endif %}
+                                <div class="row justify-content-start pt-4">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder fs-6">Priority</h6>
+                                    </div>
+                                    <div class="col-2">
+                                        {% if task.priority == 'high' %}
+                                            <span class="badge bg-warning fs-6">High</span>
+                                        {% elif task.priority == 'medium' %}
+                                            <span class="badge bg-info fs-6">Medium</span>
+                                        {% elif task.priority == 'low' %}
+                                            <span class="badge bg-secondary fs-6">Low</span>
+                                        {% elif task.priority == 'urgent' %}
+                                            <span class="badge bg-danger fs-6">Urgent</span>
+                                        {% else %}
+                                            <span>n/a</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-                                            <h6 class="mt-3 fw-bolder">Priority</h6>
-                                                {% if task.priority == 'high' %}
-                                                    <span class="badge bg-warning">High</span>
-                                                {% elif task.priority == 'medium' %}
-                                                    <span class="badge bg-info">Medium</span>
-                                                {% elif task.priority == 'low' %}
-                                                    <span class="badge bg-secondary">Low</span>
-                                                {% elif task.priority == 'urgent' %}
-                                                    <span class="badge bg-danger">Urgent</span>
-                                                {% elif task.priority == '' %}
-                                                    <span>n/a</span>
-                                                {% endif %}
+                                <div class="row justify-content-start pt-4">
+                                    <div class="col-2">
+                                        <h6 class="fw-bolder fs-6">Assigned To</h6>
+                                    </div>
+                                    <div class="col-2">
+                                        {% if task.assigned_to %}
+                                            <span class="fw-bolder fs-6">{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</span>
+                                        {% else %}
+                                            <span class="text-muted mb-0 fs-6">Unassigned</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-                                            <h6 class="mt-3 pt-2 fw-bolder">Assigned To</h6>
-                                                {% if task.assigned_to %}
-                                                    <p class="mb-0">{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</p>
-                                                {% else %}
-                                                    <p class="text-muted mb-0">Unassigned</p>
-                                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mt-3">
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="fw-bolder fs-6 mb-0">Description</h6>
+                            </div>
+                            <div class="col-12 mt-0 pt-0">
+                                <p>{{ task.description|linebreaks }}</p>
+                            </div>
+                        </div>
+                        <!-- Task Comments -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5 class="fw-bolder mb-1">Comments</h5>
+                            </div>
+                            <div class="col-12">
+                                {% if task_comments %}
+                                    <div id="task-comments">
+                                        {% include "task/partials/_comments.html" with comments=task.comments.all %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No comments yet.</p>
+                                {% endif %}
+                            </div>
 
-                                            <h6 class="mt-3 pt-2 fw-bolder">Due Date, Time</h6>
-                                                {% if task.due_date %}
-                                                    <p class="mb-0">{{ task.due_date }}, {{ task.due_time }}</p>
-                                                {% else %}
-                                                    <p class="text-muted mb-0">No due date, time set</p>
-                                                {% endif %}
-
-                                            <h6 class="mt-3 pt-2 fw-bolder">Created</h6>
-                                            <p class="mb-0">{{ task.created_at|date:"d.m.Y" }}</p>
-                                        </div>
+                            <div class="col-12">
+                                <form method="post" action="{% url 'task:add_task_comment' task.pk %}">
+                                    {% csrf_token %}
+                                    <div class="fw-bolder" autofocus>Add Comment: {{ form.content }}</div>
+                                    <button class="comment-btn-task my-3">Submit</button>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <div class="row justify-content-end">
+                                    <div class="col-1">
+                                        <h6 class="fw-bolder">Created</h6>
+                                    </div>
+                                    <div class="col-2">
+                                        <span class="fw-bolder">{{ task.created_at|date:"d.m.Y" }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-
         $(document).ready(function () {
             // Handle Edit Button Click
             $("#task-comments").on("click", ".edit-comment-btn", function () {
@@ -203,7 +279,6 @@
             $("#task-comments").html(data);
           });
         }
-
     </script>
 
 
