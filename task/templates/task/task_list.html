@@ -15,7 +15,7 @@
         <div class="row justify-content-center pt-lg-4">
             <div class="col-12 py-3">
                 <div class="text-center">
-                    <h1 class="mt-sm-0 fw-bolder">Tasks</h1>
+                    <h4 class="mt-sm-0 fw-bolder">Tasks</h4>
                 </div>
             </div>
             <div class="col-12">
@@ -34,23 +34,40 @@
                    {% endif %}
                </div>
             </div>
-
-            <div class="col-12 my-1 px-3 py-1 text-center">
-                <a href="{% url 'task:task_add' %}" class="btn justify-content-center align-items-center" id="btn-add-task">
-                    <i class="fas fa-plus"></i> New Task
-                </a>
-            </div>
         </div>
 
         <div class="row justify-content-center">
+            <div class="col-12 py-2">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <!-- Filters -->
+                        <form method="get" action="{% url 'task:task_list' %}" class="px-3">
+                            <div class="row">
+                                <div class="col-8">
+                                    <input type="text" name="search" class="form-control" placeholder="Search by company or last name..." value="{{ search_query }}" />
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-search justify-content-center align-items-center">Search</button>
+                                </div>
+                                <div class="col-2">
+                                    <a href="{% url 'task:task_add' %}" class="btn justify-content-center align-items-center" id="btn-add-task">
+                                        <i class="fas fa-plus"></i> New Task
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
             <div class="col-12">
-                <div class="row justify-content-center w-100 mx-auto px-3 py-2">
+                <div class="row justify-content-center mx-auto px-3 py-2">
                     <!-- Filters -->
                     <div class="card mb-4">
                         <div class="card-body">
                             <form method="get" class="row g-3">
                                 <div class="col-md-2">
-                                    <label class="form-label">Status</label>
+                                    <label class="form-label fs-6">Status</label>
                                     <select name="status" class="form-select">
                                         <option value="">All</option>
                                         <option value="todo" {% if request.GET.status == 'todo' %}selected{% endif %}>To Do</option>
@@ -60,7 +77,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Priority</label>
+                                    <label class="form-label fs-6">Priority</label>
                                     <select name="priority" class="form-select">
                                         <option value="">All</option>
                                         <option value="urgent" {% if request.GET.priority == 'urgent' %}selected{% endif %}>Urgent</option>
@@ -70,7 +87,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Assigned To</label>
+                                    <label class="form-label fs-6">Assigned To</label>
                                     <select name="assigned_to" class="form-select">
                                         <option value="">All</option>
                                         {% for user in users %}
@@ -78,13 +95,23 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Related To</label>
+                                <div class="col-md-2">
+                                    <label class="form-label fs-6">Related To</label>
                                     <select name="related_to" class="form-select">
                                         <option value="">All</option>
                                         <option value="lead" {% if request.GET.related_to == "lead" %}selected{% endif %}>Lead</option>
                                         <option value="client" {% if request.GET.related_to == "client" %}selected{% endif %}>Client</option>
                                         <option value="none" {% if request.GET.related_to == "none" %}selected{% endif %}>Nobody</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fs-6">Due Date</label>
+                                    <select name="due_date" class="form-select">
+                                        <option value="">All</option>
+                                        <option value="overdue" {% if request.GET.due_date == 'overdue' %}selected{% endif %}>Overdue</option>
+                                        <option value="today" {% if request.GET.due_date == 'today' %}selected{% endif %}>Today</option>
+                                        <option value="this_week" {% if request.GET.due_date == 'this_week' %}selected{% endif %}>This Week</option>
+                                        <option value="this_month" {% if request.GET.due_date == 'this_month' %}selected{% endif %}>This Month</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -111,98 +138,127 @@
                                 <table class="table table-hover align-middle">
                                     <thead class="th-custom">
                                         <tr>
-                                            <th class="text-start">Title</th>
+                                            <th class="text-start">Company</th>
+                                            <th class="text-center text-nowrap sort-option">
+                                                <a href="?sort=due_date{% if sort_by == 'due_date' and sort_order == 'asc' %}&order=desc{% else %}&order=asc{% endif %}">
+                                                    Due Date
+                                                    {% if sort_by == 'due_date' %}
+                                                        {% if sort_order == 'asc' %}▲{% else %}▼{% endif %}
+                                                    {% endif %}
+                                                </a>
+                                            </th>
+                                            <th class="text-center text-nowrap">Due Time</th>
+                                            <th class="text-center">Title</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Priority</th>
-                                            <th class="text-center text-nowrap">Assigned To</th>
-                                            <th class="text-center text-nowrap">Due Date</th>
-                                            <th class="text-center text-nowrap">Due Time</th>
+                                            <th class="text-center">Contact</th>
                                             <th class="text-center text-nowrap">Related To</th>
+                                            <th class="text-center text-nowrap">Assigned To</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table-hover">
                                         {% for task in tasks %}
-                                        <tr>
-                                            <td class="text-start text-nowrap" style="width: auto;">
-                                                <a href="{% url 'task:task_detail' task.pk %}" class="text-decoration-none">
-                                                    {{ task.title }}
-                                                </a>
-                                            </td>
-                                            <td class="text-center">
-                                                {% if task.status == 'todo' %}
-                                                    <span class="badge bg-secondary">To Do</span>
-                                                {% elif task.status == 'in_progress' %}
-                                                    <span class="badge bg-primary">In Progress</span>
-                                                {% elif task.status == 'completed' %}
-                                                    <span class="badge bg-success">Completed</span>
-                                                {% else %}
-                                                    <span class="badge bg-danger">Canceled</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if task.priority == 'urgent' %}
-                                                    <span class="badge bg-danger">High</span>
-                                                {% elif task.priority == 'high' %}
-                                                    <span class="badge bg-warning">High</span>
-                                                {% elif task.priority == 'medium' %}
-                                                    <span class="badge bg-success">Medium</span>
-                                                {% elif task.priority == 'low' %}
-                                                    <span class="badge bg-info">Low</span>
-                                                {% else %}
-                                                    <span>------</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-center text-nowrap">
-                                                {% if task.assigned_to %}
-                                                    {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
-                                                {% else %}
-                                                    <span class="text-muted">Unassigned</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-center text-nowrap">
-                                                {% if task.due_date %}
-                                                    {{ task.due_date }}
-                                                {% else %}
-                                                    <span class="text-muted">No due date</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-center text-nowrap">
-                                                {% if task.due_time %}
-                                                    {{ task.due_time }}
-                                                {% else %}
-                                                    <span class="text-muted">--:--</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-center text-nowrap">
-                                                {% if task.lead %}
-                                                    <span>Lead:</span> {{ task.lead.first_name }} {{ task.lead.last_name }}
-                                                {% elif task.client %}
-                                                    <span>Client:</span> {{ task.client.first_name }} {{ task.client.last_name }}
-                                                {% else %}
-                                                    <span class="text-muted">None</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group">
-                                                    <a href="{% url 'task:task_detail' task.pk %}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'task:task_edit' task.pk %} " class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a href="{% url 'task:task_delete' task.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this task?');">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td class="text-start" id="company-name">
+                                                    {% if task.client.company %}
+                                                        <a href="{% url 'client:detail' task.client.id %}">{{ task.client.company }}</a>
+                                                    {% elif task.lead.company %}
+                                                        <a href="{% url 'lead:detail' task.lead.id %}">{{ task.lead.company }}</a>
+                                                    {% else %}
+                                                        <span class="text-muted">n/a</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center text-nowrap">
+                                                        {% if task.due_date %}
+                                                            {{ task.due_date }}
+                                                        {% else %}
+                                                            <span class="text-muted">No due date</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center text-nowrap">
+                                                        {% if task.due_time %}
+                                                            {{ task.due_time }}
+                                                        {% else %}
+                                                            <span class="text-muted">--:--</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-start text-nowrap" style="width: auto;">
+                                                        <a href="{% url 'task:task_detail' task.pk %}" class="text-decoration-none">
+                                                            {{ task.title }}
+                                                        </a>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if task.status == 'todo' %}
+                                                            <span class="badge bg-secondary">To Do</span>
+                                                        {% elif task.status == 'in_progress' %}
+                                                            <span class="badge bg-primary">In Progress</span>
+                                                        {% elif task.status == 'completed' %}
+                                                            <span class="badge bg-success">Completed</span>
+                                                        {% elif task.status == 'canceled' %}
+                                                            <span class="badge bg-danger">Canceled</span>
+                                                        {% else %}
+                                                            <span class="badge bg-black">------</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if task.priority == 'urgent' %}
+                                                            <span class="badge bg-danger">Urgent</span>
+                                                        {% elif task.priority == 'high' %}
+                                                            <span class="badge bg-warning">High</span>
+                                                        {% elif task.priority == 'medium' %}
+                                                            <span class="badge bg-success">Medium</span>
+                                                        {% elif task.priority == 'low' %}
+                                                            <span class="badge bg-info">Low</span>
+                                                        {% else %}
+                                                            <span>------</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center text-nowrap">
+                                                        {% if task.lead %}
+                                                            {{ task.lead.first_name }} {{ task.lead.last_name }}
+                                                        {% elif task.client %}
+                                                           {{ task.client.first_name }} {{ task.client.last_name }}
+                                                        {% else %}
+                                                            <span class="text-muted">-----</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center text-nowrap">
+                                                        {% if task.lead %}
+                                                            Lead
+                                                        {% elif task.client %}
+                                                           Client
+                                                        {% else %}
+                                                            <span class="text-muted">-----</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center text-nowrap">
+                                                        {% if task.assigned_to %}
+                                                            {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
+                                                        {% else %}
+                                                            <span class="text-muted">Unassigned</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div class="btn-group">
+                                                            <a href="{% url 'task:task_detail' task.pk %}" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a href="{% url 'task:task_edit' task.pk %} " class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="{% url 'task:task_delete' task.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this task?');">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                            </tr>
                                         {% empty %}
-                                        <tr>
-                                            <td colspan="7" class="text-center py-4">
-                                                <p class="text-muted mb-0">No tasks found</p>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td colspan="7" class="text-center py-4">
+                                                    <p class="text-muted mb-0">No tasks found</p>
+                                                </td>
+                                            </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>

@@ -17,11 +17,23 @@ from .models import Task, TaskComment
 # Task list view function
 @login_required
 def tasks(request):
+    from django.db.models import Q
+
     # Get all users for the filter dropdown
     users = User.objects.all()
 
     # Get tasks with filters
     tasks_list = Task.objects.all()
+
+    # Search functionality
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        tasks_list = tasks_list.filter(
+            Q(client__company__icontains=search_query) |
+            Q(client__last_name__icontains=search_query) |
+            Q(lead__company__icontains=search_query) |
+            Q(lead__last_name__icontains=search_query)
+        )
 
     # Apply filters
     status = request.GET.get('status')
@@ -44,6 +56,28 @@ def tasks(request):
     elif related_to == "none":
         tasks_list = tasks_list.filter(lead__isnull=True, client__isnull=True)
 
+    # Due date filter
+    from datetime import date, timedelta
+    due_date_filter = request.GET.get('due_date')
+    if due_date_filter:
+        today = date.today()
+        if due_date_filter == "overdue":
+            tasks_list = tasks_list.filter(due_date__lt=today)
+        elif due_date_filter == "today":
+            tasks_list = tasks_list.filter(due_date=today)
+        elif due_date_filter == "this_week":
+            week_end = today + timedelta(days=7)
+            tasks_list = tasks_list.filter(due_date__gte=today, due_date__lte=week_end)
+        elif due_date_filter == "this_month":
+            month_end = date(today.year, today.month + 1 if today.month < 12 else 1, 1) if today.month < 12 else date(today.year + 1, 1, 1)
+            tasks_list = tasks_list.filter(due_date__gte=today, due_date__lt=month_end)
+
+    # Sorting
+    sort_by = request.GET.get('sort', 'due_date')
+    sort_order = request.GET.get('order', 'asc')
+    order_prefix = '' if sort_order == 'asc' else '-'
+    tasks_list = tasks_list.order_by(f'{order_prefix}{sort_by}')
+
     # Pagination
     paginator = Paginator(tasks_list, 10)  # Show 10 tasks per page
     page = request.GET.get('page')
@@ -52,6 +86,9 @@ def tasks(request):
     context = {
         'tasks': tasks,
         'users': users,
+        'search_query': search_query,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
     }
 
     return render(request, 'task/task_list.html', context)

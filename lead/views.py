@@ -21,7 +21,7 @@ from .forms import AddCommentForm, AddFileForm
 # Lead list
 class LeadListView(ListView):
     model = Lead
-    paginate_by = 20
+    paginate_by = 50
 
     def get_queryset(self):
         queryset = super(LeadListView, self).get_queryset()

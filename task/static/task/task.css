@@ -1,6 +1,5 @@
 #task-list {
-    padding-left: 245px;
-    padding-right: 155px;
+    padding-left: 220px;
 }
 
 .card-header {
@@ -12,8 +11,8 @@
 }
 
 #btn-add-task {
-    width: 180px;
-    font-size: 1.2rem;
+    width: 120px;
+    font-size: 1rem;
     color: white;
     font-weight: bold;
     background-color: #5d718d;
@@ -32,6 +31,19 @@
     color: white;
 }
 
+#company-name a{
+    font-weight: bold;
+    text-decoration: none;
+    color: #5d6677;
+}
+#company-name a:hover {
+    color: #3ba48c;
+    font-size: 1.1rem;
+}
+.sort-option a{
+    color: black;
+    text-decoration: none;
+}
 
 /* resposive */
 @media (max-width: 575.99px) {
