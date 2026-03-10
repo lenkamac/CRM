@@ -20,8 +20,8 @@ app_name = 'dashboard'
 def dashboard(request):
     lead_count = Lead.objects.filter(created_by=request.user, converted_to_client=False).count()
     client_count = Client.objects.filter(created_by=request.user).count()
-    latest_leads = Lead.objects.filter(created_by=request.user, converted_to_client=False).order_by('-created_at')[:5]
-    latest_clients = Client.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    latest_leads = Lead.objects.filter(created_by=request.user, converted_to_client=False).order_by('-created_at')[:15]
+    latest_clients = Client.objects.filter(created_by=request.user).order_by('-created_at')[:15]
 
     # Get time period filter from request
     time_period = request.GET.get('period', 'all')

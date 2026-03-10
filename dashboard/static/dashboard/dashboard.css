@@ -1,11 +1,32 @@
+#dashboard-container {
+    padding-left: 220px;
+}
+#dashboard-charts {
+    padding-left: 220px;
+}
 .dashboard-p {
-    font-size: 1.5rem;
+    font-size: 1rem;
 }
 .dashboard-card {
     border-radius: 5px;
     border: 2px solid gray;
     width: 50%;
     margin: 15px auto;
+}
+.lead-company-a a {
+    font-weight: bold;
+    color: #146c43;
+}
+.lead-company-a a:hover {
+    color: #093522;
+}
+.lead-name-a a {
+    font-weight: bold;
+    color: rgba(104, 142, 180, 0.95);
+    text-decoration: none;
+}
+.lead-name-a a:hover {
+    color: rgba(29, 57, 85, 0.85);
 }
 
 /* Responsive design*/

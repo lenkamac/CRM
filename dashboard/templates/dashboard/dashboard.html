@@ -12,34 +12,21 @@
     {% include 'core/partials/offcanvas_menu.html' %}
 
     <!-- Page Content -->
-    <div class="container py-md-2 dashboard-container mx-auto">
+    <div class="container-fluid py-md-2 mx-auto" id="dashboard-container">
 
-        <div class="row pt-md-3 pt-xxl-3 justify-content-center">
-            <div class="col-12 col-xxl-9">
-                <div class="text-center text-xxl-end pt-md-3">
-                    <h1>Welcome to the dashboard "<span style="color: #3ba48c;">{{ user.username }}</span>"</h1>
-                </div>
-            </div>
-            <div class="col-12 col-xxl-3">
-                <div class="text-center text-xxl-end mt-3  pt-xxl-3">
+        <div class="row pt-3 justify-content-center">
+            <div class="col-12">
+                <div class="text-end mt-3  pt-xxl-3">
                     <div id="dashboard-datetime" class="fs-6 fw-bolder"></div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-2 justify-content-sm-center pt-xxl-4">
-            <div class="col-12 col-xxl-4 pt-xxl-4">
-                <div class="card dashboard-card text-center shadow-sm" style="background-color: #7eaad7;">
-                    <div class="card-body py-sm-1">
-                        <h4 class="pt-sm-1 pt-md-2"><i class="fa fa-users px-2"></i>Leads</h4>
-                        <p class="dashboard-p">{{ lead_count }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-xxl-8">
+        <div class="row mt-2 justify-content-center pt-xxl-4">
+            <div class="col-12">
                 <div class="row justify-content-sm-center">
                     <div class="col-sm-12">
-                        <h4 class="text-sm-start fw-bolder">Latest Leads</h4>
+                        <h5 class="text-sm-start fw-bolder">Latest Leads</h5>
                     </div>
                     <div class="col-sm-12">
                         <div class="table-responsive-custom">
@@ -47,9 +34,11 @@
                                 <thead class="th-custom">
                                     <tr>
                                         <th class="text-start" style="background-color: #7eaad7;">Date</th>
-                                        <th class="text-start" style="background-color: #7eaad7;">Name</th>
                                         <th class="text-start" style="background-color: #7eaad7;">Company</th>
+                                        <th class="text-start" style="background-color: #7eaad7;">Name</th>
                                         <th class="text-start" style="background-color: #7eaad7;">Email</th>
+                                        <td class="text-center" style="background-color: #7eaad7; border-right: 1px solid black; font-weight: bold;">Contact</td>
+                                        <td class="text-center" style="background-color: #7eaad7; font-weight: bold;">Status Sale</td>
                                         <th class="text-center" style="background-color: #7eaad7;">Priority</th>
                                     </tr>
                                 </thead>
@@ -57,9 +46,22 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-start">{{ lead.created_at }}</td>
-                                            <td class="text-start"><a href="{% url 'lead:detail' lead.pk %}">{{ lead.last_name }}, {{ lead.first_name }}</a></td> <!-- or use the field(s) you prefer -->
-                                            <td class="text-start">{{ lead.company }}</td>
+                                            <td class="text-start lead-company-a">
+                                                {% if lead.company %}
+                                                    <a href="{% url 'lead:detail' lead.pk %}">{{ lead.company }}</a>
+                                                {% else %}
+                                                    <span class="text-muted">n/a</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start lead-name-a">
+                                                {% if lead.last_name %}
+                                                    <a href="{% url 'lead:detail' lead.pk %}">{{ lead.first_name }} {{ lead.last_name }}</a>
+                                                {% else %}
+                                                    <span class="text-muted">n/a</span>
+                                                {% endif %}</td> <!-- or use the field(s) you prefer -->
                                             <td class="text-start">{{ lead.email }}</td>
+                                            <td class="text-center">{% if lead.phone %}{{ lead.phone }}{% else %}<span class="text-muted">n/a</span>{% endif %}</td>
+                                            <td class="text-center">{% if lead.status_sale %}{{ lead.status_sale }}{% else %}<span class="text-muted">n/a</span>{% endif %}</td>
                                             <td class="text-center">
                                                 <span class="priority-{{ lead.priority }}">{{ lead.get_priority_display }}</span>
                                             </td>
@@ -76,18 +78,10 @@
         </div>
 
         <div class="row mt-2 justify-content-sm-center">
-            <div class="col-12 col-xxl-4 pt-xxl-4">
-                <div class="card dashboard-card text-center shadow-sm" style="background-color: #a7caad;">
-                    <div class="card-body py-sm-1">
-                        <h4 class="pt-sm-1"><i class="fa fa-users px-2"></i>Clients</h4>
-                        <p class="dashboard-p">{{ client_count }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-xxl-8 pt-xxl-4">
+            <div class="col-12">
                 <div class="row justify-content-sm-center">
                     <div class="col-12">
-                        <h4 class="fw-bolder text-sm-start">Latest Clients</h4>
+                        <h5 class="fw-bolder text-sm-start">Latest Clients</h5>
                     </div>
                     <div class="col-sm-12">
                         <div class="table-responsive-custom">
@@ -95,18 +89,32 @@
                                 <thead class="th-custom">
                                     <tr>
                                         <th class="text-start" style="background-color: #a7caad;">Date</th>
-                                        <th class="text-start" style="background-color: #a7caad;">Name</th>
                                         <th class="text-start" style="background-color: #a7caad;">Company</th>
+                                        <th class="text-start" style="background-color: #a7caad;">Name</th>
                                         <th class="text-start" style="background-color: #a7caad;">Email</th>
+                                        <td class="text-start" style="background-color: #a7caad;">Contact</td>
                                     </tr>
                                 </thead>
                                 {% for client in latest_clients %}
                                     <tbody>
                                         <tr>
                                             <td class="text-start">{{ client.created_at }}</td>
-                                            <td class="text-start"><a href="{% url 'client:detail' client.pk %}">{{ client.last_name }}, {{ client.first_name }}</a></td> <!-- or use the field(s) you prefer -->
-                                            <td class="text-start">{{ client.company }}</td>
+                                            <td class="text-start lead-company-a">
+                                                {% if client.company %}
+                                                    <a href="{% url 'client:detail' client.pk %}">{{ client.company }}</a>
+                                                {% else %}
+                                                    <span class="text-muted">n/a</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start lead-name-a">
+                                                {% if client.last_name %}
+                                                <a href="{% url 'client:detail' client.pk %}">{{ client.first_name }} {{ client.last_name }}</a>
+                                                {% else %}
+                                                <span class="text-muted">n/a</span>
+                                                {% endif %}
+                                            </td> <!-- or use the field(s) you prefer -->
                                             <td class="text-start">{{ client.email }}</td>
+                                            <td class="text-start">{% if client.phone %}{{ client.phone }}{% else %}<span class="text-muted">n/a</span>{% endif %}</td>
                                         </tr>
                                     </tbody>
                                 {% empty %}
@@ -120,71 +128,7 @@
         </div>
     </div>
 
-    <div class="container mx-auto dashboard-container">
-        <!-- Interactive Clients and Leads Graph -->
-        <div class="row mt-2 justify-content-start">
-            <div class="col-12 border border-3">
-                <div class="row mb-3 pt-4 pt-xxl-2">
-                    <div class="col-12">
-                        <h4 class="my-4 text-center fw-bolder">Leads & Clients Over Time</h4>
-                    </div>
-                </div>
-
-                <!-- Time Period Filter -->
-                <div class="row mb-4 pb-3 gy-3">
-                    <div class="col-12 col-md-6">
-                        <!-- Chart Type Selector -->
-                        <div class="d-flex align-items-center justify-content-between justify-content-md-start">
-                            <label for="chartType" class="me-2 fs-6 fw-semibold text-nowrap">Chart Type:</label>
-                            <select id="chartType" class="form-select form-select-sm" style="width: auto;">
-                                <option value="line">Line Chart</option>
-                                <option value="bar" selected>Bar Chart</option>
-                                <option value="area">Area Chart</option>
-                                <option value="mixed">Mixed Chart</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <!-- Data Filter -->
-                        <div class="d-flex align-items-center justify-content-between justify-content-md-start">
-                            <label for="dataFilter" class="me-2 fs-6 fw-semibold text-nowrap">Show:</label>
-                            <select id="dataFilter" class="form-select form-select-sm" style="width: auto;">
-                                <option value="all" {% if selected_data_filter == 'all' %}selected{% endif %}>Overview</option>
-                                <optgroup label="Leads">
-                                    <option value="all_leads" {% if selected_data_filter == 'all_leads' %}selected{% endif %}>All Leads</option>
-                                    <option value="lead_status" {% if selected_data_filter == 'lead_status' %}selected{% endif %}>Lead Status Breakdown</option>
-                                    <option value="won_leads" {% if selected_data_filter == 'won_leads' %}selected{% endif %}>Won Leads</option>
-                                    <option value="lost_leads" {% if selected_data_filter == 'lost_leads' %}selected{% endif %}>Lost Leads</option>
-                                    <option value="contacted_leads" {% if selected_data_filter == 'contacted_leads' %}selected{% endif %}>Contacted Leads</option>
-                                </optgroup>
-                                <optgroup label="Clients">
-                                    <option value="clients" {% if selected_data_filter == 'clients' %}selected{% endif %}>All Clients</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-5">
-                        <form method="get" id="periodFilterForm" class="d-flex align-items-sm-center justify-content-between justify-content-md-start">
-                            <label for="period" class="me-2 fs-6 fw-semibold text-nowrap">Time Period:</label>
-                            <select name="period" id="period" class="form-select form-select-sm" style="width: auto;">
-                                <option value="all" {% if selected_period == 'all' %}selected{% endif %}>All Time</option>
-                                <option value="7days" {% if selected_period == '7days' %}selected{% endif %}>Last 7 Days</option>
-                                <option value="30days" {% if selected_period == '30days' %}selected{% endif %}>Last 30 Days</option>
-                                <option value="90days" {% if selected_period == '90days' %}selected{% endif %}>Last 90 Days</option>
-                                <option value="6months" {% if selected_period == '6months' %}selected{% endif %}>Last 6 Months</option>
-                                <option value="1year" {% if selected_period == '1year' %}selected{% endif %}>Last Year</option>
-                            </select>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Chart.js Canvas -->
-                <div style="position: relative; height: 400px;">
-                    <canvas id="leadsChart"></canvas>
-                </div>
-
-            </div>
-        </div>
+    <div class="container-fluid mx-auto" id="dashboard-charts">
 
         <!-- ===== PRODUCT PURCHASES GRAPH ===== -->
         <div class="row mt-2 justify-content-center">
@@ -302,6 +246,71 @@
 
                 <!-- Plotly Chart Container -->
                 <div id="purchaseChart" style="width: 100%; height: auto;"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Clients and Leads Graph -->
+        <div class="row mt-2 justify-content-start">
+            <div class="col-12 border border-3">
+                <div class="row mb-3 pt-4 pt-xxl-2">
+                    <div class="col-12">
+                        <h4 class="my-4 text-center fw-bolder">Leads & Clients Over Time</h4>
+                    </div>
+                </div>
+
+                <!-- Time Period Filter -->
+                <div class="row mb-4 pb-3 gy-3">
+                    <div class="col-12 col-md-6">
+                        <!-- Chart Type Selector -->
+                        <div class="d-flex align-items-center justify-content-between justify-content-md-start">
+                            <label for="chartType" class="me-2 fs-6 fw-semibold text-nowrap">Chart Type:</label>
+                            <select id="chartType" class="form-select form-select-sm" style="width: auto;">
+                                <option value="line">Line Chart</option>
+                                <option value="bar" selected>Bar Chart</option>
+                                <option value="area">Area Chart</option>
+                                <option value="mixed">Mixed Chart</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <!-- Data Filter -->
+                        <div class="d-flex align-items-center justify-content-between justify-content-md-start">
+                            <label for="dataFilter" class="me-2 fs-6 fw-semibold text-nowrap">Show:</label>
+                            <select id="dataFilter" class="form-select form-select-sm" style="width: auto;">
+                                <option value="all" {% if selected_data_filter == 'all' %}selected{% endif %}>Overview</option>
+                                <optgroup label="Leads">
+                                    <option value="all_leads" {% if selected_data_filter == 'all_leads' %}selected{% endif %}>All Leads</option>
+                                    <option value="lead_status" {% if selected_data_filter == 'lead_status' %}selected{% endif %}>Lead Status Breakdown</option>
+                                    <option value="won_leads" {% if selected_data_filter == 'won_leads' %}selected{% endif %}>Won Leads</option>
+                                    <option value="lost_leads" {% if selected_data_filter == 'lost_leads' %}selected{% endif %}>Lost Leads</option>
+                                    <option value="contacted_leads" {% if selected_data_filter == 'contacted_leads' %}selected{% endif %}>Contacted Leads</option>
+                                </optgroup>
+                                <optgroup label="Clients">
+                                    <option value="clients" {% if selected_data_filter == 'clients' %}selected{% endif %}>All Clients</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-5">
+                        <form method="get" id="periodFilterForm" class="d-flex align-items-sm-center justify-content-between justify-content-md-start">
+                            <label for="period" class="me-2 fs-6 fw-semibold text-nowrap">Time Period:</label>
+                            <select name="period" id="period" class="form-select form-select-sm" style="width: auto;">
+                                <option value="all" {% if selected_period == 'all' %}selected{% endif %}>All Time</option>
+                                <option value="7days" {% if selected_period == '7days' %}selected{% endif %}>Last 7 Days</option>
+                                <option value="30days" {% if selected_period == '30days' %}selected{% endif %}>Last 30 Days</option>
+                                <option value="90days" {% if selected_period == '90days' %}selected{% endif %}>Last 90 Days</option>
+                                <option value="6months" {% if selected_period == '6months' %}selected{% endif %}>Last 6 Months</option>
+                                <option value="1year" {% if selected_period == '1year' %}selected{% endif %}>Last Year</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Chart.js Canvas -->
+                <div style="position: relative; height: 400px;">
+                    <canvas id="leadsChart"></canvas>
+                </div>
+
             </div>
         </div>
     </div>

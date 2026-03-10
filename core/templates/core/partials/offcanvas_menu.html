@@ -3,10 +3,11 @@
 
 <div class="offcanvas-custom" id="sidebarMenu">
     <div class="p-3">
-        <div class="text-start">
-            <a href="{% url 'dashboard:dashboard' %}" class="offcanvas-a">Dashboard</a>
-        </div>
         <ul class="list-unstyled text-center">
+            <li class="text-start">
+                <a href="{% url 'dashboard:dashboard' %}" class="offcanvas-a d-flex align-items-center">
+                    <img src="{% static 'images/dashboard_6820898.png' %}" width="24" height="24" class="me-2">Board</a>
+            </li>
             <li class="text-start">
                 <a href="{% url 'lead:list' %}">
                     <i class="fa-solid fa-circle-user px-2"></i>Leads
