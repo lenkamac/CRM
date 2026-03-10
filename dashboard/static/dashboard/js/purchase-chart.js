@@ -311,6 +311,15 @@
             }
             return;
         }
+        if (dataType === 'total_products') {
+            if (revenueDisplay) {
+                revenueDisplay.textContent = '—';
+            }
+            if (itemsDisplay) {
+                itemsDisplay.textContent = '—';
+            }
+            return;
+        }
 
         // Update revenue display based on currency
         if (revenueDisplay) {
