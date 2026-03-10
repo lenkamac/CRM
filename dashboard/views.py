@@ -161,6 +161,10 @@ def dashboard(request):
     contacted_lead_count = Lead.objects.filter(created_by=request.user, status=Lead.CONTACTED, converted_to_client=False).count()
 
     # ===== PURCHASE DATA FOR GRAPH =====
+    # Import required modules for purchase calculations
+    from decimal import Decimal
+    from core.currency_service import CurrencyConverter
+
     # Calculate purchase date range
     purchase_start_date = None
     if purchase_period == '7days':
@@ -200,6 +204,7 @@ def dashboard(request):
     # Organize data by product and currency
     purchase_products_eur = {}
     purchase_products_usd = {}
+    purchase_products_combined = {}
     purchase_dates_set = set()
 
     for item in purchase_data:
@@ -207,6 +212,10 @@ def dashboard(request):
         product_name = item['product__name']
         currency = item['currency']
         purchase_dates_set.add(date_str)
+
+        # Initialize combined product data
+        if product_name not in purchase_products_combined:
+            purchase_products_combined[product_name] = {}
 
         # Separate by currency
         if currency == 'EUR':
@@ -233,13 +242,63 @@ def dashboard(request):
                 usd_amount += float(purchase.total)
             purchase_products_usd[product_name]['amounts'].append(usd_amount)
 
+        # Add to combined data (sum quantities across currencies)
+        if date_str not in purchase_products_combined[product_name]:
+            purchase_products_combined[product_name][date_str] = {'quantity': 0, 'amount_eur': 0, 'amount_usd': 0, 'amount_eur_combined': 0, 'amount_usd_combined': 0}
+
+        purchase_products_combined[product_name][date_str]['quantity'] += item['total_quantity']
+
+        if currency == 'EUR':
+            eur_amount = float(item['total_amount'])
+            purchase_products_combined[product_name][date_str]['amount_eur'] += eur_amount
+            purchase_products_combined[product_name][date_str]['amount_eur_combined'] += eur_amount
+        else:
+            # Get USD amount
+            usd_amount = 0
+            for purchase in purchases_query.filter(
+                created_at__date=item['date'],
+                product_id=item['product_id'],
+                currency='USD'
+            ):
+                usd_amount += float(purchase.total)
+            purchase_products_combined[product_name][date_str]['amount_usd'] += usd_amount
+            purchase_products_combined[product_name][date_str]['amount_usd_combined'] += usd_amount
+
+    # Format combined data for JavaScript
+    purchase_products_total = {}
+    for product_name, dates_data in purchase_products_combined.items():
+        purchase_products_total[product_name] = {
+            'dates': [],
+            'quantities': [],
+            'amounts_eur': [],
+            'amounts_usd': [],
+            'amounts_eur_total': [],  # EUR sales + USD converted to EUR
+            'amounts_usd_total': []   # USD sales + EUR converted to USD
+        }
+        for date_str in sorted(dates_data.keys()):
+            purchase_products_total[product_name]['dates'].append(date_str)
+            purchase_products_total[product_name]['quantities'].append(dates_data[date_str]['quantity'])
+            purchase_products_total[product_name]['amounts_eur'].append(dates_data[date_str]['amount_eur'])
+            purchase_products_total[product_name]['amounts_usd'].append(dates_data[date_str]['amount_usd'])
+
+            # Calculate total revenue in both currencies
+            eur_amount = dates_data[date_str]['amount_eur_combined']
+            usd_amount = dates_data[date_str]['amount_usd_combined']
+
+            # Convert and sum for EUR total (EUR + USD converted to EUR)
+            usd_to_eur = CurrencyConverter.convert(usd_amount, 'USD', 'EUR')
+            total_in_eur = eur_amount + float(usd_to_eur)
+            purchase_products_total[product_name]['amounts_eur_total'].append(total_in_eur)
+
+            # Convert and sum for USD total (USD + EUR converted to USD)
+            eur_to_usd = CurrencyConverter.convert(eur_amount, 'EUR', 'USD')
+            total_in_usd = usd_amount + float(eur_to_usd)
+            purchase_products_total[product_name]['amounts_usd_total'].append(total_in_usd)
+
     # Get all products for filter dropdown
     all_products = Product.objects.all().order_by('name')
 
     # Calculate summary statistics by currency
-    from decimal import Decimal
-    from core.currency_service import CurrencyConverter
-
     # EUR revenue (base currency)
     eur_purchases = purchases_query.filter(currency='EUR')
     eur_revenue = eur_purchases.aggregate(
@@ -277,7 +336,8 @@ def dashboard(request):
         'purchase_chart_data': json.dumps({
             'dates': sorted(list(purchase_dates_set)),
             'products_eur': purchase_products_eur,
-            'products_usd': purchase_products_usd
+            'products_usd': purchase_products_usd,
+            'products_total': purchase_products_total
         }),
         'all_products': all_products,
         'selected_purchase_product': purchase_product_filter,

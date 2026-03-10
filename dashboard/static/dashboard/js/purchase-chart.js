@@ -24,6 +24,13 @@
             return;
         }
 
+        // Initialize displays with current filter values
+        const currencySelect = document.getElementById('purchaseCurrency');
+        const dataTypeSelect = document.getElementById('purchaseDataType');
+        const currentCurrency = currencySelect ? currencySelect.value : 'EUR';
+        const currentDataType = dataTypeSelect ? dataTypeSelect.value : 'quantity';
+
+        updateRevenueDisplay(currentCurrency, currentDataType);
         renderPurchaseChart();
         attachEventListeners();
     }
@@ -55,16 +62,38 @@
         ];
         let colorIndex = 0;
 
-        // Select the correct product data based on currency
-        const products = currency === 'EUR' ? purchaseChartData.products_eur : purchaseChartData.products_usd;
+        // Select the correct product data based on data type and currency
+        let products;
+        if (dataType === 'total_products' || dataType === 'total_revenue') {
+            // Use combined data (both currencies)
+            products = purchaseChartData.products_total;
+        } else {
+            // Use currency-specific data
+            products = currency === 'EUR' ? purchaseChartData.products_eur : purchaseChartData.products_usd;
+        }
 
         Object.keys(products).forEach(productName => {
             const productData = products[productName];
             const color = colors[colorIndex % colors.length];
 
+            let yData;
+            if (dataType === 'quantity') {
+                yData = productData.quantities;
+            } else if (dataType === 'total_products') {
+                // Use combined quantities
+                yData = productData.quantities;
+            } else if (dataType === 'amount') {
+                yData = productData.amounts;
+            } else if (dataType === 'total_revenue') {
+                // Use combined total revenue (both currencies converted) based on selected display currency
+                yData = currency === 'EUR' ? productData.amounts_eur_total : productData.amounts_usd_total;
+            } else {
+                yData = productData.quantities;
+            }
+
             const trace = {
                 x: productData.dates,
-                y: dataType === 'quantity' ? productData.quantities : productData.amounts,
+                y: yData,
                 name: productName,
                 type: getPlotlyChartType(chartType),
                 mode: chartType === 'line' ? 'lines+markers' : undefined,
@@ -113,10 +142,25 @@
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Quantity: %{y}<br>' +
                    '<extra></extra>';
-        } else {
+        } else if (dataType === 'total_products') {
+            return '<b>' + productName + '</b><br>' +
+                   'Date: %{x|%Y-%m-%d}<br>' +
+                   'Total Products Sold: %{y}<br>' +
+                   '<extra></extra>';
+        } else if (dataType === 'amount') {
             return '<b>' + productName + '</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Amount: ' + currencySymbol + '%{y:,.2f}<br>' +
+                   '<extra></extra>';
+        } else if (dataType === 'total_revenue') {
+            return '<b>' + productName + '</b><br>' +
+                   'Date: %{x|%Y-%m-%d}<br>' +
+                   'Total Revenue: ' + currencySymbol + '%{y:,.2f}<br>' +
+                   '<extra></extra>';
+        } else {
+            return '<b>' + productName + '</b><br>' +
+                   'Date: %{x|%Y-%m-%d}<br>' +
+                   'Value: %{y}<br>' +
                    '<extra></extra>';
         }
     }
@@ -127,11 +171,38 @@
     function createLayout(dataType, currency) {
         const currencySymbol = currency === 'EUR' ? '€' : '$';
 
+        let chartTitle, yAxisTitle, tickFormat, tickPrefix;
+
+        if (dataType === 'quantity') {
+            chartTitle = 'Product Purchases (Quantity)';
+            yAxisTitle = 'Quantity Sold';
+            tickFormat = ',';
+            tickPrefix = '';
+        } else if (dataType === 'total_products') {
+            chartTitle = 'Total Products Sold';
+            yAxisTitle = 'Total Products Sold';
+            tickFormat = ',';
+            tickPrefix = '';
+        } else if (dataType === 'amount') {
+            chartTitle = 'Product Purchases (Revenue)';
+            yAxisTitle = 'Revenue (' + currencySymbol + ')';
+            tickFormat = ',.2f';
+            tickPrefix = currencySymbol;
+        } else if (dataType === 'total_revenue') {
+            chartTitle = 'Total Revenue';
+            yAxisTitle = 'Total Revenue (' + currencySymbol + ')';
+            tickFormat = ',.2f';
+            tickPrefix = currencySymbol;
+        } else {
+            chartTitle = 'Product Purchases';
+            yAxisTitle = 'Value';
+            tickFormat = ',';
+            tickPrefix = '';
+        }
+
         return {
             title: {
-                text: dataType === 'quantity'
-                    ? 'Product Purchases (Quantity)'
-                    : 'Product Purchases (Revenue)',
+                text: chartTitle,
                 font: {
                     size: 18,
                     family: 'Arial, sans-serif',
@@ -151,14 +222,14 @@
             },
             yaxis: {
                 title: {
-                    text: dataType === 'quantity' ? 'Quantity Sold' : 'Revenue (' + currencySymbol + ')',
+                    text: yAxisTitle,
                     font: { size: 14, color: '#666' }
                 },
                 gridcolor: '#e5e5e5',
                 showgrid: true,
                 zeroline: false,
-                tickformat: dataType === 'amount' ? ',.2f' : ',',
-                tickprefix: dataType === 'amount' ? currencySymbol : ''
+                tickformat: tickFormat,
+                tickprefix: tickPrefix
             },
             hovermode: 'closest',
             showlegend: true,
@@ -224,12 +295,24 @@
     }
 
     /**
-     * Update total revenue and items display based on selected currency
+     * Update total revenue and items display based on selected currency and data type
      */
-    function updateRevenueDisplay(currency) {
+    function updateRevenueDisplay(currency, dataType) {
         const revenueDisplay = document.getElementById('totalRevenueDisplay');
         const itemsDisplay = document.getElementById('totalItemsDisplay');
 
+        // Hide both if total_revenue is selected
+        if (dataType === 'total_revenue') {
+            if (revenueDisplay) {
+                revenueDisplay.textContent = '—';
+            }
+            if (itemsDisplay) {
+                itemsDisplay.textContent = '—';
+            }
+            return;
+        }
+
+        // Update revenue display based on currency
         if (revenueDisplay) {
             const eurRevenue = parseFloat(revenueDisplay.dataset.eur);
             const usdRevenue = parseFloat(revenueDisplay.dataset.usd);
@@ -241,6 +324,7 @@
             }
         }
 
+        // Update items display based on currency
         if (itemsDisplay) {
             const eurItems = parseInt(itemsDisplay.dataset.eur);
             const usdItems = parseInt(itemsDisplay.dataset.usd);
@@ -267,12 +351,17 @@
         }
 
         if (dataTypeSelect) {
-            dataTypeSelect.addEventListener('change', renderPurchaseChart);
+            dataTypeSelect.addEventListener('change', function() {
+                const currency = currencySelect ? currencySelect.value : 'EUR';
+                updateRevenueDisplay(currency, this.value);
+                renderPurchaseChart();
+            });
         }
 
         if (currencySelect) {
             currencySelect.addEventListener('change', function() {
-                updateRevenueDisplay(this.value);
+                const dataType = dataTypeSelect ? dataTypeSelect.value : 'quantity';
+                updateRevenueDisplay(this.value, dataType);
                 renderPurchaseChart();
             });
         }

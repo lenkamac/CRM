@@ -159,7 +159,7 @@
                                 <p id="totalItemsDisplay" class="fs-4 mb-0"
                                    data-eur="{{ total_items_eur }}"
                                    data-usd="{{ total_items_usd }}">
-                                    {{ total_items_usd }}
+                                    {{ total_items_eur }}
                                 </p>
                             </div>
                         </div>
@@ -228,8 +228,10 @@
                             <i class="bi bi-graph-up"></i> Data Type:
                         </label>
                         <select id="purchaseDataType" class="form-select form-select-sm">
-                            <option value="quantity" selected>Quantity</option>
+                            <option value="quantity">Quantity</option>
+                            <option value="total_products" selected>Total Products Sold</option>
                             <option value="amount">Amount</option>
+                            <option value="total_revenue">Total Revenue</option>
                         </select>
                     </div>
 
@@ -238,8 +240,8 @@
                             <i class="bi bi-currency-exchange"></i> Currency:
                         </label>
                         <select id="purchaseCurrency" class="form-select form-select-sm">
-                            <option value="USD" selected>USD ($)</option>
-                            <option value="EUR">EUR (€)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR" selected>EUR (€)</option>
                         </select>
                     </div>
                 </div>
