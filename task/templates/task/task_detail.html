@@ -67,7 +67,7 @@
                                     <div class="col-4">
                                         {% if task.lead.company %}
                                             <a href="{% url 'lead:detail' task.lead.pk %}"><span class="fw-bolder text-start fs-6 task-contact">{{ task.lead.company }}</span></a>
-                                        {% elif task.due_date %}
+                                        {% elif task.client.company %}
                                             <a href="{% url 'client:detail' task.client.pk %}"><span class="fw-bolder text-start fs-6 task-contact">{{ task.client.company }}</span></a>
                                         {% else %}
                                             <p class="text-muted fw-bolder">No company</p>
