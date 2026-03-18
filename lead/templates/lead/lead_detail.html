@@ -50,8 +50,7 @@
                  <div class="card card-detail">
                      <div class="card-detail-header position-relative">
                          <h4 class="card-title text-center py-1">
-                             <i class="fa-solid fa-id-card"></i>
-                             {{ lead.last_name }} {{ lead.first_name }}
+                             <i class="fa-solid fa-id-card"></i> Info
                          </h4>
                          <div class="position-absolute top-50 end-0 translate-middle-y pe-2 py-2">
                              <div class="dropdown">
@@ -89,7 +88,19 @@
                             <tbody>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Company:</td>
-                                    <td class="fw-normal pe-2">{{ lead.company }}</td>
+                                    <td class="fw-normal pe-2">{% if lead.company %}
+                                        {{ lead.company }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
+                                </tr>
+                                <tr class="pb-1">
+                                    <td class="fs-6 fw-bolder" style="width: 160px;">Name</td>
+                                    <td class="fw-normal pe-2">{% if lead.last_name %}
+                                        {{ lead.first_name }} {{ lead.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Email:</td>
@@ -134,15 +145,27 @@
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Status:</td>
-                                    <td class="fw-normal pe-2">{{ lead.status }}</td>
+                                    <td class="fw-normal pe-2">{% if lead.status %}
+                                        {{ lead.status }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Priority:</td>
-                                    <td class="fw-normal pe-2">{{ lead.get_priority_display }}</td>
+                                    <td class="fw-normal pe-2">{% if lead.get_priority_display %}
+                                        {{ lead.get_priority_display }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Status Sale:</td>
-                                    <td class="fw-normal pe-2">{{ lead.status_sale }}</td>
+                                    <td class="fw-normal pe-2">{% if lead.status_sale %}
+                                        {{ lead.status_sale }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Website:</td>

@@ -43,8 +43,7 @@
                  <div class="card card-detail">
                      <div class="card-detail-header position-relative">
                          <h5 class="card-title text-center fw-bolder py-2">
-                             <i class="fa-solid fa-id-card"></i>
-                             {{ client.last_name }} {{ client.first_name }}
+                             <i class="fa-solid fa-id-card"></i> Info
                          </h5>
                          <div class="position-absolute top-50 end-0 translate-middle-y pe-2 py-2">
                              <div class="dropdown">
@@ -77,7 +76,19 @@
                             <tbody>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Company:</td>
-                                    <td class="fw-normal pe-2">{{ client.company }}</td>
+                                    <td class="fw-normal pe-2">{% if client.company %}
+                                        {{ client.company }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
+                                </tr>
+                                <tr class="pb-1">
+                                    <td class="fs-6 fw-bolder" style="width: 160px;">Name:</td>
+                                    <td class="fw-normal pe-2">{% if client.last_name %}
+                                        {{ client.first_name }} {{ client.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Email:</td>
@@ -122,7 +133,11 @@
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Status:</td>
-                                    <td class="fw-normal pe-2">{{ client.status }}</td>
+                                    <td class="fw-normal pe-2">{% if client.status %}
+                                        {{ client.status }}
+                                    {% else %}
+                                        <span class="text-muted">n/a</span>
+                                    {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Converted from lead:</td>
