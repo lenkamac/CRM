@@ -36,9 +36,11 @@ def tasks(request):
         )
 
     # Apply filters
-    status = request.GET.get('status')
-    if status:
-        tasks_list = tasks_list.filter(status=status)
+    status_list = request.GET.getlist('status')
+    if status_list:
+        tasks_list = tasks_list.filter(status__in=status_list)
+    else:
+        tasks_list = tasks_list.filter(status__in=['todo', 'in_progress'])
 
     priority = request.GET.get('priority')
     if priority:

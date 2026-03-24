@@ -68,13 +68,43 @@
                             <form method="get" class="row g-3">
                                 <div class="col-md-2">
                                     <label class="form-label fs-6">Status</label>
-                                    <select name="status" class="form-select">
-                                        <option value="">All</option>
-                                        <option value="todo" {% if request.GET.status == 'todo' %}selected{% endif %}>To Do</option>
-                                        <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                                        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
-                                        <option value="canceled" {% if request.GET.status == 'canceled' %}selected{% endif %}>Canceled</option>
-                                    </select>
+                                     <div class="dropdown">
+                                     <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                         <span id="statusFilterText">
+                                            {% if not request.GET.getlist.status %}
+                                                All
+                                            {% else %}
+                                                {% for status in request.GET.getlist.status %}
+                                                    {% if status == 'todo' %}To Do{% elif status == 'in_progress' %}In Progress{% elif status == 'completed' %}Completed{% elif status == 'canceled' %}Canceled{% endif %}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </span>
+                                     </button>
+                                     <div class="dropdown-menu p-2" aria-labelledby="statusDropdown" onclick="event.stopPropagation();">
+                                         <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="status-all" {% if not request.GET.getlist.status %}checked{% endif %} onclick="updateStatusText(); document.querySelectorAll('input[name=status]').forEach(cb => cb.checked = false);">
+                                            <label class="form-check-label" for="status-all">All</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="status" value="todo" id="status-todo" {% if 'todo' in request.GET.getlist.status %}checked{% endif %} onclick="updateStatusText(); document.getElementById('status-all').checked = false;">
+                                            <label class="form-check-label" for="status-todo">To Do</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="status" value="in_progress" id="status-progress" {% if 'in_progress' in request.GET.getlist.status %}checked{% endif %} onclick="updateStatusText(); document.getElementById('status-all').checked = false;">
+                                            <label class="form-check-label" for="status-progress">In Progress</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="status" value="completed" id="status-completed" {% if 'completed' in request.GET.getlist.status %}checked{% endif %} onclick="updateStatusText(); document.getElementById('status-all').checked = false;">
+                                            <label class="form-check-label" for="status-completed">Completed</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="status" value="canceled" id="status-canceled" {% if 'canceled' in request.GET.getlist.status %}checked{% endif %} onclick="updateStatusText(); document.getElementById('status-all').checked = false;">
+                                            <label class="form-check-label" for="status-canceled">Canceled</label>
+                                        </div>
+                                     </div>
+
+
+                                    </div>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fs-6">Priority</label>
@@ -310,4 +340,20 @@
         import '@fortawesome/fontawesome-free/css/all.min.css';
     </script>
     <script src="{% static 'js/project.js' %}"></script>
+    <script>
+    function updateStatusText() {
+        const checkboxes = document.querySelectorAll('input[name=status]:checked');
+        const allCheckbox = document.getElementById('status-all');
+        const statusText = document.getElementById('statusFilterText');
+
+        if (checkboxes.length === 0 || allCheckbox.checked) {
+            statusText.textContent = 'All';
+        } else {
+            const labels = Array.from(checkboxes).map(cb => {
+                return document.querySelector(`label[for="${cb.id}"]`).textContent;
+            });
+            statusText.textContent = labels.join(', ');
+        }
+    }
+    </script>
 {% endblock %}
