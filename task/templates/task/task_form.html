@@ -150,7 +150,10 @@
             // Initialize Flatpickr for due date
             flatpickr("#id_due_date", {
                 dateFormat: "d.m.Y",
-                allowInput: true
+                allowInput: true,
+                locale: {
+                    firstDayOfWeek: 1
+                }
             });
 
             // Initialize Flatpickr for due time
