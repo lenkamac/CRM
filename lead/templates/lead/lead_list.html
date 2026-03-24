@@ -124,7 +124,16 @@
                                                         <label for="select-all"></label>
                                                         <input type="checkbox" id="select-all" />
                                                     </th>
-                                                    <th class="text-start">Created at</th>
+                                                    <th class="text-start">
+                                                        <a href="?sort={% if request.GET.sort == 'created_at' %}-created_at{% else %}created_at{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="text-decoration-none text-black">
+                                                            Created at
+                                                            {% if request.GET.sort == 'created_at' %}
+                                                               ▲
+                                                            {% elif request.GET.sort == '-created_at' or not request.GET.sort %}
+                                                               ▼
+                                                            {% endif %}
+                                                        </a>
+                                                    </th>
                                                     <th class="text-start">Company</th>
                                                     <th class="text-start">Name</th>
                                                     <th class="text-start">Email</th>
@@ -192,7 +201,7 @@
                                             {# Previous page #}
                                             {% if page_obj.has_previous %}
                                                 <li class="page-item">
-                                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo;</a>
+                                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">&laquo;</a>
                                                 </li>
                                             {% else %}
                                                 <li class="page-item disabled">
@@ -206,7 +215,7 @@
                                                     <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                                                 {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
                                                     <li class="page-item">
-                                                        <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+                                                        <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
                                                     </li>
                                                 {% endif %}
                                             {% endfor %}
@@ -214,7 +223,7 @@
                                             {# Next page #}
                                             {% if page_obj.has_next %}
                                                 <li class="page-item">
-                                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&raquo;</a>
+                                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">&raquo;</a>
                                                 </li>
                                             {% else %}
                                                 <li class="page-item disabled">

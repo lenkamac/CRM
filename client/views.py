@@ -37,6 +37,10 @@ class ClientListView(ListView):
                 Q(email__icontains=query)
             )
 
+        # Handle sorting
+        sort = self.request.GET.get('sort', '-created_at')  # Default: newest first
+        queryset = queryset.order_by(sort)
+
         return queryset
 
 
