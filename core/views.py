@@ -15,8 +15,6 @@ from .models import Project, ProjectTeamAssignment, Team, TeamMembership
 def index(request):
     return render(request, 'core/index.html')
 
-def contact(request):
-    return render(request, 'core/contact.html')
 
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = Project

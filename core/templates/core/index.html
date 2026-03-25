@@ -11,56 +11,74 @@
 
             <div class="row my-xxl-2" >
                 <div class="col-12">
-                    <div class="row mx-xxl-1 my-xxl-2 align-items-center">
-                        <div class="col-md-4 col-lg-4 my-xxl-0 px-xxl-2">
-                           <div class="text-end">
-                                <img src="{% static 'images/crm.png' %}" alt="crm" class="crm-img img-fluid">
-                           </div>
-                       </div>
-                        <div class="col-sm-4 col-md-8 col-lg-8">
-                            <div class="text-start">
-                                <h1 class="main-h1">Welcome, Sales Manager!</h1>
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <div class="text-center">
+                                <h1 class="text-center"> CRM SYSTEM</h1>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row my-sm-4 mb-md-2 mx-xxl-2 my-xxl-2 py-sm-3 px-xxl-5">
+            <div class="row align-items-center">
                 <div class="col-12">
                     <div class="text-center">
                         <p class="index-p px-auto pt-md-2 py-xxl-4">Your productivity hub for managing leads, clients, and deals.</p>
                     </div>
                 </div>
+                <div class="col-12 text-center">
+                    <a href="{% url 'login' %}" class="btn btn-log fw-bolder fs-5">
+                            Get started<i class="fa-solid fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
             </div>
-            <div class="row mx-xxl-2 mt-md-4">
+            <div class="row mx-xxl-2 mt-md-4 shadow p-3 mb-5 rounded" id="index-cards">
                 <div class="col mb-4 py-lg-4 mx-xxl-2">
-                    <div class="mx-auto mb-2"><h5 class="h5-index px-sm-2 py-3"><i class="fa-solid fa-user-plus px-3"></i>Manage Leads</h5></div>
-                    <p class="p-index px-3">Effortlessly add, track, and nurture new leads. Stay in control of your sales funnel.</p>
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title h5-index px-sm-2 py-3"><i class="fa-solid fa-user-plus px-3"></i>Manage Leads</h5>
+                            <p class="card-text p-index px-3">Effortlessly add, track, and nurture new leads. Stay in control of your sales funnel.</p>
+                            <img src="{% static 'images/businessman-blurred-background-with-people-connection-icon-business-leadership-chart.jpg' %}" alt="lead" class="lead-img img-fluid mt-auto" style="height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
                 </div>
                 <div class="col mb-4 py-lg-4 mx-xxl-1">
-                    <div class="mx-auto mb-2"><h5 class="h5-index py-3"><i class="fa-solid fa-users px-2"></i>Clients & Contacts</h5></div>
-                    <p class="p-index px-3">Organize clients, store notes, and quickly access key contacts.</p>
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title h5-index py-3"><i class="fa-solid fa-users px-2"></i>Clients & Contacts</h5>
+                            <p class="card-text p-index px-3">Organize clients, store notes, and quickly access key contacts.</p>
+                            <img src="{% static 'images/business-people-shaking-hands-greeting.jpg' %}" alt="client" class="client-img img-fluid mt-auto" style="height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
                 </div>
                 <div class="col mb-4 py-lg-4 mx-xxl-1">
-                    <div class="mx-auto mb-2"><h5 class="h5-index py-3"><i class="fa-solid fa-list-check px-2"></i>Tasks & Calendar</h5></div>
-                    <p class="p-index px-3">Stay on top of tasks, appointments, and deadlines with your integrated calendar.</p>
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title h5-index py-3"><i class="fa-solid fa-list-check px-2"></i>Tasks & Calendar</h5>
+                            <p class="card-text p-index px-3">Stay on top of tasks, appointments, and deadlines with your integrated calendar.</p>
+                            <img src="{% static 'images/freepik__talk__22074.png' %}" alt="calendar" class="calendar-img img-fluid mt-auto" style="height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
                 </div>
                 <div class="col mb-4 py-lg-4 mx-xxl-2">
-                    <div class="mx-auto mb-2"><h5 class="h5-index py-3"><i class="fa-solid fa-chart-line px-2"></i>Performance Insights</h5></div>
-                    <p class="p-index px-3">Analyze sales activities and track your progress with built-in dashboards.</p>
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title h5-index py-3"><i class="fa-solid fa-chart-line px-2"></i>Performance Insights</h5>
+                            <p class="card-text p-index px-3">Analyze sales activities and track your progress with built-in dashboards.</p>
+                            <img src="{% static 'images/customer-relationship-management-concept.jpg' %}" alt="performance" class="performance-img img-fluid mt-auto" style="height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
                 </div>
             </div>
            <div class="row mx-lg-2 mt-md-5 py-md-5 my-lg-3 align-items-center">
                <div class="col-6">
                    <div class="text-center">
-                       <a href="{% url 'login' %}" class="btn btn-log pt-md-3 pt-lg-2 pt-xxl-2">
-                            Login and go to Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>
-                        </a>
+
                    </div>
                </div>
                <div class="col-6 py-md-5">
                    <div class="text-start">
-                       <img src="{% static 'images/customer-relationship-management-concept.jpg' %}" alt="crm-customer" class="crm-img-customer img-fluid">
+
                    </div>
                </div>
            </div>

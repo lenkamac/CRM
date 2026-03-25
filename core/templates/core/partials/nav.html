@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <nav class="navbar navbar-expand-md fixed-top">
     <div class="container-fluid">
         <!-- Hamburger Button: Visible only on small screens -->
@@ -19,18 +18,11 @@
 
 
                 {% else %}
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">Home</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'userprofile:register' %}">Sign up</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                     </li>
                 {% endif %}
             </ul>

@@ -144,9 +144,8 @@
                                         <option value="this_month" {% if request.GET.due_date == 'this_month' %}selected{% endif %}>This Month</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">&nbsp;</label>
-                                    <button type="submit" class="btn btn-secondary fw-bolder d-block">Apply Filters</button>
+                                <div class="col-md-12 d-flex justify-content-end align-items-end">
+                                    <button type="submit" class="btn btn-secondary fw-bolder">Apply Filters</button>
                                 </div>
                             </form>
                         </div>
@@ -341,19 +340,19 @@
     </script>
     <script src="{% static 'js/project.js' %}"></script>
     <script>
-    function updateStatusText() {
-        const checkboxes = document.querySelectorAll('input[name=status]:checked');
-        const allCheckbox = document.getElementById('status-all');
-        const statusText = document.getElementById('statusFilterText');
+        function updateStatusText() {
+            const checkboxes = document.querySelectorAll('input[name=status]:checked');
+            const allCheckbox = document.getElementById('status-all');
+            const statusText = document.getElementById('statusFilterText');
 
-        if (checkboxes.length === 0 || allCheckbox.checked) {
-            statusText.textContent = 'All';
-        } else {
-            const labels = Array.from(checkboxes).map(cb => {
-                return document.querySelector(`label[for="${cb.id}"]`).textContent;
-            });
-            statusText.textContent = labels.join(', ');
+            if (checkboxes.length === 0 || allCheckbox.checked) {
+                statusText.textContent = 'All';
+            } else {
+                const labels = Array.from(checkboxes).map(cb => {
+                    return document.querySelector(`label[for="${cb.id}"]`).textContent;
+                });
+                statusText.textContent = labels.join(', ');
+            }
         }
-    }
     </script>
 {% endblock %}

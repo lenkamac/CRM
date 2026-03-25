@@ -214,57 +214,12 @@
 
 
 .btn-log {
-    width: 75%;
-    height: 53px;
     border-radius: 5px;
     background-color: #517e7e;
     color: white;
-    font-weight: bold;
-    font-size: 1.3rem;
 }
-@media (max-width: 767px) {
-    .btn-log {
-        width: 90%;
-        height: 40px;
-        border-radius: 5px;
-        background-color: #517e7e;
-        font-size: 0.7rem;
-    }
-}
-@media (min-width: 768px) and (max-width: 1099px) {
-    .btn-log {
-        width: 70%;
-        height: 50px;
-        border-radius: 5px;
-        background-color: #517e7e;
-        font-size: 1.1rem;
-        margin-left:80px;
-    }
-}
-@media (min-width: 1100px){
-    .btn-log {
-        width: 70%;
-        height: 50px;
-        border-radius: 5px;
-        background-color: #517e7e;
-        font-size: 1.2rem;
-    }
-}
-@media (min-width: 1401px) and (max-width: 2598px) {
-    .btn-log {
-        width: 70%;
-        height: 58px;
-        border-radius: 5px;
-        background-color: #517e7e;
-        font-size: 1.4rem;
-    }
-}
-@media (min-width: 2599px) {
-    .btn-log {
-        width: 70%;
-        height: 90px;
-        border-radius: 5px;
-        background-color: #517e7e;
-        font-size: 1.6rem;
-    }
+
+#index-cards {
+    background-color: #374d4d;
+    border-radius: 5px;
 }
