@@ -7,33 +7,39 @@
 
     {% block css %}
         <link rel="stylesheet" href="{% static 'userprofile/account.css' %}">
+        <style>
+            body {
+                background: linear-gradient(90deg, rgb(42, 50, 49) 7%, rgb(39, 60, 60) 32%, rgb(41, 71, 64) 66%, rgb(43, 86, 86) 90%);
+                min-height: 100vh;
+            }
+        </style>
     {% endblock %}
 
     <div class="container-log d-flex justify-content-center align-items-center mt-4" style="height: 75vh;">
 
-        <div class="row w-100 w-md-50 justify-content-center">
+        <div class="row w-100 justify-content-center">
 
-            <div class="col-12 col-md-10">
+            <div class="col-12 col-md-6 col-lg-4">
 
                 <div class="text-center">
-                    <h1 class="fw-bold py-2 my-4">Login</h1>
+                    <h1 class="fw-bold py-2 my-4" style="color: #ffffff;">Login</h1>
                 </div>
 
-                <div class="border py-4 rounded shadow my-form text-center" style="background-color: #d9dddd;">
+                <div class="border py-4 rounded shadow my-form text-center" style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);">
                     <form method="post" action="." class="login-form py-xxl-3">
                         {% csrf_token %}
                         <div class="col-lg-12 mb-3 py-xxl-2">
-                            <label for="username" class="form-label fw-bold px-sm-0 px-lg-3">Username</label>
-                            {{ form.username }}
+                            <label for="username" class="form-label fw-bold px-sm-0 px-lg-3" style="color: #ffffff;">Username</label>
+                            <span class="w-100">{{ form.username }}</span>
                         </div>
 
                         <div class="col-lg-12 mb-3 py-xxl-2">
-                            <label for="password" class="form-label fw-bold px-lg-3">Password</label>
+                            <label for="password" class="form-label fw-bold px-lg-3" style="color: #ffffff;">Password</label>
                             {{ form.password }}
                         </div>
 
                         <div class="text-center">
-                            <button class="btn login-btn">Submit</button>
+                            <button class="btn fw-bolder" style="background-color: #ffffff; color: #515457;">Submit</button>
                         </div>
 
                     </form>
