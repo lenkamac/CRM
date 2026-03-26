@@ -493,6 +493,44 @@
                         </h5>
                     </div>
 
+                    <!-- Purchase Filters -->
+                    <div class="col-12 mt-3 mb-2">
+                        <form method="get" class="row g-2 align-items-end">
+                            {% if request.GET.comment_page %}<input type="hidden" name="comment_page" value="{{ request.GET.comment_page }}">{% endif %}
+                            {% if request.GET.task_page %}<input type="hidden" name="task_page" value="{{ request.GET.task_page }}">{% endif %}
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small mb-1">Product</label>
+                                <input type="text" name="purchase_product" value="{{ purchase_filter.product }}"
+                                       class="form-control form-control-sm" placeholder="Search product...">
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Currency</label>
+                                <select name="purchase_currency" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    {% for value, label in purchase_currency_choices %}
+                                        <option value="{{ value }}" {% if purchase_filter.currency == value %}selected{% endif %}>{{ label }} ({{ value }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Date from</label>
+                                <input type="text" name="purchase_date_from" id="purchase_date_from" value="{{ purchase_filter.date_from }}"
+                                       class="form-control form-control-sm" placeholder="dd.mm.yyyy" autocomplete="off">
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Date to</label>
+                                <input type="text" name="purchase_date_to" id="purchase_date_to" value="{{ purchase_filter.date_to }}"
+                                       class="form-control form-control-sm" placeholder="dd.mm.yyyy" autocomplete="off">
+                            </div>
+                            <div class="col-6 col-md-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-sm fw-bolder" style="background-color: #517e7e; color: white;">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <a href="?purchase_page=1" class="btn btn-sm btn-outline-secondary">Clear</a>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Purchase History -->
                     <div class="col-12 mt-3">
                         <div class="table-responsive-custom">
@@ -548,11 +586,11 @@
                                 <nav class="mt-lg-3">
                                     <ul class="pagination">
                                         {% if purchases.has_previous %}
-                                            <li class="px-lg-4"><a href="?purchase_page={{ purchases.previous_page_number }}">&laquo; Prev</a></li>
+                                            <li class="px-lg-4"><a href="?purchase_page={{ purchases.previous_page_number }}{% if purchase_filter.product %}&purchase_product={{ purchase_filter.product }}{% endif %}{% if purchase_filter.currency %}&purchase_currency={{ purchase_filter.currency }}{% endif %}{% if purchase_filter.date_from %}&purchase_date_from={{ purchase_filter.date_from }}{% endif %}{% if purchase_filter.date_to %}&purchase_date_to={{ purchase_filter.date_to }}{% endif %}">&laquo; Prev</a></li>
                                         {% endif %}
                                             <li class="px-lg-3">Page {{ purchases.number }} of {{ purchases.paginator.num_pages }}</li>
                                         {% if purchases.has_next %}
-                                        <li class="px-lg-4"><a href="?purchase_page={{ purchases.next_page_number }}">Next &raquo;</a></li>
+                                        <li class="px-lg-4"><a href="?purchase_page={{ purchases.next_page_number }}{% if purchase_filter.product %}&purchase_product={{ purchase_filter.product }}{% endif %}{% if purchase_filter.currency %}&purchase_currency={{ purchase_filter.currency }}{% endif %}{% if purchase_filter.date_from %}&purchase_date_from={{ purchase_filter.date_from }}{% endif %}{% if purchase_filter.date_to %}&purchase_date_to={{ purchase_filter.date_to }}{% endif %}">Next &raquo;</a></li>
                                         {% endif %}
                                     </ul>
                                 </nav>
@@ -560,94 +598,12 @@
                         </div>
                     </div>
 
-                    <!-- Add Purchase Form -->
+                    <!-- Add Purchase Button -->
                     <div class="row bg-light">
-                        <div class="col-12">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-12"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 py-3">
-                            <form method="post" id="purchase-form">
-                                {% csrf_token %}
-                                <div class="row mx-2 py-2" style="background-color: #c5cbcb; border: 1px solid black;">
-                                    <div class="col-md-4">
-                                        <label for="id_product" class="form-label">Product</label>
-                                        {{ purchaseform.product }}
-                                        <small class="text-muted d-block mt-1">Product Price: <span id="product-net-price-eur" class="fw-bold">-</span> / <span id="product-net-price-usd" class="fw-bold">-</span></small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label for="id_quantity" class="form-label">Quantity</label>
-                                        {{ purchaseform.quantity }}
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label for="id_purchase_price" class="form-label">Purchase price</label>
-                                        {{ purchaseform.purchase_price }}
-                                        <small class="text-muted d-block mt-1">Leave empty to use product price</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label for="id_currency" class="form-label">Currency</label>
-                                        {{ purchaseform.currency }}
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label for="total-price-display" class="form-label">Item Total</label>
-                                        <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
-                                    </div>
-                                    <div class="col-12 pt-2">
-                                        <label for="item-notes" class="form-label">Item Notes (optional)</label>
-                                        <textarea id="item-notes" class="form-control" rows="2" placeholder="Add notes for this item..."></textarea>
-                                    </div>
-                                    <div class="col-12 text-end pt-2">
-                                        <button type="button" id="add-to-cart-btn" class="btn mb-2 fw-bolder py-2" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add to Cart</button>
-                                    </div>
-                                </div>
-
-                                <!-- Shopping Cart Display -->
-                                <div id="cart-container" class="row mx-2 mt-3 py-3" style="background-color: #e8f4f8; border: 1px solid #517e7e; display: none;">
-                                    <div class="col-12">
-                                        <h5 class="mb-3"><i class="fas fa-shopping-cart"></i> Shopping Cart</h5>
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Product</th>
-                                                        <th>Quantity</th>
-                                                        <th>Price</th>
-                                                        <th>Currency</th>
-                                                        <th>Subtotal</th>
-                                                        <th>Notes</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="cart-items">
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="fw-bold">
-                                                        <td colspan="4" class="text-end">Total (EUR):</td>
-                                                        <td><span id="cart-total-eur">€0.00</span></td>
-                                                        <td colspan="2"></td>
-                                                    </tr>
-                                                    <tr class="fw-bold">
-                                                        <td colspan="4" class="text-end">Total (USD):</td>
-                                                        <td><span id="cart-total-usd">$0.00</span></td>
-                                                        <td colspan="2"></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 pt-2">
-                                        <label for="general-notes" class="form-label">General Notes for All Products</label>
-                                        <textarea name="notes" id="general-notes" class="form-control" rows="2" placeholder="Add general notes for this purchase..."></textarea>
-                                    </div>
-                                    <div class="col-12 text-end pt-2">
-                                        <button type="button" id="clear-cart-btn" class="btn btn-secondary me-2"><i class="fas fa-trash px-2"></i>Clear Cart</button>
-                                        <button type="button" id="complete-purchase-btn" class="btn fw-bolder py-2" style="background-color: #517e7e; color: white;"><i class="fas fa-check px-2"></i>Complete Purchase</button>
-                                    </div>
-                                </div>
-                                <input type="hidden" name="cart_data" id="cart-data-input">
-                                <input type="hidden" name="add_purchase" value="1">
-                            </form>
+                        <div class="col-12 py-3 text-end">
+                            <a href="{% url 'client:add_purchase' client.pk %}" class="btn fw-bolder py-2" style="background-color: #517e7e; color: white;">
+                                <i class="fas fa-cart-plus px-2"></i>Add Purchase
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -758,6 +714,17 @@
                 allowInput: true
             });
 
+            // Initialize flatpickr for purchase date filters (Monday as first day)
+            const purchaseDateConfig = {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d.m.Y",
+                allowInput: true,
+                locale: { firstDayOfWeek: 1 }
+            };
+            flatpickr("#purchase_date_from", purchaseDateConfig);
+            flatpickr("#purchase_date_to", purchaseDateConfig);
+
             // Initialize flatpickr for due time
             flatpickr("#id_due_time", {
                 enableTime: true,
@@ -767,256 +734,6 @@
                 allowInput: true
             });
 
-            // Purchase form calculation
-            const productsData = {{ products_json|safe }};
-            const productSelect = document.getElementById('id_product');
-            const quantityInput = document.getElementById('id_quantity');
-            const purchasePriceInput = document.getElementById('id_purchase_price');
-            const currencySelect = document.getElementById('id_currency');
-            const totalPriceDisplay = document.getElementById('total-price-display');
-            const productNetPriceEurDisplay = document.getElementById('product-net-price-eur');
-            const productNetPriceUsdDisplay = document.getElementById('product-net-price-usd');
-            const itemNotesInput = document.getElementById('item-notes');
-
-            // Real-time conversion rate from backend
-            const EUR_TO_USD = {{ exchange_rate|safe }};
-
-            // Shopping cart array
-            let cart = [];
-
-            function updateProductPrice() {
-                const productId = productSelect.value;
-                if (productId && productsData[productId]) {
-                    const netPriceEur = parseFloat(productsData[productId]);
-                    const netPriceUsd = netPriceEur * EUR_TO_USD;
-
-                    productNetPriceEurDisplay.textContent = '€' + netPriceEur.toFixed(2);
-                    productNetPriceUsdDisplay.textContent = '$' + netPriceUsd.toFixed(2);
-
-                    // If purchase price is empty, use net price for calculation
-                    if (!purchasePriceInput.value) {
-                        calculateTotal();
-                    }
-                } else {
-                    productNetPriceEurDisplay.textContent = '-';
-                    productNetPriceUsdDisplay.textContent = '-';
-                    totalPriceDisplay.value = '0.00';
-                }
-            }
-
-            function calculateTotal() {
-                const productId = productSelect.value;
-                const quantity = parseFloat(quantityInput.value) || 0;
-                let price = parseFloat(purchasePriceInput.value);
-
-                // If no custom price, use product's net price (in EUR)
-                if (!price && productId && productsData[productId]) {
-                    price = parseFloat(productsData[productId]);
-                }
-
-                const selectedCurrency = currencySelect.value;
-                const currencySymbol = currencySelect.options[currencySelect.selectedIndex].text;
-
-                // Convert to USD if USD is selected
-                if (selectedCurrency === 'USD' && price) {
-                    price = price * EUR_TO_USD;
-                }
-
-                const total = quantity * (price || 0);
-
-                totalPriceDisplay.value = currencySymbol + total.toFixed(2);
-            }
-
-            // Add to cart functionality
-            document.getElementById('add-to-cart-btn').addEventListener('click', function() {
-                const productId = productSelect.value;
-                const productName = productSelect.options[productSelect.selectedIndex].text;
-                const quantity = parseFloat(quantityInput.value) || 0;
-                let price = parseFloat(purchasePriceInput.value);
-                const currency = currencySelect.value;
-                const itemNotes = itemNotesInput.value;
-
-                console.log('Add to cart clicked - Product ID:', productId, 'Quantity:', quantity, 'Price:', price);
-
-                // Validation
-                if (!productId) {
-                    alert('Please select a product');
-                    return;
-                }
-                if (quantity <= 0) {
-                    alert('Please enter a valid quantity');
-                    return;
-                }
-
-                // Get price (use product net price if not specified)
-                if (!price && productsData[productId]) {
-                    price = parseFloat(productsData[productId]);
-                }
-
-                // Add item to cart
-                cart.push({
-                    productId: productId,
-                    productName: productName,
-                    quantity: quantity,
-                    price: price,
-                    currency: currency,
-                    notes: itemNotes
-                });
-
-                console.log('Cart after adding:', cart);
-
-                // Update cart display
-                updateCartDisplay();
-
-                // Reset form
-                purchasePriceInput.value = '';
-                quantityInput.value = '1';
-                itemNotesInput.value = '';
-                productSelect.selectedIndex = 0;
-                updateProductPrice();
-                calculateTotal();
-            });
-
-            // Update cart display
-            function updateCartDisplay() {
-                const cartItemsBody = document.getElementById('cart-items');
-                const cartContainer = document.getElementById('cart-container');
-                const cartDataInput = document.getElementById('cart-data-input');
-
-                if (cart.length === 0) {
-                    cartContainer.style.display = 'none';
-                    return;
-                }
-
-                cartContainer.style.display = 'block';
-
-                // Clear current display
-                cartItemsBody.innerHTML = '';
-
-                let totalEur = 0;
-                let totalUsd = 0;
-
-                // Add each item to the table
-                cart.forEach((item, index) => {
-                    const priceInEur = item.price;
-                    const priceInCurrency = item.currency === 'USD' ? item.price * EUR_TO_USD : item.price;
-                    const subtotal = item.quantity * priceInCurrency;
-                    const currencySymbol = item.currency === 'EUR' ? '€' : '$';
-
-                    // Calculate totals
-                    if (item.currency === 'EUR') {
-                        totalEur += subtotal;
-                        totalUsd += subtotal * EUR_TO_USD;
-                    } else {
-                        totalEur += subtotal / EUR_TO_USD;
-                        totalUsd += subtotal;
-                    }
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.productName}</td>
-                        <td>${item.quantity}</td>
-                        <td>${currencySymbol}${priceInCurrency.toFixed(2)}</td>
-                        <td>${item.currency}</td>
-                        <td>${currencySymbol}${subtotal.toFixed(2)}</td>
-                        <td>${item.notes || '-'}</td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </td>
-                    `;
-                    cartItemsBody.appendChild(row);
-                });
-
-                // Update totals
-                document.getElementById('cart-total-eur').textContent = '€' + totalEur.toFixed(2);
-                document.getElementById('cart-total-usd').textContent = '$' + totalUsd.toFixed(2);
-
-                // Update hidden input with cart data
-                cartDataInput.value = JSON.stringify(cart);
-            }
-
-            // Remove from the cart
-            window.removeFromCart = function(index) {
-                cart.splice(index, 1);
-                updateCartDisplay();
-            };
-
-            // Clear cart
-            document.getElementById('clear-cart-btn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear the cart?')) {
-                    cart = [];
-                    updateCartDisplay();
-                }
-            });
-
-            // Complete the Purchase button click handler
-            document.getElementById('complete-purchase-btn').addEventListener('click', function() {
-                console.log('=== COMPLETE PURCHASE CLICKED ===');
-                console.log('Cart length:', cart.length);
-                console.log('Cart contents:', cart);
-
-                if (cart.length === 0) {
-                    alert('Please add at least one product to the cart before completing the purchase.');
-                    return;
-                }
-
-                // Set cart data in hidden input
-                const cartJson = JSON.stringify(cart);
-                console.log('Setting cart data:', cartJson);
-                document.getElementById('cart-data-input').value = cartJson;
-                console.log('Hidden input value:', document.getElementById('cart-data-input').value);
-
-                // Submit the form
-                console.log('Submitting form...');
-                document.getElementById('purchase-form').submit();
-            });
-
-            // Form submission validation (backup)
-            const purchaseForm = document.getElementById('purchase-form');
-            if (purchaseForm) {
-                purchaseForm.addEventListener('submit', function(e) {
-                    console.log('=== FORM SUBMIT EVENT TRIGGERED ===');
-                    console.log('Form submitting, cart length:', cart.length);
-                    console.log('Cart contents:', cart);
-                    console.log('Form action:', purchaseForm.action);
-                    console.log('Form method:', purchaseForm.method);
-
-                    // Ensure cart data is up to date
-                    const cartJson = JSON.stringify(cart);
-                    console.log('Setting cart data:', cartJson);
-                    document.getElementById('cart-data-input').value = cartJson;
-                    console.log('Hidden input value set to:', document.getElementById('cart-data-input').value);
-                    console.log('Form will now submit...');
-                });
-            } else {
-                console.error('Purchase form not found!');
-            }
-
-            // Event listeners
-            if (productSelect) {
-                productSelect.addEventListener('change', function() {
-                    updateProductPrice();
-                    calculateTotal();
-                });
-            }
-
-            if (quantityInput) {
-                quantityInput.addEventListener('input', calculateTotal);
-            }
-
-            if (purchasePriceInput) {
-                purchasePriceInput.addEventListener('input', calculateTotal);
-            }
-
-            if (currencySelect) {
-                currencySelect.addEventListener('change', calculateTotal);
-            }
-
-            // Initialize on page load
-            updateProductPrice();
-            calculateTotal();
         });
     </script>
 

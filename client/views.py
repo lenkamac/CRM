@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
@@ -52,7 +52,6 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['form'] = AddCommentForm()
         context['fileform'] = AddFileForm()
-        context['purchaseform'] = PurchaseForm()
 
         comment_list = Comment.objects.filter(client_id=self.kwargs.get('pk')).order_by('-created_at')
         comment_paginator = Paginator(comment_list, 5)
@@ -64,98 +63,43 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
         task_page_number = self.request.GET.get('task_page')
         tasks_page = task_paginator.get_page(task_page_number)
 
-        # Add purchases pagination
+        # Add purchases with filtering
         purchase_list = Purchase.objects.filter(client_id=self.kwargs.get('pk')).select_related('product').order_by(
             '-created_at')
+
+        purchase_product = self.request.GET.get('purchase_product', '').strip()
+        purchase_currency = self.request.GET.get('purchase_currency', '').strip()
+        purchase_date_from = self.request.GET.get('purchase_date_from', '').strip()
+        purchase_date_to = self.request.GET.get('purchase_date_to', '').strip()
+
+        if purchase_product:
+            purchase_list = purchase_list.filter(product__name__icontains=purchase_product)
+        if purchase_currency:
+            purchase_list = purchase_list.filter(currency=purchase_currency)
+        if purchase_date_from:
+            purchase_list = purchase_list.filter(created_at__date__gte=purchase_date_from)
+        if purchase_date_to:
+            purchase_list = purchase_list.filter(created_at__date__lte=purchase_date_to)
 
         purchase_paginator = Paginator(purchase_list, 10)
         purchase_page_number = self.request.GET.get('purchase_page')
         purchases_page = purchase_paginator.get_page(purchase_page_number)
 
-        # Get all products with prices for JavaScript
-        products = Product.objects.all().values('id', 'name', 'net_price')
-        products_dict = {str(p['id']): str(p['net_price']) for p in products}
-
-        # Get current exchange rate for frontend calculation
-        try:
-            exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
-        except Exception:
-            exchange_rate = 1.10  # Fallback rate
-
         context['comments'] = comments_page
         context['tasks'] = tasks_page
         context['purchases'] = purchases_page
-        context['products_json'] = json.dumps(products_dict)
-        context['exchange_rate'] = json.dumps(exchange_rate)
+        context['purchase_filter'] = {
+            'product': purchase_product,
+            'currency': purchase_currency,
+            'date_from': purchase_date_from,
+            'date_to': purchase_date_to,
+        }
+        context['purchase_currency_choices'] = Purchase.CURRENCY_CHOICES
 
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-
-        # Handle purchase form submission
-        if 'add_purchase' in request.POST:
-            cart_data = request.POST.get('cart_data', '')
-            general_notes = request.POST.get('notes', '')
-
-            if cart_data and cart_data != '':
-                # Handle multiple purchases from cart
-                try:
-                    cart_items = json.loads(cart_data)
-
-                    if len(cart_items) == 0:
-                        messages.error(request, 'Please add at least one product to the cart')
-                        return redirect('client:detail', pk=self.object.pk)
-
-                    purchase_count = 0
-                    total_amount_eur = 0
-                    total_amount_usd = 0
-
-                    for item in cart_items:
-                        product = Product.objects.get(id=item['productId'])
-                        purchase = Purchase(
-                            client=self.object,
-                            product=product,
-                            quantity=item['quantity'],
-                            purchase_price=item['price'],
-                            currency=item['currency'],
-                            notes=f"{item.get('notes', '')}\n{general_notes}".strip(),
-                            created_by=request.user
-                        )
-                        purchase.save()
-                        purchase_count += 1
-
-                        # Calculate totals
-                        if item['currency'] == 'EUR':
-                            total_amount_eur += item['quantity'] * item['price']
-                        else:
-                            # Convert USD to EUR for display
-                            exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
-                            total_amount_eur += (item['quantity'] * item['price']) / exchange_rate
-                            total_amount_usd += item['quantity'] * item['price']
-
-                    # Convert EUR total to USD for display
-                    if total_amount_eur > 0 and total_amount_usd == 0:
-                        exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
-                        total_amount_usd = total_amount_eur * exchange_rate
-                    elif total_amount_usd > 0 and total_amount_eur == 0:
-                        exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
-                        total_amount_eur = total_amount_usd / exchange_rate
-
-                    messages.success(request,
-                        f'{purchase_count} purchase(s) added successfully! Total: €{total_amount_eur:.2f} / ${total_amount_usd:.2f}')
-                except json.JSONDecodeError:
-                    messages.error(request, 'Invalid cart data')
-                except Product.DoesNotExist:
-                    messages.error(request, 'One or more products not found')
-                except Exception as e:
-                    messages.error(request, f'Error: {str(e)}')
-            else:
-                # No cart data - prevent submission
-                messages.error(request, 'Please add products to the cart before completing the purchase')
-
-            return redirect('client:detail', pk=self.object.pk)
-
         # Let other POST handlers continue (comments, files, etc.)
         return super().get(request, *args, **kwargs)
 
@@ -334,6 +278,87 @@ def delete_client_file(request, client_id, file_id):
         file_instance.delete()
         messages.success(request, "File deleted successfully.")
     return redirect('client:detail', pk=client_id)
+
+
+# Add purchase page (separate window)
+class AddPurchaseView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        client = get_object_or_404(Client, pk=pk, created_by=request.user)
+        purchaseform = PurchaseForm()
+
+        products = Product.objects.all().values('id', 'name', 'net_price')
+        products_dict = {str(p['id']): str(p['net_price']) for p in products}
+
+        try:
+            exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+        except Exception:
+            exchange_rate = 1.10
+
+        return render(request, 'client/add_purchase.html', {
+            'client': client,
+            'purchaseform': purchaseform,
+            'products_json': json.dumps(products_dict),
+            'exchange_rate': json.dumps(exchange_rate),
+        })
+
+    def post(self, request, pk):
+        client = get_object_or_404(Client, pk=pk, created_by=request.user)
+        cart_data = request.POST.get('cart_data', '')
+        general_notes = request.POST.get('notes', '')
+
+        if cart_data and cart_data != '':
+            try:
+                cart_items = json.loads(cart_data)
+
+                if len(cart_items) == 0:
+                    messages.error(request, 'Please add at least one product to the cart')
+                    return redirect('client:add_purchase', pk=pk)
+
+                purchase_count = 0
+                total_amount_eur = 0
+                total_amount_usd = 0
+
+                for item in cart_items:
+                    product = Product.objects.get(id=item['productId'])
+                    purchase = Purchase(
+                        client=client,
+                        product=product,
+                        quantity=item['quantity'],
+                        purchase_price=item['price'],
+                        currency=item['currency'],
+                        notes=f"{item.get('notes', '')}\n{general_notes}".strip(),
+                        created_by=request.user
+                    )
+                    purchase.save()
+                    purchase_count += 1
+
+                    if item['currency'] == 'EUR':
+                        total_amount_eur += item['quantity'] * item['price']
+                    else:
+                        exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                        total_amount_eur += (item['quantity'] * item['price']) / exchange_rate
+                        total_amount_usd += item['quantity'] * item['price']
+
+                if total_amount_eur > 0 and total_amount_usd == 0:
+                    exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                    total_amount_usd = total_amount_eur * exchange_rate
+                elif total_amount_usd > 0 and total_amount_eur == 0:
+                    exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                    total_amount_eur = total_amount_usd / exchange_rate
+
+                messages.success(request,
+                    f'{purchase_count} purchase(s) added successfully! Total: €{total_amount_eur:.2f} / ${total_amount_usd:.2f}')
+            except json.JSONDecodeError:
+                messages.error(request, 'Invalid cart data')
+            except Product.DoesNotExist:
+                messages.error(request, 'One or more products not found')
+            except Exception as e:
+                messages.error(request, f'Error: {str(e)}')
+        else:
+            messages.error(request, 'Please add products to the cart before completing the purchase')
+            return redirect('client:add_purchase', pk=pk)
+
+        return redirect('client:detail', pk=pk)
 
 
 # Get exchange rate API endpoint

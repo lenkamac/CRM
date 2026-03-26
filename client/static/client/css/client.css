@@ -3,7 +3,12 @@
     padding-right: 155px;
 }
 
-/* Lead detail page */
+#add-purchase-container {
+    padding-left: 245px;
+    padding-right: 155px;
+}
+
+/*Client detail page */
 .card-title {
     background-color: #697272;
     color: white;

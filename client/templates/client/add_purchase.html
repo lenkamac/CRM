@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Purchase - {{ client.last_name }}, {{ client.first_name }}{% endblock %}
+
+{% block content %}
+
+    {% block css %}
+        <link rel="stylesheet" href="{% static 'client/css/client.css' %}">
+    {% endblock %}
+
+    {% include 'core/partials/offcanvas_menu.html' %}
+
+    <div class="container-fluid my-3 pt-5" id="add-purchase-container">
+        <div class="row mx-lg-2">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    {% if messages %}
+                        <div class="row">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}" role="alert">
+                                    <div class="text-center">{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="row bg-white border border-2 mt-2">
+                    <div class="col-lg-12" style="background-color: #697272;">
+                        <h5 class="text-center text-white pt-2 fw-bolder">
+                            <i class="fa fa-shopping-cart px-lg-2" aria-hidden="true"></i>
+                            Add Purchase — {{ client.first_name }} {{ client.last_name }}
+                            {% if client.company %}<small class="fw-normal">({{ client.company }})</small>{% endif %}
+                        </h5>
+                    </div>
+
+                    <div class="col-12 py-3">
+                        <form method="post" id="purchase-form">
+                            {% csrf_token %}
+                            <div class="row mx-2 py-2" style="background-color: #c5cbcb;">
+                                <div class="col-md-4">
+                                    <label for="id_product" class="form-label">Product</label>
+                                    {{ purchaseform.product }}
+                                    <small class="text-muted d-block mt-1">Product Price: <span id="product-net-price-eur" class="fw-bold">-</span> / <span id="product-net-price-usd" class="fw-bold">-</span></small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="id_quantity" class="form-label">Quantity</label>
+                                    {{ purchaseform.quantity }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="id_purchase_price" class="form-label">Purchase price</label>
+                                    {{ purchaseform.purchase_price }}
+                                    <small class="text-muted d-block mt-1">Leave empty to use product price</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="id_currency" class="form-label">Currency</label>
+                                    {{ purchaseform.currency }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="total-price-display" class="form-label">Item Total</label>
+                                    <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
+                                </div>
+                                <div class="col-12 pt-2">
+                                    <label for="item-notes" class="form-label">Item Notes (optional)</label>
+                                    <textarea id="item-notes" class="form-control" rows="2" placeholder="Add notes for this item..."></textarea>
+                                </div>
+                                <div class="col-12 text-center pt-3">
+                                    <button type="button" id="add-to-cart-btn" class="btn mb-2 fw-bolder py-2 fs-5" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add</button>
+                                </div>
+                            </div>
+
+                            <!-- Shopping Cart Display -->
+                            <div id="cart-container" class="row mx-2 mt-3 py-3" style="background-color: #e8f4f8; border: 1px solid #517e7e; display: none;">
+                                <div class="col-12">
+                                    <h5 class="mb-3"><i class="fas fa-shopping-cart"></i> Shopping Cart</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Quantity</th>
+                                                    <th>Price</th>
+                                                    <th>Currency</th>
+                                                    <th>Subtotal</th>
+                                                    <th>Notes</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="cart-items">
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="fw-bold">
+                                                    <td colspan="4" class="text-end">Total (EUR):</td>
+                                                    <td><span id="cart-total-eur">€0.00</span></td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                                <tr class="fw-bold">
+                                                    <td colspan="4" class="text-end">Total (USD):</td>
+                                                    <td><span id="cart-total-usd">$0.00</span></td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-12 pt-2">
+                                    <label for="general-notes" class="form-label">General Notes for All Products</label>
+                                    <textarea name="notes" id="general-notes" class="form-control" rows="2" placeholder="Add general notes for this purchase..."></textarea>
+                                </div>
+                                <div class="col-12 text-end pt-2">
+                                    <button type="button" id="clear-cart-btn" class="btn btn-secondary me-2"><i class="fas fa-trash px-2"></i>Clear Cart</button>
+                                    <button type="button" id="complete-purchase-btn" class="btn fw-bolder py-2" style="background-color: #517e7e; color: white;"><i class="fas fa-check px-2"></i>Complete Purchase</button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="cart_data" id="cart-data-input">
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mb-3 pb-4 mt-3">
+                <a class="back-to-dashboard" href="{% url 'client:detail' client.pk %}">
+                    <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Client
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    alert.style.transition = "opacity 0.5s linear";
+                    alert.style.opacity = 0;
+                    setTimeout(function() { alert.remove(); }, 500);
+                });
+            }, 3000);
+
+            const productsData = {{ products_json|safe }};
+            const productSelect = document.getElementById('id_product');
+            const quantityInput = document.getElementById('id_quantity');
+            const purchasePriceInput = document.getElementById('id_purchase_price');
+            const currencySelect = document.getElementById('id_currency');
+            const totalPriceDisplay = document.getElementById('total-price-display');
+            const productNetPriceEurDisplay = document.getElementById('product-net-price-eur');
+            const productNetPriceUsdDisplay = document.getElementById('product-net-price-usd');
+            const itemNotesInput = document.getElementById('item-notes');
+
+            const EUR_TO_USD = {{ exchange_rate|safe }};
+
+            let cart = [];
+
+            function updateProductPrice() {
+                const productId = productSelect.value;
+                if (productId && productsData[productId]) {
+                    const netPriceEur = parseFloat(productsData[productId]);
+                    const netPriceUsd = netPriceEur * EUR_TO_USD;
+                    productNetPriceEurDisplay.textContent = '€' + netPriceEur.toFixed(2);
+                    productNetPriceUsdDisplay.textContent = '$' + netPriceUsd.toFixed(2);
+                    if (!purchasePriceInput.value) {
+                        calculateTotal();
+                    }
+                } else {
+                    productNetPriceEurDisplay.textContent = '-';
+                    productNetPriceUsdDisplay.textContent = '-';
+                    totalPriceDisplay.value = '0.00';
+                }
+            }
+
+            function calculateTotal() {
+                const productId = productSelect.value;
+                const quantity = parseFloat(quantityInput.value) || 0;
+                let price = parseFloat(purchasePriceInput.value);
+
+                if (!price && productId && productsData[productId]) {
+                    price = parseFloat(productsData[productId]);
+                }
+
+                const selectedCurrency = currencySelect.value;
+                const currencySymbol = currencySelect.options[currencySelect.selectedIndex].text;
+
+                if (selectedCurrency === 'USD' && price) {
+                    price = price * EUR_TO_USD;
+                }
+
+                const total = quantity * (price || 0);
+                totalPriceDisplay.value = currencySymbol + total.toFixed(2);
+            }
+
+            document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+                const productId = productSelect.value;
+                const productName = productSelect.options[productSelect.selectedIndex].text;
+                const quantity = parseFloat(quantityInput.value) || 0;
+                let price = parseFloat(purchasePriceInput.value);
+                const currency = currencySelect.value;
+                const itemNotes = itemNotesInput.value;
+
+                if (!productId) {
+                    alert('Please select a product');
+                    return;
+                }
+                if (quantity <= 0) {
+                    alert('Please enter a valid quantity');
+                    return;
+                }
+
+                if (!price && productsData[productId]) {
+                    price = parseFloat(productsData[productId]);
+                }
+
+                cart.push({
+                    productId: productId,
+                    productName: productName,
+                    quantity: quantity,
+                    price: price,
+                    currency: currency,
+                    notes: itemNotes
+                });
+
+                updateCartDisplay();
+
+                purchasePriceInput.value = '';
+                quantityInput.value = '1';
+                itemNotesInput.value = '';
+                productSelect.selectedIndex = 0;
+                updateProductPrice();
+                calculateTotal();
+            });
+
+            function updateCartDisplay() {
+                const cartItemsBody = document.getElementById('cart-items');
+                const cartContainer = document.getElementById('cart-container');
+                const cartDataInput = document.getElementById('cart-data-input');
+
+                if (cart.length === 0) {
+                    cartContainer.style.display = 'none';
+                    return;
+                }
+
+                cartContainer.style.display = 'block';
+                cartItemsBody.innerHTML = '';
+
+                let totalEur = 0;
+                let totalUsd = 0;
+
+                cart.forEach((item, index) => {
+                    const priceInCurrency = item.currency === 'USD' ? item.price * EUR_TO_USD : item.price;
+                    const subtotal = item.quantity * priceInCurrency;
+                    const currencySymbol = item.currency === 'EUR' ? '€' : '$';
+
+                    if (item.currency === 'EUR') {
+                        totalEur += subtotal;
+                        totalUsd += subtotal * EUR_TO_USD;
+                    } else {
+                        totalEur += subtotal / EUR_TO_USD;
+                        totalUsd += subtotal;
+                    }
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.productName}</td>
+                        <td>${item.quantity}</td>
+                        <td>${currencySymbol}${priceInCurrency.toFixed(2)}</td>
+                        <td>${item.currency}</td>
+                        <td>${currencySymbol}${subtotal.toFixed(2)}</td>
+                        <td>${item.notes || '-'}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    `;
+                    cartItemsBody.appendChild(row);
+                });
+
+                document.getElementById('cart-total-eur').textContent = '€' + totalEur.toFixed(2);
+                document.getElementById('cart-total-usd').textContent = '$' + totalUsd.toFixed(2);
+                cartDataInput.value = JSON.stringify(cart);
+            }
+
+            window.removeFromCart = function(index) {
+                cart.splice(index, 1);
+                updateCartDisplay();
+            };
+
+            document.getElementById('clear-cart-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the cart?')) {
+                    cart = [];
+                    updateCartDisplay();
+                }
+            });
+
+            document.getElementById('complete-purchase-btn').addEventListener('click', function() {
+                if (cart.length === 0) {
+                    alert('Please add at least one product to the cart before completing the purchase.');
+                    return;
+                }
+                document.getElementById('cart-data-input').value = JSON.stringify(cart);
+                document.getElementById('purchase-form').submit();
+            });
+
+            productSelect.addEventListener('change', function() {
+                updateProductPrice();
+                calculateTotal();
+            });
+
+            quantityInput.addEventListener('input', calculateTotal);
+            purchasePriceInput.addEventListener('input', calculateTotal);
+            currencySelect.addEventListener('change', calculateTotal);
+
+            updateProductPrice();
+            calculateTotal();
+        });
+    </script>
+
+{% endblock %}

@@ -19,7 +19,7 @@ html, body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 body {
-    background-color: #f1f1f5;
+    background-color: #e1e2e5;
     position: relative;
     padding-bottom: 58px;
     min-height: 100vh;
