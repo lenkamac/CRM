@@ -102,8 +102,27 @@ def task_detail(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task_comments = TaskComment.objects.filter(task_id=pk)
     form = TaskCommentForm()
-    return render(request, 'task/task_detail.html', {'task': task, 'task_comments': task_comments,
-                                                     'form': form})
+    show_edit = False
+
+    if request.method == 'POST' and 'edit_task' in request.POST:
+        if not (request.user == task.created_by or request.user == task.assigned_to):
+            raise PermissionDenied("You don't have permission to edit this task.")
+        edit_form = TaskForm(request.POST, instance=task)
+        if edit_form.is_valid():
+            edit_form.save()
+            messages.success(request, 'Task updated successfully.')
+            return redirect('task:task_detail', pk=task.pk)
+        show_edit = True
+    else:
+        edit_form = TaskForm(instance=task)
+
+    return render(request, 'task/task_detail.html', {
+        'task': task,
+        'task_comments': task_comments,
+        'form': form,
+        'edit_form': edit_form,
+        'show_edit': show_edit,
+    })
 
 
 # Add this new view function
