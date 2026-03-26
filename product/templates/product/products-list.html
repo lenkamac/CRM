@@ -19,10 +19,28 @@
                 <div class="col-12 py-3 text-center">
                     <h2 class="mt-sm-0 pt-sm-3 fw-bolder">Products</h2>
                 </div>
-                <div class="col-12 pb-3 text-center">
+                <div class="col-12 pb-3 d-flex justify-content-between align-items-center">
                     <a href="{% url 'product:add_product' %}" class="btn justify-content-center align-items-center" id="btn-add-product">
                         <i class="bi bi-plus-circle px-2"></i> Add Product
                     </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="position: relative; width: 280px;">
+                            <input type="text" id="product-search" class="form-control"
+                                   placeholder="Find product by name"
+                                   autocomplete="off">
+                            <ul id="product-autocomplete-list" class="list-group" style="
+                                display: none;
+                                position: absolute;
+                                z-index: 1000;
+                                width: 100%;
+                                max-height: 260px;
+                                overflow-y: auto;
+                                box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                left: 0;
+                            "></ul>
+                        </div>
+                        <button type="button" id="product-search-btn" class="btn btn-search">Search</button>
+                    </div>
                 </div>
                 <div class="col-12">
                     <div class="text-center">
@@ -136,6 +154,106 @@
                 });
             });
         });
+    </script>
+
+    <script>
+    (function () {
+        const input = document.getElementById('product-search');
+        const list  = document.getElementById('product-autocomplete-list');
+        const searchBtn = document.getElementById('product-search-btn');
+        const autocompleteUrl = "{% url 'product:autocomplete' %}";
+        const detailBase = "{% url 'product:product_list' %}".replace(/\/$/, '');
+        let activeIndex = -1;
+        let suggestions = [];
+
+        function closeList() {
+            list.innerHTML = '';
+            list.style.display = 'none';
+            activeIndex = -1;
+        }
+
+        function goToProduct(item) {
+            window.location.href = detailBase + '/' + item.id + '/';
+        }
+
+        function setActive(items) {
+            items.forEach((el, i) => {
+                el.classList.toggle('active', i === activeIndex);
+            });
+        }
+
+        function fetchSuggestions(q) {
+            closeList();
+            suggestions = [];
+            if (!q) return;
+
+            fetch(`${autocompleteUrl}?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.length) return;
+                    suggestions = data;
+                    data.forEach((item) => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action';
+                        li.style.cursor = 'pointer';
+                        li.textContent = item.label;
+                        li.addEventListener('mousedown', function (e) {
+                            e.preventDefault();
+                            goToProduct(item);
+                        });
+                        list.appendChild(li);
+                    });
+                    list.style.display = 'block';
+                    activeIndex = -1;
+                });
+        }
+
+        input.addEventListener('input', function () {
+            fetchSuggestions(this.value.trim());
+        });
+
+        searchBtn.addEventListener('click', function () {
+            const q = input.value.trim();
+            if (suggestions.length === 1) {
+                goToProduct(suggestions[0]);
+            } else if (activeIndex >= 0 && suggestions[activeIndex]) {
+                goToProduct(suggestions[activeIndex]);
+            } else {
+                fetchSuggestions(q);
+            }
+        });
+
+        input.addEventListener('keydown', function (e) {
+            const items = [...list.querySelectorAll('li')];
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (activeIndex >= 0 && suggestions[activeIndex]) {
+                    goToProduct(suggestions[activeIndex]);
+                } else if (suggestions.length === 1) {
+                    goToProduct(suggestions[0]);
+                } else {
+                    fetchSuggestions(this.value.trim());
+                }
+                return;
+            }
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                setActive(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                setActive(items);
+            } else if (e.key === 'Escape') {
+                closeList();
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!list.contains(e.target) && e.target !== input && e.target !== searchBtn) closeList();
+        });
+    })();
     </script>
 
 {% endblock %}

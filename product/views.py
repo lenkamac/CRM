@@ -1,5 +1,7 @@
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from product.models import Product
@@ -78,3 +80,19 @@ def edit_product(request, product_id):
         return redirect('product:product_list')
 
     return render(request, 'product/edit-product.html', {'product': product})
+
+
+@login_required
+def product_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        products = Product.objects.filter(
+            name__icontains=query
+        ).values('id', 'name', 'net_price')[:10]
+        for product in products:
+            results.append({
+                'id': product['id'],
+                'label': product['name'],
+            })
+    return JsonResponse(results, safe=False)
