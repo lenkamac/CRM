@@ -38,30 +38,23 @@
 
         <div class="row justify-content-center">
             <div class="col-12 py-2">
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <!-- Filters -->
-                        <form method="get" action="{% url 'task:task_list' %}" class="px-3">
-                            <div class="row">
-                                <div class="col-8">
-                                    <input type="text" name="search" class="form-control" placeholder="Search by company or last name..." value="{{ search_query }}" />
-                                </div>
-                                <div class="col-2">
-                                    <button type="submit" class="btn btn-search justify-content-center align-items-center">Search</button>
-                                </div>
-                                <div class="col-2">
-                                    <a href="{% url 'task:task_add' %}" class="btn justify-content-center align-items-center" id="btn-add-task">
-                                        <i class="fas fa-plus"></i> New Task
-                                    </a>
-                                </div>
-                            </div>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <a href="{% url 'task:task_add' %}" class="btn justify-content-center align-items-center" id="btn-add-task">
+                            <i class="fas fa-plus"></i> New Task
+                        </a>
+                    </div>
+                    <!-- Search -->
+                    <div class="col d-flex justify-content-end">
+                        <form method="get" action="{% url 'task:task_list' %}" class="d-flex gap-2 w-50">
+                            <input type="text" name="search" class="form-control" placeholder="Search by company or last name..." value="{{ search_query }}" />
+                            <button type="submit" class="btn btn-search text-nowrap">Search</button>
                         </form>
-
                     </div>
                 </div>
             </div>
-            <div class="col-12">
-                <div class="row justify-content-center mx-auto px-3 py-2">
+            <div class="col-12 pt-3">
+                <div class="row justify-content-center ms-auto px-2">
                     <!-- Filters -->
                     <div class="card mb-4">
                         <div class="card-body">
