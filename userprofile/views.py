@@ -21,18 +21,20 @@ def register(request):
         password2 = request.POST.get("password2", "")
         accept_terms = request.POST.get("accept_terms")  # checkbox
 
+        register_url = reverse('login') + '?tab=register'
+
         # Basic validations
         if not username or not email or not password1 or not password2:
             messages.error(request, "Please fill out all fields.")
-            return render(request, "userprofile/register.html")
+            return redirect(register_url)
 
         if password1 != password2:
             messages.error(request, "Passwords do not match.")
-            return render(request, "userprofile/register.html")
+            return redirect(register_url)
 
         if not accept_terms:
             messages.error(request, "You must accept the terms to continue.")
-            return render(request, "userprofile/register.html")
+            return redirect(register_url)
 
         # Create user
         try:
@@ -43,13 +45,13 @@ def register(request):
             )
         except IntegrityError:
             messages.error(request, "Username already exists.")
-            return render(request, "userprofile/register.html")
+            return redirect(register_url)
 
         # Optional: prevent duplicate emails (if not enforced in model)
         if User.objects.filter(email=email).exclude(pk=user.pk).exists():
             user.delete()
             messages.error(request, "Email already in use.")
-            return render(request, "userprofile/register.html")
+            return redirect(register_url)
 
         # Log the user in
         user = authenticate(request, username=username, password=password1)
@@ -60,8 +62,8 @@ def register(request):
         messages.success(request, "Account created. Please sign in.")
         return redirect("login" if "login" in reverse.__code__.co_names else "/")
 
-    # GET -> render form
-    return render(request, "userprofile/register.html")
+    # GET -> redirect to login page with register tab
+    return redirect(reverse('login') + '?tab=register')
 
 
 # Edit userprofile

@@ -12,42 +12,169 @@
                 background: linear-gradient(90deg, rgb(42, 50, 49) 7%, rgb(39, 60, 60) 32%, rgb(41, 71, 64) 66%, rgb(43, 86, 86) 90%);
                 min-height: 100vh;
             }
+            .auth-tab-btn {
+                background-color: transparent;
+                color: rgba(255, 255, 255, 0.7);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 0.5rem 2rem;
+                font-weight: 600;
+                transition: all 0.2s;
+            }
+            .auth-tab-btn.active {
+                background-color: #ffffff;
+                color: #515457;
+                border-color: #ffffff;
+            }
+            .auth-tab-btn:not(.active):hover {
+                background-color: rgba(255, 255, 255, 0.15);
+                color: #ffffff;
+            }
+            .auth-card {
+                background-color: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+            }
+            .auth-label {
+                color: #ffffff;
+            }
+            .auth-input {
+                background-color: rgba(255, 255, 255, 0.15) !important;
+                border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                color: #ffffff !important;
+            }
+            .auth-input::placeholder {
+                color: rgba(255, 255, 255, 0.5);
+            }
+            .auth-input:focus {
+                background-color: rgba(255, 255, 255, 0.2) !important;
+                border-color: rgba(255, 255, 255, 0.6) !important;
+                box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important;
+                color: #ffffff !important;
+            }
+            .auth-small {
+                color: rgba(255, 255, 255, 0.6);
+            }
+            .auth-check-label {
+                color: rgba(255, 255, 255, 0.85);
+            }
         </style>
     {% endblock %}
 
-    <div class="container-log d-flex justify-content-center align-items-center mt-4" style="height: 75vh;">
-
+    <div class="container d-flex justify-content-center align-items-center mt-4" style="min-height: 80vh;">
         <div class="row w-100 justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5">
 
-            <div class="col-12 col-md-6 col-lg-4">
-
-                <div class="text-center">
-                    <h1 class="fw-bold py-2 my-4" style="color: #ffffff;">Login</h1>
+                <!-- Tab buttons -->
+                <div class="d-flex justify-content-center mb-4">
+                    <button class="auth-tab-btn active rounded-start" id="btn-login" type="button" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab-btn rounded-end" id="btn-register" type="button" onclick="switchTab('register')">Register</button>
                 </div>
 
-                <div class="border py-4 rounded shadow my-form text-center" style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);">
-                    <form method="post" action="." class="login-form py-xxl-3">
-                        {% csrf_token %}
-                        <div class="col-lg-12 mb-3 py-xxl-2">
-                            <label for="username" class="form-label fw-bold px-sm-0 px-lg-3" style="color: #ffffff;">Username</label>
-                            <span class="w-100">{{ form.username }}</span>
-                        </div>
+                {% if messages %}
+                    <div class="mb-3">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show py-2" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-                        <div class="col-lg-12 mb-3 py-xxl-2">
-                            <label for="password" class="form-label fw-bold px-lg-3" style="color: #ffffff;">Password</label>
-                            {{ form.password }}
-                        </div>
+                <!-- Login Panel -->
+                <div id="panel-login">
+                    <div class="border py-4 rounded shadow auth-card text-center">
+                        <form method="post" action="." class="login-form py-xxl-3">
+                            {% csrf_token %}
+                            <div class="col-lg-12 mb-3 py-xxl-2">
+                                <label for="username" class="form-label fw-bold px-sm-0 px-lg-3 auth-label">Username</label>
+                                <span class="w-100">{{ form.username }}</span>
+                            </div>
+                            <div class="col-lg-12 mb-3 py-xxl-2">
+                                <label for="password" class="form-label fw-bold px-lg-3 auth-label">Password</label>
+                                {{ form.password }}
+                            </div>
+                            <div class="text-center">
+                                <button class="btn fw-bolder" style="background-color: #ffffff; color: #515457;">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
-                        <div class="text-center">
-                            <button class="btn fw-bolder" style="background-color: #ffffff; color: #515457;">Submit</button>
-                        </div>
+                <!-- Register Panel -->
+                <div id="panel-register" style="display: none;">
+                    <div class="border py-4 rounded shadow auth-card">
+                        <form method="post" action="{% url 'userprofile:register' %}" class="px-3">
+                            {% csrf_token %}
 
-                    </form>
+                            <div class="row mb-3">
+                                <label for="id_username" class="col-sm-3 col-form-label fw-bold auth-label">Username</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control auth-input" id="id_username" name="username"
+                                           required minlength="3" maxlength="150" autocomplete="username"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="id_email" class="col-sm-3 col-form-label fw-bold auth-label">Email</label>
+                                <div class="col-sm-9">
+                                    <input type="email" class="form-control auth-input" id="id_email" name="email"
+                                           required autocomplete="email"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="id_password1" class="col-sm-3 col-form-label fw-bold auth-label">Password</label>
+                                <div class="col-sm-9">
+                                    <input type="password" class="form-control auth-input" id="id_password1" name="password1"
+                                           required minlength="8" autocomplete="new-password"/>
+                                    <small class="auth-small">Use at least 8 characters.</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="id_password2" class="col-sm-3 col-form-label fw-bold auth-label">Confirm</label>
+                                <div class="col-sm-9">
+                                    <input type="password" class="form-control auth-input" id="id_password2" name="password2"
+                                           required autocomplete="new-password"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 ps-2">
+                                    <div class="form-check align-items-center ">
+                                        <input type="checkbox" class="form-check-input mt-0 " id="id_accept_terms"
+                                               name="accept_terms" required/>
+                                        <label for="id_accept_terms" class="form-check-label auth-check-label">
+                                           <span class="px-3"> I agree to the terms and conditions</span>
+                                        </label>
+                                    </div>
+
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn fw-bolder" style="background-color: #ffffff; color: #515457;">Register</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
             </div>
-
         </div>
-
     </div>
+
+    <script>
+        function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('panel-login').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('panel-register').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('btn-login').classList.toggle('active', isLogin);
+            document.getElementById('btn-register').classList.toggle('active', !isLogin);
+        }
+
+        // Auto-switch to register tab if URL param or messages from register
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('tab') === 'register') {
+            switchTab('register');
+        }
+    </script>
+
 {% endblock %}
