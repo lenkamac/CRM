@@ -1,3 +1,5 @@
+let calendar;
+
 document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize flatpickr for date fields if flatpickr is available
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         firstDay: 1,  // Monday (0=Sunday, 1=Monday, etc.)
         events: calendarEventsUrl,  // We'll define this in template!

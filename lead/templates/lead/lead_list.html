@@ -89,7 +89,9 @@
                                                 </div>
                                                 <div class="col-5 text-end ms-auto" style="position: relative;">
                                                     <input type="text" id="lead-search" name="q" class="form-control" placeholder="Find lead by name, email, or company" value="{{ request.GET.q|default:'' }}"
-                                                   autocomplete="off">
+                                                   autocomplete="off"
+                                                   data-autocomplete-url="{% url 'lead:autocomplete' %}"
+                                                   data-list-url="{% url 'lead:list' %}">
                                                     <ul id="lead-autocomplete-list" class="list-group" style="
                                                         display: none;
                                                         position: absolute;
@@ -261,82 +263,5 @@
     <script src="{% static 'lead/js/lead.js' %}"></script>
     <script src="{% static 'js/project.js' %}"></script>
 
-    <script>
-    (function () {
-        const input = document.getElementById('lead-search');
-        const list  = document.getElementById('lead-autocomplete-list');
-        const autocompleteUrl = "{% url 'lead:autocomplete' %}";
-        const detailBase = "{% url 'lead:list' %}".replace(/\/$/, '');
-        let activeIndex = -1;
-        let suggestions = [];
-
-        function closeList() {
-            list.innerHTML = '';
-            list.style.display = 'none';
-            activeIndex = -1;
-        }
-
-        function goToLead(item) {
-            window.location.href = detailBase + '/' + item.id + '/';
-        }
-
-        function setActive(items) {
-            items.forEach((el, i) => {
-                el.classList.toggle('active', i === activeIndex);
-            });
-        }
-
-        input.addEventListener('input', function () {
-            const q = this.value.trim();
-            closeList();
-            suggestions = [];
-            if (!q) return;
-
-            fetch(`${autocompleteUrl}?q=${encodeURIComponent(q)}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.length) return;
-                    suggestions = data;
-                    data.forEach((item, idx) => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item list-group-item-action';
-                        li.style.cursor = 'pointer';
-                        li.textContent = item.label;
-                        li.dataset.index = idx;
-                        li.addEventListener('mousedown', function (e) {
-                            e.preventDefault();
-                            goToLead(item);
-                        });
-                        list.appendChild(li);
-                    });
-                    list.style.display = 'block';
-                    activeIndex = -1;
-                });
-        });
-
-        input.addEventListener('keydown', function (e) {
-            const items = [...list.querySelectorAll('li')];
-            if (!items.length) return;
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                activeIndex = Math.min(activeIndex + 1, items.length - 1);
-                setActive(items);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                activeIndex = Math.max(activeIndex - 1, 0);
-                setActive(items);
-            } else if (e.key === 'Enter' && activeIndex >= 0) {
-                e.preventDefault();
-                goToLead(suggestions[activeIndex]);
-            } else if (e.key === 'Escape') {
-                closeList();
-            }
-        });
-
-        document.addEventListener('click', function (e) {
-            if (!list.contains(e.target) && e.target !== input) closeList();
-        });
-    })();
-    </script>
 
 {% endblock %}
