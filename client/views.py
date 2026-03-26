@@ -390,9 +390,12 @@ def client_autocomplete(request):
             Q(email__istartswith=query)
         ).values('id', 'first_name', 'last_name', 'company', 'email')[:10]
         for client in clients:
-            label = f"{client['first_name']} {client['last_name']}".strip()
+            if client['last_name']:
+                label = f"{client['last_name']} {client['first_name']}".strip()
             if client['company']:
-                label += f" — {client['company']}"
+                label = f"{client['company']}"
+            if client['last_name'] and client['company']:
+                label = f"{client['company']} {client['last_name']} - {client['first_name']}".strip()
             results.append({'id': client['id'], 'label': label, 'email': client['email']})
     return JsonResponse(results, safe=False)
 

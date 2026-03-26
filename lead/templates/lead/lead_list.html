@@ -27,7 +27,7 @@
         <div class="row pt-md-3 justify-content-center">
             <div class="col-sm-12">
                 <div class="text-center pt-md-3">
-                    <h3 class="fw-bolder pt-sm-4">Leads</h3>
+                    <h4 class="fw-bolder pt-sm-4">Leads</h4>
                 </div>
             </div>
             <div class="col-12">
@@ -63,7 +63,7 @@
                                                 <div class="col-1 text-start">
                                                     <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
                                                 </div>
-                                                <div class="col-1 text-star px-5 mx-3">
+                                                <div class="col-1 text-end px-lg-5">
                                                     <!-- Dropdown for actions -->
                                                     <div class="dropdown d-inline-block">
                                                         <button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -88,9 +88,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-5 text-end ms-auto" style="position: relative;">
-                                                    <input type="text" id="lead-search" name="q" class="form-control"
-                                                   placeholder="Find lead by name, email, or company"
-                                                   value="{{ request.GET.q|default:'' }}"
+                                                    <input type="text" id="lead-search" name="q" class="form-control" placeholder="Find lead by name, email, or company" value="{{ request.GET.q|default:'' }}"
                                                    autocomplete="off">
                                                     <ul id="lead-autocomplete-list" class="list-group" style="
                                                         display: none;
@@ -101,6 +99,7 @@
                                                         overflow-y: auto;
                                                         box-shadow: 0 4px 12px rgba(0,0,0,.15);
                                                         left: 0;
+                                                        text-align: left;
                                                     "></ul>
                                                 </div>
                                                 <div class="col-2">

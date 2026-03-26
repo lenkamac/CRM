@@ -74,22 +74,6 @@
         width: 25%;
     }
 }
-@media (max-width: 1399.98px) {
-    .dashboard-card {
-        width: 25%;
-    }
-}
-@media (min-width:2150px) {
-    .dashboard-card {
-        width: 50%;
-    }
-    #dashboard-datetime {
-        font-size: 1.5rem !important;
-        padding-top: 0;
-    }
-    .dashboard-p {
-        font-size: 2rem;
-    }
-}
+
 
 

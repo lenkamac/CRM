@@ -341,10 +341,16 @@ def lead_autocomplete(request):
             Q(last_name__istartswith=query) |
             Q(company__istartswith=query) |
             Q(email__istartswith=query)
-        ).values('id', 'first_name', 'last_name', 'company', 'email')[:10]
+        ).values('id', 'first_name', 'last_name', 'company', 'email')[:]
         for lead in leads:
-            label = f"{lead['first_name']} {lead['last_name']}".strip()
             if lead['company']:
-                label += f" — {lead['company']}"
+                label = f"{lead['company']}"
+
+            if lead['last_name']:
+                label = f"{lead['last_name']} {lead['first_name']}".strip()
+
+            if lead['company'] and lead['last_name']:
+                label = f"{lead['company']} - {lead['last_name']} {lead['first_name']}".strip()
+
             results.append({'id': lead['id'], 'label': label, 'email': lead['email']})
     return JsonResponse(results, safe=False)
