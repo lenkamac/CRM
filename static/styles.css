@@ -104,7 +104,7 @@ body {
     bottom: 60px;
     width: 200px; /* Set your desired width */
     z-index: 1045; /* Set appropriate z-index */
-    background-color: #C7C8CB; /* Optional: Customize the background color */
+    background-color: #fafcfc; /* Optional: Customize the background color */
     border-right: 1px solid #b9b9bb; /* Optional: Add a border */
     transition: transform 0.3s ease-in-out; /* Add transition for smooth sliding */
      }

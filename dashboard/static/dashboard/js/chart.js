@@ -198,7 +198,7 @@ function initChart(data, chartType = 'bar', dataFilter = 'all') {
                         }
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 },
                 x: {
@@ -211,7 +211,7 @@ function initChart(data, chartType = 'bar', dataFilter = 'all') {
                     },
                     grid: {
                         display: chartType === 'bar' ? true : false,
-                        color: 'rgba(0, 0, 0, 0.05)'
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 }
             },

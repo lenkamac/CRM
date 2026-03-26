@@ -7,6 +7,13 @@
 
     {% block css %}
     	<link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+        <style>
+            body {
+                background-color: #dfe1e1;
+                min-height: 100vh;
+            }
+        </style>
     {% endblock %}
 
     {% include 'core/partials/offcanvas_menu.html' %}
@@ -132,7 +139,7 @@
 
         <!-- ===== PRODUCT PURCHASES GRAPH ===== -->
         <div class="row mt-2 justify-content-center">
-            <div class="col-12 border border-3">
+            <div class="col-12 bg-white">
                 <div class="row mb-3 pt-4">
                     <h4 class="fw-bolder text-center"><i class="bi bi-graph-up"></i> Product Purchases Over Time</h4>
                 </div>
@@ -253,7 +260,7 @@
 
         <!-- Interactive Clients and Leads Graph -->
         <div class="row mt-2 justify-content-start">
-            <div class="col-12 border border-3">
+            <div class="col-12 bg-white">
                 <div class="row mb-3 pt-4 pt-xxl-2">
                     <div class="col-12">
                         <h4 class="my-4 text-center fw-bolder">Leads & Clients Over Time</h4>
@@ -309,7 +316,7 @@
                 </div>
 
                 <!-- Chart.js Canvas -->
-                <div style="position: relative; height: 400px;">
+                <div style="position: relative; height: 400px; background-color: rgb(250,250,250);">
                     <canvas id="leadsChart"></canvas>
                 </div>
 

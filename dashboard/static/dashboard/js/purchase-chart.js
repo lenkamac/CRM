@@ -249,8 +249,8 @@
                 b: 80,
                 l: 80
             },
-            plot_bgcolor: '#fafafa',
-            paper_bgcolor: 'white',
+            plot_bgcolor: 'rgba(255,255,255,1)',
+            paper_bgcolor: 'rgb(250,250,248)',
             font: {
                 family: 'Arial, sans-serif',
                 size: 12,
