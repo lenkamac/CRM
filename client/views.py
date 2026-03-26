@@ -376,3 +376,23 @@ def get_exchange_rate(request):
         'rate': rate
     })
 
+
+@login_required
+def client_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        clients = Client.objects.filter(
+            created_by=request.user
+        ).filter(
+            Q(last_name__istartswith=query) |
+            Q(company__istartswith=query) |
+            Q(email__istartswith=query)
+        ).values('id', 'first_name', 'last_name', 'company', 'email')[:10]
+        for client in clients:
+            label = f"{client['first_name']} {client['last_name']}".strip()
+            if client['company']:
+                label += f" — {client['company']}"
+            results.append({'id': client['id'], 'label': label, 'email': client['email']})
+    return JsonResponse(results, safe=False)
+

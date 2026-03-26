@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
@@ -327,3 +327,24 @@ def delete_file(request, lead_id, file_id):
         file_instance.delete()
         messages.success(request, "File deleted successfully.")
     return redirect('lead:detail', pk=lead_id)
+
+
+@login_required
+def lead_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        leads = Lead.objects.filter(
+            created_by=request.user,
+            converted_to_client=False
+        ).filter(
+            Q(last_name__istartswith=query) |
+            Q(company__istartswith=query) |
+            Q(email__istartswith=query)
+        ).values('id', 'first_name', 'last_name', 'company', 'email')[:10]
+        for lead in leads:
+            label = f"{lead['first_name']} {lead['last_name']}".strip()
+            if lead['company']:
+                label += f" — {lead['company']}"
+            results.append({'id': lead['id'], 'label': label, 'email': lead['email']})
+    return JsonResponse(results, safe=False)

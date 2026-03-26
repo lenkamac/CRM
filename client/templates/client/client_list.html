@@ -87,10 +87,21 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <div class="col-5 text-end ms-auto">
-                                                    <input type="text" name="q" class="form-control"
-                                                   placeholder="Find lead by name, email, or company"
-                                                   value="{{ request.GET.q|default:'' }}">
+                                                <div class="col-5 text-end ms-auto" style="position: relative;">
+                                                    <input type="text" id="client-search" name="q" class="form-control"
+                                                   placeholder="Find client by name, email, or company"
+                                                   value="{{ request.GET.q|default:'' }}"
+                                                   autocomplete="off">
+                                                    <ul id="client-autocomplete-list" class="list-group" style="
+                                                        display: none;
+                                                        position: absolute;
+                                                        z-index: 1000;
+                                                        width: 100%;
+                                                        max-height: 260px;
+                                                        overflow-y: auto;
+                                                        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                                        left: 0;
+                                                    "></ul>
                                                 </div>
                                                 <div class="col-2">
                                                     <button type="submit"
@@ -232,5 +243,83 @@
     </div>
 
     <script src="{% static 'client/js/client_js.js' %}"></script>
+
+    <script>
+    (function () {
+        const input = document.getElementById('client-search');
+        const list  = document.getElementById('client-autocomplete-list');
+        const autocompleteUrl = "{% url 'client:autocomplete' %}";
+        const detailBase = "{% url 'client:list' %}".replace(/\/$/, '');
+        let activeIndex = -1;
+        let suggestions = [];
+
+        function closeList() {
+            list.innerHTML = '';
+            list.style.display = 'none';
+            activeIndex = -1;
+        }
+
+        function goToClient(item) {
+            window.location.href = detailBase + '/' + item.id + '/';
+        }
+
+        function setActive(items) {
+            items.forEach((el, i) => {
+                el.classList.toggle('active', i === activeIndex);
+            });
+        }
+
+        input.addEventListener('input', function () {
+            const q = this.value.trim();
+            closeList();
+            suggestions = [];
+            if (!q) return;
+
+            fetch(`${autocompleteUrl}?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.length) return;
+                    suggestions = data;
+                    data.forEach((item, idx) => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action';
+                        li.style.cursor = 'pointer';
+                        li.textContent = item.label;
+                        li.dataset.index = idx;
+                        li.addEventListener('mousedown', function (e) {
+                            e.preventDefault();
+                            goToClient(item);
+                        });
+                        list.appendChild(li);
+                    });
+                    list.style.display = 'block';
+                    activeIndex = -1;
+                });
+        });
+
+        input.addEventListener('keydown', function (e) {
+            const items = [...list.querySelectorAll('li')];
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                setActive(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                setActive(items);
+            } else if (e.key === 'Enter' && activeIndex >= 0) {
+                e.preventDefault();
+                goToClient(suggestions[activeIndex]);
+            } else if (e.key === 'Escape') {
+                closeList();
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!list.contains(e.target) && e.target !== input) closeList();
+        });
+    })();
+    </script>
 
 {% endblock %}
