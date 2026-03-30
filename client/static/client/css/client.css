@@ -8,6 +8,11 @@
     padding-right: 155px;
 }
 
+#add-client-container {
+   padding-left: 225px;
+    padding-right: 75px;
+}
+
 /*Client detail page */
 .card-title {
     background-color: #697272;
