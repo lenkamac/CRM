@@ -50,6 +50,24 @@
     font-size: 1rem;
 }
 
+.lead-company {
+    font-weight: bold;
+    color: #1c4e6a;
+    text-decoration: none;
+}
+.lead-company:hover {
+    color: #387ea6;
+    text-decoration: underline;
+}
+.lead-name {
+    font-weight: bold;
+    color: #688eb4;
+    text-decoration: none;
+}
+.lead-name:hover {
+    color: #364a69;
+    text-decoration: underline;
+}
 
 /* Responsive design*/
 @media (max-width: 575px) {

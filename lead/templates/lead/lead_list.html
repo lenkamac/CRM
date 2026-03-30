@@ -164,8 +164,8 @@
                                                                 </label>
                                                             </td>
                                                             <td class="text-start text-nowrap">{{ lead.created_at|date:"d.m.Y H:i" }}</td>
-                                                            <td class="text-start text-nowrap">{{ lead.company }}</td>
-                                                            <td class="text-start text-nowrap">{{ lead.first_name }} {{ lead.last_name }}</td>
+                                                            <td class="text-start text-nowrap"><a href="{% url 'lead:detail' lead.pk %}" class="lead-company">{{ lead.company }}</a></td>
+                                                            <td class="text-start text-nowrap"><a href="{% url 'lead:detail' lead.pk  %}" class="lead-name">{{ lead.first_name }} {{ lead.last_name }}</a></td>
                                                             <td class="text-start text-nowrap">{{ lead.email }}</td>
                                                             <td class="text-center text-nowrap"><span class="{% if lead.priority == 'low' %}text-dark-bg-subtle fw-bolder
                                                                     {% elif lead.priority == 'medium' %}text-info fw-bolder{% elif lead.priority == 'high' %}text-warning fw-bolder

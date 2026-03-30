@@ -18,7 +18,8 @@
     color: #146c43;
 }
 .lead-company-a a:hover {
-    color: #093522;
+    color: #06120d;
+    text-decoration: none;
 }
 .lead-name-a a {
     font-weight: bold;
@@ -27,53 +28,11 @@
 }
 .lead-name-a a:hover {
     color: rgba(29, 57, 85, 0.85);
+    text-decoration: underline;
 }
 
 /* Responsive design*/
-@media (max-width: 575px) {
-    .dashboard-container {
-        font-size: 0.6rem;
-        margin: 25px auto;
-        width: 100%;
-        padding: 15px;
-        height: auto;
-    }
-    .dashboard-card {
-        height: 80px;
-    }
-    .dashboard-card h4 {
-        font-size: 1.2rem;
-    }
 
-}
-@media (max-width: 768px) {
-    .dashboard-container {
-        font-size: 0.6rem;
-        margin: 25px auto;
-        width: 100%;
-        padding: 15px;
-        height: auto;
-    }
-    .dashboard-card {
-        height: 80px;
-    }
-    .dashboard-card h4 {
-        font-size: 1.2rem;
-    }
-}
-@media (max-width: 991px) {
-    .dashboard-card {
-        height: 90px;
-    }
-    .dashboard-p {
-        padding-bottom: 8px;
-    }
-}
-@media (max-width: 1199.98px) {
-    .dashboard-card {
-        width: 25%;
-    }
-}
 
 
 
