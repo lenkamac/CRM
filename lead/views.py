@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, request
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
@@ -34,6 +34,25 @@ class LeadListView(ListView):
                 Q(company__icontains=query) |
                 Q(email__icontains=query)
             )
+
+        # Apply filters
+
+        priority = self.request.GET.get('priority')
+        if priority:
+            queryset = queryset.filter(priority=priority)
+
+        from datetime import date, timedelta
+        due_date_filter = self.request.GET.get('created_at')
+        if due_date_filter:
+            today = date.today()
+            if due_date_filter == "today":
+                queryset = queryset.filter(created_at__date=today)
+            elif due_date_filter == "this_week":
+                week_start = today - timedelta(days=7)
+                queryset = queryset.filter(created_at__date__gte=week_start, created_at__date__lte=today)
+            elif due_date_filter == "this_month":
+                month_start = date(today.year, today.month, 1)
+                queryset = queryset.filter(created_at__date__gte=month_start, created_at__date__lte=today)
 
         # Handle sorting
         sort = self.request.GET.get('sort', '-created_at')  # Default: newest first

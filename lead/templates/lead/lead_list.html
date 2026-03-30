@@ -53,17 +53,16 @@
                 <div class="row justify-content-center">
                     <div class="col-12 justify-content-center">
                         <!-- Filters --><!-- Add this above your table -->
-                        <div class="row my-3">
+                        <div class="row justify-content-center my-3">
                             <div class="col-12">
                                 <form method="get">
                                     <div class="row justify-content-sm-center">
-
                                         <div class="col-sm-12 col-md-12 pt-md-2">
-                                            <div class="row py-2 align-items-center">
-                                                <div class="col-1 text-start">
+                                            <div class="row py-2 justify-content-center align-items-start">
+                                                <div class="col-1 text-start pt-4">
                                                     <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
                                                 </div>
-                                                <div class="col-1 text-end px-lg-5">
+                                                <div class="col-1 text-center pt-4">
                                                     <!-- Dropdown for actions -->
                                                     <div class="dropdown d-inline-block">
                                                         <button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -87,7 +86,7 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <div class="col-5 text-end ms-auto" style="position: relative;">
+                                                <div class="col-5 text-start pt-4" style="position: relative;">
                                                     <input type="text" id="lead-search" name="q" class="form-control" placeholder="Find lead by name, email, or company" value="{{ request.GET.q|default:'' }}"
                                                    autocomplete="off"
                                                    data-autocomplete-url="{% url 'lead:autocomplete' %}"
@@ -104,10 +103,39 @@
                                                         text-align: left;
                                                     "></ul>
                                                 </div>
-                                                <div class="col-2">
+                                                <div class="col-2 pt-4">
                                                     <button type="submit"
                                                             class="btn btn-search justify-content-center align-items-center">Search
                                                     </button>
+                                                </div>
+                                                <div class="col-3">
+                                                     <form method="get" class="row g-3">
+                                                        <div class="row justify-content-center align-items-center">
+                                                            <div class="col-4">
+                                                                <label class="form-label fs-6">Priority</label>
+                                                                <select name="priority" class="form-select">
+                                                                    <option value="">All</option>
+                                                                    <option value="urgent" {% if request.GET.priority == 'urgent' %}selected{% endif %}>Urgent</option>
+                                                                    <option value="high" {% if request.GET.priority == 'high' %}selected{% endif %}>High</option>
+                                                                    <option value="medium" {% if request.GET.priority == 'medium' %}selected{% endif %}>Medium</option>
+                                                                    <option value="low" {% if request.GET.priority == 'low' %}selected{% endif %}>Low</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="col-4">
+                                                                <label class="form-label fs-6">Created at</label>
+                                                                <select name="created_at" class="form-select">
+                                                                    <option value="">All</option>
+                                                                    <option value="today" {% if request.GET.created_at == 'today' %}selected{% endif %}>Today</option>
+                                                                    <option value="this_week" {% if request.GET.created_at == 'this_week' %}selected{% endif %}>Last 7 days</option>
+                                                                    <option value="this_month" {% if request.GET.created_at == 'this_month' %}selected{% endif %}>This Month</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-4  justify-content-start align-items-start pt-4">
+                                                                <button type="submit" class="btn btn-secondary fw-bolder">Apply Filters</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -116,6 +144,7 @@
                             </div>
                         </div>
                     </div>
+
 
                     <div class="col-sm-12">
                         <form id="bulk-delete-form" method="post" action="{% url 'lead:delete_bulk' %}">
@@ -244,6 +273,8 @@
                         </form>
                     </div>
                 </div>
+
+
             </div>
         </div>
 
