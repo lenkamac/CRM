@@ -151,6 +151,8 @@
             flatpickr("#id_due_date", {
                 dateFormat: "d.m.Y",
                 allowInput: true,
+                position: "below",
+                autocomplete: false,
                 locale: {
                     firstDayOfWeek: 1
                 }
@@ -162,7 +164,9 @@
                 noCalendar: true,
                 dateFormat: "H:i",
                 time_24hr: true,
-                allowInput: true
+                allowInput: true,
+                autocomplete: false,
+                position: "below"
             });
         });
         </script>

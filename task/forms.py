@@ -20,8 +20,8 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = ['title', 'description', 'status', 'priority', 'lead', 'client', 'assigned_to','due_date', 'due_time']
         widgets = {
-            'due_date': forms.DateInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'dd.mm.yyyy'}),
-            'due_time': Time24HourInput(attrs={'class': 'form-control'}),
+            'due_date': forms.DateInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'dd.mm.yyyy', 'autocomplete': 'off'}),
+            'due_time': Time24HourInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
@@ -69,9 +69,10 @@ class TaskEditForm(forms.ModelForm):
             'due_date': forms.DateInput(attrs={
                 'type': 'text',
                 'class': 'form-control',
-                'placeholder': 'dd.mm.yyyy'
+                'placeholder': 'dd.mm.yyyy',
+                'autocomplete': 'off'
             }),
-            'due_time': Time24HourInput(attrs={'class': 'form-control'}),
+            'due_time': Time24HourInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),

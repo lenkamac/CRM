@@ -462,13 +462,13 @@
                                                         <option value="urgent">Urgent</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-lg-3 py-lg-1">
-                                                    <label for="id_due_date" class="form-label">Due Date</label>
-                                                    <input type="text" class="form-control" id="id_due_date" name="due_date" placeholder="dd.mm.yyyy">
+                                                <div class="col-lg-2 py-lg-1">
+                                                    <div class="col-12"><label for="id_due_date" class="form-label w-100">Due Date</label></div>
+                                                    <div class="col-12"><input type="text" class="form-control w-100" id="id_due_date" name="due_date" placeholder="dd.mm.yyyy" autocomplete="off"></div>
                                                 </div>
-                                                <div class="col-lg-3 py-lg-1">
-                                                    <label for="id_due_time" class="form-label">Due Time</label>
-                                                    <input type="text" class="form-control" id="id_due_time" name="due_time" placeholder="HH:MM (24-hour format)" pattern="[0-9]{2}:[0-9]{2}">
+                                                <div class="col-lg-2 py-lg-1">
+                                                    <div class="col-12"><label for="id_due_time" class="form-label w-100">Due Time</label></div>
+                                                    <div class="col-12"><input type="text" class="form-control w-100" id="id_due_time" name="due_time" placeholder="HH:MM (24-hour format)" pattern="[0-9]{2}:[0-9]{2}" autocomplete="off"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -715,7 +715,10 @@
             // Initialize flatpickr for due date
             flatpickr("#id_due_date", {
                 dateFormat: "d.m.Y",
-                allowInput: true
+                allowInput: true,
+                static: true,
+                autocomplete: false,
+                locale: { firstDayOfWeek: 1 }
             });
 
             // Initialize flatpickr for purchase date filters (Monday as first day)
@@ -735,8 +738,33 @@
                 noCalendar: true,
                 dateFormat: "H:i",
                 time_24hr: true,
-                allowInput: true
+                allowInput: true,
+                static: true,
+                autocomplete: false
             });
+
+            flatpickr("#purchase_date_from", {
+            dateFormat: "d.m.Y",
+            allowInput: true,
+            static: true,
+            position: "below",
+            autocomplete: false,
+            locale: {
+                firstDayOfWeek: 1
+            }
+        });
+
+        flatpickr("#purchase_date_to", {
+            dateFormat: "d.m.Y",
+            allowInput: true,
+            static: true,
+            position: "below",
+            autocomplete: false,
+            locale: {
+                firstDayOfWeek: 1
+            }
+        });
+
 
         });
     </script>
