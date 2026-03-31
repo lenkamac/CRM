@@ -117,9 +117,9 @@
                                     </div>
                                     <div class="col-4">
                                         {% if task.due_date and task.due_time %}
-                                            <p class="fw-bolder text-start fs-6">{{ task.due_date }}, {{ task.due_time }}</p>
+                                            <p class="fw-bolder text-start fs-6">{{ task.due_date|date:"d.m.Y" }}, {{ task.due_time|time:"H:i" }}</p>
                                         {% elif task.due_date %}
-                                            <p class="fw-bolder text-start fs-6">{{ task.due_date }}</p>
+                                            <p class="fw-bolder text-start fs-6">{{ task.due_date|date:"d.m.Y" }}</p>
                                         {% else %}
                                             <p class="text-muted fw-bolder fs-6">No due date, time set</p>
                                         {% endif %}

@@ -1,4 +1,6 @@
 let calendar;
+let pendingClickedDate = null;
+let pendingFormModalId = null;
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -9,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
             dateFormat: "d.m.Y",
             altInput: false,
             allowInput: true,
+            static: true,
+            autocomplete: false,
             // Parse input in dd.mm.yyyy format
             parseDate: (datestr, format) => {
                 const parts = datestr.split('.');
@@ -33,6 +37,20 @@ document.addEventListener('DOMContentLoaded', function() {
         flatpickr("#eventEndDate", flatpickrConfig);
         flatpickr("#editEventStartDate", flatpickrConfig);
         flatpickr("#editEventEndDate", flatpickrConfig);
+        flatpickr("#taskDueDate", flatpickrConfig);
+
+        const timeConfig = {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            static: true,
+        };
+        flatpickr("#taskDueTime", timeConfig);
+        flatpickr("#editEventStartTime", timeConfig);
+        flatpickr("#editEventEndTime", timeConfig);
+        flatpickr("#eventStartTime", timeConfig);
+        flatpickr("#eventEndTime", timeConfig);
     }
 
 
@@ -46,22 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
             minute: '2-digit',
             hour12: false
         },
-        // === Add this below your eventClick ===
         dateClick: function(info) {
-            // Clear previous form values
-            document.getElementById('addEventForm').reset();
-
-            // Pre-fill the "Start Date" field with clicked date in dd.mm.yyyy format
-            const clickedDate = new Date(info.dateStr);
-            const day = String(clickedDate.getDate()).padStart(2, '0');
-            const month = String(clickedDate.getMonth() + 1).padStart(2, '0');
-            const year = clickedDate.getFullYear();
-            document.getElementById('eventStartDate').value = `${day}.${month}.${year}`;
-            document.getElementById('eventStartTime').value = "09:00";
-
-            // Show the add event modal
-            var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
-            addModal.show();
+            pendingClickedDate = info.dateStr;
+            var choiceModal = new bootstrap.Modal(document.getElementById('dateClickChoiceModal'));
+            choiceModal.show();
         },
 
         eventClick: function(info) {
@@ -273,6 +279,92 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Choice modal: open the right form after the choice modal is fully hidden
+    document.getElementById('dateClickChoiceModal').addEventListener('hidden.bs.modal', function() {
+        if (pendingFormModalId) {
+            var formModal = new bootstrap.Modal(document.getElementById(pendingFormModalId));
+            formModal.show();
+            pendingFormModalId = null;
+        }
+    });
+
+    // Set a flatpickr-controlled input to a date from yyyy-mm-dd string
+    function setFlatpickrDate(elementId, isoDateStr) {
+        const el = document.getElementById(elementId);
+        if (el && el._flatpickr) {
+            el._flatpickr.setDate(isoDateStr);
+        } else if (el) {
+            // Fallback: convert yyyy-mm-dd → dd.mm.yyyy
+            const parts = isoDateStr.split('-');
+            if (parts.length === 3) {
+                el.value = `${parts[2]}.${parts[1]}.${parts[0]}`;
+            }
+        }
+    }
+
+    document.getElementById('choiceAddEventBtn').addEventListener('click', function() {
+        document.getElementById('addEventForm').reset();
+        if (pendingClickedDate) {
+            setFlatpickrDate('eventStartDate', pendingClickedDate);
+            document.getElementById('eventStartTime').value = "09:00";
+        }
+        pendingFormModalId = 'addEventModal';
+        bootstrap.Modal.getInstance(document.getElementById('dateClickChoiceModal')).hide();
+    });
+
+    document.getElementById('choiceAddTaskBtn').addEventListener('click', function() {
+        document.getElementById('addTaskForm').reset();
+        if (pendingClickedDate) {
+            setFlatpickrDate('taskDueDate', pendingClickedDate);
+        }
+        pendingFormModalId = 'addTaskModal';
+        bootstrap.Modal.getInstance(document.getElementById('dateClickChoiceModal')).hide();
+    });
+
+    // Add task form submit handler
+    document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const dueDateDmy = document.getElementById('taskDueDate').value;
+        const parts = dueDateDmy.split('.');
+        const dueDateISO = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : dueDateDmy;
+
+        const formData = {
+            title: document.getElementById('taskTitle').value,
+            due_date: dueDateISO,
+            due_time: document.getElementById('taskDueTime').value || null,
+            priority: document.getElementById('taskPriority').value,
+            status: document.getElementById('taskStatus').value,
+            description: document.getElementById('taskDesc').value,
+        };
+
+        fetch('add_task/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) return response.json();
+            throw new Error('Network error.');
+        })
+        .then(data => {
+            if (data.success) {
+                calendar.refetchEvents();
+                loadAllTasks();
+                bootstrap.Modal.getInstance(document.getElementById('addTaskModal')).hide();
+                e.target.reset();
+            } else {
+                alert('Failed to add task.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding task');
+        });
+    });
+
     // Drag & Drop/resize logic
     function updateEvent(info) {
         fetch(`update_event/${info.event.id}/`, {
@@ -390,10 +482,7 @@ function loadAllTasks(page=1) {
                 const taskId = task.id.replace('task-', '');
 
                 // Priority badge color
-                let priorityColor = 'secondary';
-                if (task.priority === 'high') priorityColor = 'danger';
-                else if (task.priority === 'medium') priorityColor = 'warning';
-                else if (task.priority === 'low') priorityColor = 'success';
+                const priorityColor = getPriorityColor(task.priority);
 
                 // Status badge color
                 let statusColor = 'secondary';
@@ -479,8 +568,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const addTaskBtn = document.getElementById('add-task-btn');
     if (addTaskBtn) {
         addTaskBtn.addEventListener('click', function() {
-            // Redirect to task add page with return parameter
-            window.location.href = '/dashboard/tasks/add/?next=' + encodeURIComponent(window.location.pathname);
+            document.getElementById('addTaskForm').reset();
+            pendingClickedDate = null;
+            var addModal = new bootstrap.Modal(document.getElementById('addTaskModal'));
+            addModal.show();
         });
     }
 });
@@ -736,9 +827,10 @@ function deleteTask(taskId) {
 
 // Helper functions for badge colors
 function getPriorityColor(priority) {
-    if (priority === 'high') return 'danger';
-    if (priority === 'medium') return 'warning';
-    if (priority === 'low') return 'success';
+    if (priority === 'urgent') return 'danger';
+    if (priority === 'high') return 'orange';
+    if (priority === 'medium') return 'success';
+    if (priority === 'low') return 'primary';
     return 'secondary';
 }
 
@@ -831,9 +923,10 @@ function deleteTask(taskId) {
 
 // Helper functions for badge colors
 function getPriorityColor(priority) {
-    if (priority === 'high') return 'danger';
-    if (priority === 'medium') return 'warning';
-    if (priority === 'low') return 'success';
+    if (priority === 'urgent') return 'danger';
+    if (priority === 'high') return 'orange';
+    if (priority === 'medium') return 'success';
+    if (priority === 'low') return 'primary';
     return 'secondary';
 }
 
@@ -926,9 +1019,10 @@ function deleteTask(taskId) {
 
 // Helper functions for badge colors
 function getPriorityColor(priority) {
-    if (priority === 'high') return 'danger';
-    if (priority === 'medium') return 'warning';
-    if (priority === 'low') return 'success';
+    if (priority === 'urgent') return 'danger';
+    if (priority === 'high') return 'orange';
+    if (priority === 'medium') return 'success';
+    if (priority === 'low') return 'primary';
     return 'secondary';
 }
 
@@ -1021,9 +1115,10 @@ function deleteTask(taskId) {
 
 // Helper functions for badge colors
 function getPriorityColor(priority) {
-    if (priority === 'high') return 'danger';
-    if (priority === 'medium') return 'warning';
-    if (priority === 'low') return 'success';
+    if (priority === 'urgent') return 'danger';
+    if (priority === 'high') return 'orange';
+    if (priority === 'medium') return 'success';
+    if (priority === 'low') return 'primary';
     return 'secondary';
 }
 

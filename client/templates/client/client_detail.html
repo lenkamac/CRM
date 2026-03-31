@@ -328,14 +328,14 @@
                                                     <td class="text-start text-nowrap">{{ task.title }}</td>
                                                     <td class="text-center text-nowrap">
                                                         {% if task.due_date %}
-                                                            {{ task.due_date }}
+                                                            {{ task.due_date|date:"d.m.Y" }}
                                                         {% else %}
                                                             <span class="text-muted text-nowrap">No due date</span>
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center text-nowrap">
                                                         {% if task.due_time %}
-                                                            {{ task.due_time }}
+                                                            {{ task.due_time|time:"H:i" }}
                                                         {% else %}
                                                             <span class="text-muted">--:--</span>
                                                         {% endif %}
@@ -377,10 +377,7 @@
                                                     <td class="text-center justify-content-center">
                                                         <div class="d-flex justify-content-center align-items-center">
                                                             <a href="{% url 'task:task_detail' task.pk %}">
-                                                                <i class="fas fa-eye" style="font-size: 1rem;"></i>
-                                                            </a>
-                                                            <a href="{% url 'task:task_edit' task.pk %}?next={% url 'client:detail' client.id %}" class="px-3">
-                                                                <i class="fas fa-edit" style="font-size: 1rem;"></i>
+                                                                <i class="fas fa-eye px-2" style="font-size: 1rem;"></i>
                                                             </a>
                                                             <!-- Delete Task Button -->
                                                             <form method="post" style="display: inline;"

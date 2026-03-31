@@ -52,7 +52,7 @@
                                 {% for lead in latest_leads %}
                                     <tbody>
                                         <tr>
-                                            <td class="text-start">{{ lead.created_at }}</td>
+                                            <td class="text-start">{{ lead.created_at|date:"d.m.Y H:i" }}</td>
                                             <td class="text-start lead-company-a">
                                                 {% if lead.company %}
                                                     <a href="{% url 'lead:detail' lead.pk %}">{{ lead.company }}</a>
@@ -105,7 +105,7 @@
                                 {% for client in latest_clients %}
                                     <tbody>
                                         <tr>
-                                            <td class="text-start">{{ client.created_at }}</td>
+                                            <td class="text-start">{{ client.created_at|date:"d.m.Y H:i" }}</td>
                                             <td class="text-start lead-company-a">
                                                 {% if client.company %}
                                                     <a href="{% url 'client:detail' client.pk %}">{{ client.company }}</a>

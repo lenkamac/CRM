@@ -53,6 +53,25 @@
 
 }
 
+.client-a-company {
+    font-weight: bold;
+    color: #1c4e6a;
+    text-decoration: none;
+}
+.client-a-company:hover {
+    color: #387ea6;
+    text-decoration: underline;
+}
+.client-a-name {
+    font-weight: bold;
+    color: #688eb4;
+    text-decoration: none;
+}
+.client-a-name:hover {
+    color: #364a69;
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     #client-container {
         font-size: 0.6rem;

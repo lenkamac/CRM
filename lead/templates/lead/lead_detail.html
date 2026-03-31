@@ -338,14 +338,14 @@
                                                     <td class="text-start text-nowrap">{{ task.title }}</td>
                                                     <td class="text-center text-nowrap">
                                                         {% if task.due_date %}
-                                                            {{ task.due_date }}
+                                                            {{ task.due_date|date:"d.m.Y" }}
                                                         {% else %}
                                                             <span class="text-muted text-nowrap">No due date</span>
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center text-nowrap">
                                                         {% if task.due_time %}
-                                                            {{ task.due_time }}
+                                                            {{ task.due_time|time:"H:i" }}
                                                         {% else %}
                                                             <span class="text-muted">--:--</span>
                                                         {% endif %}

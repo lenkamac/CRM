@@ -1,10 +1,11 @@
 import json
-from datetime import datetime, time
+from datetime import datetime, time, date as date_type
 
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 from .models import Event
@@ -64,7 +65,7 @@ def events_json(request):
             'client_or_lead_type': client_or_lead_type,
             'client_or_lead_id': client_or_lead_id,
             'type': 'task',
-            'backgroundColor': 'red' if task.priority == 'high' else 'orange' if task.priority == 'medium' else 'green',
+            'backgroundColor': {'urgent': 'red', 'high': 'orange', 'medium': 'green', 'low': 'blue'}.get(task.priority, '#6c757d'),
         })
     return JsonResponse(events, safe=False)
 
@@ -113,6 +114,35 @@ def update_event(request, event_id):
         except Event.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Event not found'})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+
+# add task from calendar
+@csrf_exempt
+@login_required
+def add_task(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        due_date_str = data.get('due_date')
+        due_time_str = (data.get('due_time') or '').strip()
+        due_date = date_type.fromisoformat(due_date_str) if due_date_str else None
+        due_time_val = None
+        if due_time_str:
+            try:
+                parts = due_time_str.split(':')
+                due_time_val = time(int(parts[0]), int(parts[1]))
+            except (ValueError, IndexError):
+                due_time_val = None
+        Task.objects.create(
+            title=data.get('title'),
+            due_date=due_date,
+            due_time=due_time_val,
+            priority=data.get('priority') or '',
+            status=data.get('status') or 'todo',
+            description=data.get('description') or '',
+            created_by=request.user,
+        )
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
 
 
 # paginator for upcoming events

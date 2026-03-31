@@ -1,3 +1,8 @@
+.bg-orange {
+    background-color: #fd7e14 !important;
+    color: #fff !important;
+}
+
  #calendar-container {
      padding-left: 115px;
     padding-right: 25px;

@@ -57,6 +57,81 @@
 
 
 
+            <!-- Date Click Choice Modal -->
+            <div class="modal fade" id="dateClickChoiceModal" tabindex="-1" aria-labelledby="dateClickChoiceModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="dateClickChoiceModalLabel">Add to Calendar</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-grid gap-2">
+                            <button type="button" class="btn btn-primary" id="choiceAddEventBtn">
+                                <i class="fa-solid fa-calendar-plus px-2"></i>Add Event
+                            </button>
+                            <button type="button" class="btn btn-success" id="choiceAddTaskBtn">
+                                <i class="fa-solid fa-list-check px-2"></i>Add Task
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Task Modal -->
+            <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="addTaskForm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addTaskModalLabel">Add New Task</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="taskTitle" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="taskTitle" name="title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="taskDueDate" class="form-label">Due Date</label>
+                                    <input type="text" class="form-control" id="taskDueDate" name="due_date" placeholder="dd.mm.yyyy" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="taskDueTime" class="form-label">Due Time</label>
+                                    <input type="text" class="form-control" id="taskDueTime" name="due_time" placeholder="HH:MM" pattern="[0-9]{2}:[0-9]{2}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="taskPriority" class="form-label">Priority</label>
+                                    <select class="form-select" id="taskPriority" name="priority">
+                                        <option value="">---------</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="taskStatus" class="form-label">Status</label>
+                                    <select class="form-select" id="taskStatus" name="status">
+                                        <option value="todo">To Do</option>
+                                        <option value="in_progress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="canceled">Canceled</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="taskDesc" class="form-label">Description</label>
+                                    <textarea class="form-control" id="taskDesc" name="description"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success">Add Task</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Event Action Modal -->
             <div class="modal fade" id="eventActionModal" tabindex="-1" aria-labelledby="eventActionModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
