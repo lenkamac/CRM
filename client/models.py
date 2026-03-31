@@ -21,6 +21,7 @@ class Client(models.Model):
     company = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True, null=True)
+    mobile = models.CharField(max_length=50, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True)
     zipcode = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=255, blank=True)

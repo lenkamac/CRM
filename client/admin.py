@@ -4,7 +4,7 @@ from .models import Client, ClientFile, Comment, Purchase
 
 # Register your models here.
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('company', 'last_name', 'first_name', 'email', 'phone', 'created_at', 'status', 'is_converted')
+    list_display = ('company', 'last_name', 'first_name', 'email', 'phone', 'mobile', 'created_at', 'status', 'is_converted')
     list_filter = ('created_at', 'status', 'last_name', 'company')
     search_fields = ('last_name', 'email', 'company')
 

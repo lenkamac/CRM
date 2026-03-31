@@ -111,10 +111,14 @@ def task_detail(request, pk):
         if edit_form.is_valid():
             edit_form.save()
             messages.success(request, 'Task updated successfully.')
-            return redirect('task:task_detail', pk=task.pk)
+            from django.urls import reverse
+            return redirect(reverse('task:task_detail', kwargs={'pk': task.pk}) + '?saved=1#task-view-content')
         show_edit = True
     else:
-        edit_form = TaskForm(instance=task)
+        if request.GET.get('saved'):
+            edit_form = TaskForm()
+        else:
+            edit_form = TaskForm(instance=task)
 
     return render(request, 'task/task_detail.html', {
         'task': task,

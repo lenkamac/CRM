@@ -10,6 +10,7 @@ class UserProfile(models.Model):
     email = models.EmailField(max_length=100)
     profile_pic = models.ImageField(upload_to='profile_pics', blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+    mobile_number = models.CharField(max_length=15, blank=True, null=True)
     bio = models.TextField(blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
     website = models.URLField(blank=True)
