@@ -185,7 +185,7 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Edit Client'
         return context
 
-    fields = ('company', 'first_name', 'last_name', 'phone','email', 'address', 'zipcode', 'city', 'description',
+    fields = ('company', 'first_name', 'last_name', 'phone','mobile','email', 'address', 'zipcode', 'city', 'country', 'description',
               'status', 'website',)
     success_url = reverse_lazy('client:list')
 

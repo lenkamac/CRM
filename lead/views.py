@@ -172,7 +172,7 @@ class LeadUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Edit Lead'
         return context
 
-    fields = ('company', 'first_name', 'last_name', 'phone','email', 'address', 'zipcode', 'city', 'description', 'website',
+    fields = ('company', 'first_name', 'last_name', 'phone', 'mobile','email', 'address', 'zipcode', 'city', 'country', 'description', 'website',
               'priority', 'status', 'status_sale')
     success_url = reverse_lazy('lead:list')
 
