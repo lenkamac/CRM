@@ -499,10 +499,15 @@
                         <form method="get" class="row g-2 align-items-end">
                             {% if request.GET.comment_page %}<input type="hidden" name="comment_page" value="{{ request.GET.comment_page }}">{% endif %}
                             {% if request.GET.task_page %}<input type="hidden" name="task_page" value="{{ request.GET.task_page }}">{% endif %}
-                            <div class="col-12 col-md-3">
+                            <div class="col-12 col-md-3" style="position: relative;">
                                 <label class="form-label small mb-1">Product</label>
-                                <input type="text" name="purchase_product" value="{{ purchase_filter.product }}"
-                                       class="form-control form-control-sm" placeholder="Search product...">
+                                <input type="text" id="purchase-product-input" name="purchase_product"
+                                       value="{{ purchase_filter.product }}"
+                                       class="form-control form-control-sm" placeholder="Search product..."
+                                       autocomplete="off"
+                                       data-autocomplete-url="{% url 'product:autocomplete' %}">
+                                <ul id="purchase-product-list" class="list-group shadow-sm"
+                                    style="display:none; position:absolute; z-index:1000; width:100%; top:100%; left:0;"></ul>
                             </div>
                             <div class="col-6 col-md-2">
                                 <label class="form-label small mb-1">Currency</label>
@@ -762,6 +767,48 @@
             }
         });
 
+        // Purchase product autocomplete
+        (function () {
+            const input = document.getElementById('purchase-product-input');
+            const list = document.getElementById('purchase-product-list');
+            if (!input || !list) return;
+
+            const autocompleteUrl = input.dataset.autocompleteUrl;
+
+            function closeList() {
+                list.innerHTML = '';
+                list.style.display = 'none';
+            }
+
+            input.addEventListener('input', function () {
+                const q = this.value.trim();
+                closeList();
+                if (!q) return;
+
+                fetch(autocompleteUrl + '?q=' + encodeURIComponent(q))
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (!data.length) return;
+                        data.forEach(function (item) {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action py-1 px-2 small';
+                            li.style.cursor = 'pointer';
+                            li.textContent = item.label;
+                            li.addEventListener('mousedown', function (e) {
+                                e.preventDefault();
+                                input.value = item.label;
+                                closeList();
+                            });
+                            list.appendChild(li);
+                        });
+                        list.style.display = 'block';
+                    });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!input.contains(e.target)) closeList();
+            });
+        })();
 
         });
     </script>
