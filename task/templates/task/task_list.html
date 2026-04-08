@@ -46,8 +46,24 @@
                     </div>
                     <!-- Search -->
                     <div class="col d-flex justify-content-end">
-                        <form method="get" action="{% url 'task:task_list' %}" class="d-flex gap-2 w-50">
-                            <input type="text" name="search" class="form-control" placeholder="Search by company or last name..." value="{{ search_query }}" />
+                        <form method="get" action="{% url 'task:task_list' %}" class="d-flex gap-2 w-50" id="task-search-form">
+                            <div style="position: relative; width: 100%;">
+                                <input type="text" name="search" id="task-search" class="form-control"
+                                       placeholder="Search by company or last name..."
+                                       value="{{ search_query }}"
+                                       autocomplete="off"
+                                       data-autocomplete-url="{% url 'task:task_autocomplete' %}" />
+                                <ul id="task-autocomplete-list" class="list-group" style="
+                                    display: none;
+                                    position: absolute;
+                                    z-index: 1000;
+                                    width: 100%;
+                                    max-height: 260px;
+                                    overflow-y: auto;
+                                    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                    left: 0;
+                                "></ul>
+                            </div>
                             <button type="submit" class="btn btn-search text-nowrap">Search</button>
                         </form>
                     </div>
@@ -327,6 +343,93 @@
 
     <script src="{% static 'js/project.js' %}"></script>
     <script>
+        // Task search autocomplete
+        (function () {
+            const input = document.getElementById('task-search');
+            if (!input) return;
+            const list = document.getElementById('task-autocomplete-list');
+            const form = document.getElementById('task-search-form');
+            const autocompleteUrl = input.dataset.autocompleteUrl;
+            let activeIndex = -1;
+            let suggestions = [];
+
+            function closeList() {
+                list.innerHTML = '';
+                list.style.display = 'none';
+                activeIndex = -1;
+            }
+
+            function selectSuggestion(label) {
+                input.value = label;
+                closeList();
+                form.submit();
+            }
+
+            function setActive(items) {
+                items.forEach(function (el, i) {
+                    el.classList.toggle('active', i === activeIndex);
+                });
+            }
+
+            function fetchSuggestions(q) {
+                closeList();
+                suggestions = [];
+                if (!q) return;
+                fetch(autocompleteUrl + '?q=' + encodeURIComponent(q))
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (!data.length) return;
+                        suggestions = data;
+                        data.forEach(function (item) {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action';
+                            li.style.cursor = 'pointer';
+                            li.textContent = item.label;
+                            li.addEventListener('mousedown', function (e) {
+                                e.preventDefault();
+                                selectSuggestion(item.label);
+                            });
+                            list.appendChild(li);
+                        });
+                        list.style.display = 'block';
+                        activeIndex = -1;
+                    });
+            }
+
+            input.addEventListener('input', function () {
+                fetchSuggestions(this.value.trim());
+            });
+
+            input.addEventListener('keydown', function (e) {
+                const items = [...list.querySelectorAll('li')];
+                if (e.key === 'Enter') {
+                    if (activeIndex >= 0 && suggestions[activeIndex]) {
+                        e.preventDefault();
+                        selectSuggestion(suggestions[activeIndex].label);
+                    }
+                    return;
+                }
+                if (!items.length) return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                    setActive(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    setActive(items);
+                } else if (e.key === 'Escape') {
+                    closeList();
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!list.contains(e.target) && e.target !== input) {
+                    closeList();
+                }
+            });
+        })();
+
         function updateStatusText() {
             const checkboxes = document.querySelectorAll('input[name=status]:checked');
             const allCheckbox = document.getElementById('status-all');

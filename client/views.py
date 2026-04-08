@@ -385,17 +385,18 @@ def client_autocomplete(request):
         clients = Client.objects.filter(
             created_by=request.user
         ).filter(
+            Q(first_name__istartswith=query) |
             Q(last_name__istartswith=query) |
             Q(company__istartswith=query) |
             Q(email__istartswith=query)
-        ).values('id', 'first_name', 'last_name', 'company', 'email')[:10]
+        ).values('id', 'first_name', 'last_name', 'company', 'email')[:]
         for client in clients:
             if client['last_name']:
                 label = f"{client['last_name']} {client['first_name']}".strip()
             if client['company']:
                 label = f"{client['company']}"
             if client['last_name'] and client['company']:
-                label = f"{client['company']} {client['last_name']} - {client['first_name']}".strip()
+                label = f"{client['company']}, {client['first_name']} {client['last_name']}".strip()
             results.append({'id': client['id'], 'label': label, 'email': client['email']})
     return JsonResponse(results, safe=False)
 

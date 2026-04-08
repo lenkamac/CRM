@@ -356,3 +356,25 @@ def task_add_lead(request, lead_id):
             )
         return redirect('lead:detail', lead_id)
     return redirect('lead:detail', lead_id)
+
+
+@login_required
+def task_autocomplete(request):
+    from django.db.models import Q
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        seen = set()
+        sources = [
+            Task.objects.filter(client__company__istartswith=query).values_list('client__company', flat=True).distinct(),
+            Task.objects.filter(client__last_name__istartswith=query).values_list('client__last_name', flat=True).distinct(),
+            Task.objects.filter(lead__company__istartswith=query).values_list('lead__company', flat=True).distinct(),
+            Task.objects.filter(lead__last_name__istartswith=query).values_list('lead__last_name', flat=True).distinct(),
+        ]
+        for qs in sources:
+            for value in qs:
+                if value and value not in seen:
+                    seen.add(value)
+                    results.append({'label': value})
+        results.sort(key=lambda x: x['label'])
+    return JsonResponse(results, safe=False)

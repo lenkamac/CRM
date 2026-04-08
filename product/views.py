@@ -88,8 +88,8 @@ def product_autocomplete(request):
     results = []
     if query:
         products = Product.objects.filter(
-            name__icontains=query
-        ).values('id', 'name', 'net_price')[:10]
+            name__istartswith=query
+        ).values('id', 'name', 'net_price')[:]
         for product in products:
             results.append({
                 'id': product['id'],

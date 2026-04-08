@@ -357,6 +357,7 @@ def lead_autocomplete(request):
             created_by=request.user,
             converted_to_client=False
         ).filter(
+            Q(first_name__istartswith=query) |
             Q(last_name__istartswith=query) |
             Q(company__istartswith=query) |
             Q(email__istartswith=query)
@@ -369,7 +370,7 @@ def lead_autocomplete(request):
                 label = f"{lead['last_name']} {lead['first_name']}".strip()
 
             if lead['company'] and lead['last_name']:
-                label = f"{lead['company']} - {lead['last_name']} {lead['first_name']}".strip()
+                label = f"{lead['company']}, {lead['first_name']} {lead['last_name']}".strip()
 
             results.append({'id': lead['id'], 'label': label, 'email': lead['email']})
     return JsonResponse(results, safe=False)

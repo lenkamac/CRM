@@ -17,4 +17,5 @@ urlpatterns = [
     path('<int:client_id>/task/add/', views.task_add_client, name='task_add_client'),
     path('leads/<int:lead_id>/task/add/', views.task_add_lead, name='task_add_lead'),
     path('<int:pk>/comments-partial/', views.task_comments_partial, name='task_comments_partial'),
+    path('autocomplete/', views.task_autocomplete, name='task_autocomplete'),
 ]
