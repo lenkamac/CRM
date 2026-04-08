@@ -85,14 +85,9 @@ def edit_product(request, product_id):
 @login_required
 def product_autocomplete(request):
     query = request.GET.get('q', '').strip()
-    results = []
     if query:
-        products = Product.objects.filter(
-            name__istartswith=query
-        ).values('id', 'name', 'net_price')[:]
-        for product in products:
-            results.append({
-                'id': product['id'],
-                'label': product['name'],
-            })
+        products = Product.objects.filter(name__istartswith=query).values('id', 'name')
+    else:
+        products = Product.objects.all().values('id', 'name')[:50]
+    results = [{'id': p['id'], 'label': p['name']} for p in products]
     return JsonResponse(results, safe=False)

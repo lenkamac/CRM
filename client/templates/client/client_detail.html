@@ -780,11 +780,8 @@
                 list.style.display = 'none';
             }
 
-            input.addEventListener('input', function () {
-                const q = this.value.trim();
+            function fetchAndShow(q) {
                 closeList();
-                if (!q) return;
-
                 fetch(autocompleteUrl + '?q=' + encodeURIComponent(q))
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
@@ -803,6 +800,14 @@
                         });
                         list.style.display = 'block';
                     });
+            }
+
+            input.addEventListener('focus', function () {
+                fetchAndShow(this.value.trim());
+            });
+
+            input.addEventListener('input', function () {
+                fetchAndShow(this.value.trim());
             });
 
             document.addEventListener('click', function (e) {
