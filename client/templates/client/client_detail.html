@@ -441,23 +441,39 @@
                                             <div class="row justify-content-center">
                                                 <div class="col-lg-3 py-lg-1">
                                                     <label for="id_status" class="form-label">Status</label>
-                                                    <select name="status" class="form-select w-100" aria-label="Default select example">
-                                                        <option selected>----</option>
-                                                        <option value="todo">To Do</option>
-                                                        <option value="in_progress">In Progress</option>
-                                                        <option value="completed">Completed</option>
-                                                        <option value="canceled">Canceled</option>
-                                                    </select>
+                                                     <div class="dropdown bg-white">
+                                                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                                                                type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            ---------
+                                                        </button>
+                                                        <ul class="dropdown-menu w-100" aria-labelledby="statusDropdown">
+                                                            <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
+                                                            <li><a class="dropdown-item" href="#" data-value="todo">To Do</a></li>
+                                                            <li><a class="dropdown-item" href="#" data-value="in_progress">In Progress</a></li>
+                                                            <li><a class="dropdown-item" href="#" data-value="completed">Completed</a></li>
+                                                            <li><a class="dropdown-item" href="#" data-value="canceled">Canceled</a></li>
+                                                        </ul>
+                                                        <!-- hidden input to hold the actual value for form submission -->
+                                                        <input type="hidden" name="status" id="id_status" required>
+                                                    </div>
                                                 </div>
                                                 <div class="col-lg-3 py-lg-1">
-                                                    <label for="id_priority" class="form-label">Priority</label>
-                                                    <select class="form-select" id="id_priority" name="priority" required>
-                                                        <option value="">---------</option>
-                                                        <option value="low">Low</option>
-                                                        <option value="medium">Medium</option>
-                                                        <option value="high">High</option>
-                                                        <option value="urgent">Urgent</option>
-                                                    </select>
+                                                    <label class="form-label">Priority</label>
+                                                        <div class="dropdown bg-white">
+                                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                                                                    type="button" id="priorityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                ---------
+                                                            </button>
+                                                            <ul class="dropdown-menu w-100" aria-labelledby="priorityDropdown">
+                                                                <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
+                                                                <li><a class="dropdown-item" href="#" data-value="low">Low</a></li>
+                                                                <li><a class="dropdown-item" href="#" data-value="medium">Medium</a></li>
+                                                                <li><a class="dropdown-item" href="#" data-value="high">High</a></li>
+                                                                <li><a class="dropdown-item" href="#" data-value="urgent">Urgent</a></li>
+                                                            </ul>
+                                                            <!-- hidden input to hold the actual value for form submission -->
+                                                            <input type="hidden" name="priority" id="id_priority" required>
+                                                        </div>
                                                 </div>
                                                 <div class="col-lg-2 py-lg-1">
                                                     <div class="col-12"><label for="id_due_date" class="form-label w-100">Due Date</label></div>
@@ -814,6 +830,24 @@
                 if (!input.contains(e.target)) closeList();
             });
         })();
+
+        // Priority dropdown
+        document.querySelectorAll('#priorityDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('priorityDropdown').textContent = this.textContent;
+                document.getElementById('id_priority').value = this.dataset.value;
+            });
+        });
+
+         // Status dropdown
+        document.querySelectorAll('#statusDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('statusDropdown').textContent = this.textContent;
+                document.getElementById('id_status').value = this.dataset.value;
+            });
+        });
 
         });
     </script>

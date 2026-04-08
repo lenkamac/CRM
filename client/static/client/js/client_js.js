@@ -37,6 +37,17 @@ document.getElementById('select-all').addEventListener('change', function(e) {
             });
         });
 
+// Update button label and hidden input on selection
+document.querySelectorAll('#priorityDropdown ~ .dropdown-menu .dropdown-item').forEach(item => {
+    item.addEventListener('click', function (e) {
+        e.preventDefault();
+        const value = this.dataset.value;
+        const label = this.textContent;
+        document.getElementById('priorityDropdown').textContent = label;
+        document.getElementById('id_priority').value = value;
+    });
+});
+
 // Automatically hide alert messages after 3 seconds (3000 milliseconds)
 document.addEventListener('DOMContentLoaded', function() {
 setTimeout(function() {
