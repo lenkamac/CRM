@@ -19,6 +19,7 @@
     </div>
   {% endif %}
 
+  {% if can_manage %}
   <div class="card mb-3">
     <div class="card-header">Add member</div>
     <div class="card-body">
@@ -38,6 +39,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <div class="card">
     <div class="card-header">Members</div>
@@ -64,14 +66,23 @@
                 {% endif %}
               </td>
               <td class="text-end">
-                <form method="post" action="{% url 'core:team_member_toggle_active' team.pk m.pk %}">
-                  {% csrf_token %}
-                  {% if m.is_active %}
-                    <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                  {% else %}
-                    <button class="btn btn-sm btn-outline-success" type="submit">Re-add</button>
-                  {% endif %}
-                </form>
+                {% if can_manage %}
+                  <div class="d-flex gap-1 justify-content-end">
+                    <form method="post" action="{% url 'core:team_member_toggle_active' team.pk m.pk %}">
+                      {% csrf_token %}
+                      {% if m.is_active %}
+                        <button class="btn btn-sm btn-outline-warning" type="submit">Deactivate</button>
+                      {% else %}
+                        <button class="btn btn-sm btn-outline-success" type="submit">Re-add</button>
+                      {% endif %}
+                    </form>
+                    <form method="post" action="{% url 'core:team_member_delete' team.pk m.pk %}"
+                          onsubmit="return confirm('Permanently delete {{ m.user.username }} from this team?')">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    </form>
+                  </div>
+                {% endif %}
               </td>
             </tr>
           {% empty %}

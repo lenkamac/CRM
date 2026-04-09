@@ -15,6 +15,11 @@ urlpatterns = [
         views.team_member_toggle_active,
         name="team_member_toggle_active",
     ),
+    path(
+        "teams/<int:team_pk>/members/<int:membership_pk>/delete/",
+        views.team_member_delete,
+        name="team_member_delete",
+    ),
     path("projects/", views.ProjectListView.as_view(), name="project_list"),
     path("projects/add/", views.ProjectCreateView.as_view(), name="project_add"),
     path("projects/<int:pk>/edit/", views.ProjectUpdateView.as_view(), name="project_edit"),

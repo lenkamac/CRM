@@ -37,6 +37,10 @@
                 <!-- Navigation -->
                 {% include 'core/partials/nav.html' %}
 
+                <!-- Sidebar -->
+                {% if request.user.is_authenticated %}
+                    {% include 'core/partials/offcanvas_menu.html' %}
+                {% endif %}
 
                 <!-- Content -->
                 <main>
