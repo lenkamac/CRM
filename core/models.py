@@ -10,15 +10,6 @@ class Team(models.Model):
     name = models.CharField(max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
 
-    # Optional link: if teams are tied to a specific client/customer
-    client = models.ForeignKey(
-        Client,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="teams",
-    )
-
     created_by = models.ForeignKey(
         User,
         related_name="teams_created",

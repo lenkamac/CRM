@@ -22,8 +22,8 @@ def tasks(request):
     # Get all users for the filter dropdown
     users = User.objects.all()
 
-    # Get tasks with filters
-    tasks_list = Task.objects.all()
+    # Get tasks with filters - only tasks created by or assigned to the current user
+    tasks_list = Task.objects.filter(Q(created_by=request.user) | Q(assigned_to=request.user))
 
     # Search functionality
     search_query = request.GET.get('search', '').strip()
@@ -365,11 +365,12 @@ def task_autocomplete(request):
     results = []
     if query:
         seen = set()
+        user_tasks = Task.objects.filter(Q(created_by=request.user) | Q(assigned_to=request.user))
         sources = [
-            Task.objects.filter(client__company__istartswith=query).values_list('client__company', flat=True).distinct(),
-            Task.objects.filter(client__last_name__istartswith=query).values_list('client__last_name', flat=True).distinct(),
-            Task.objects.filter(lead__company__istartswith=query).values_list('lead__company', flat=True).distinct(),
-            Task.objects.filter(lead__last_name__istartswith=query).values_list('lead__last_name', flat=True).distinct(),
+            user_tasks.filter(client__company__istartswith=query).values_list('client__company', flat=True).distinct(),
+            user_tasks.filter(client__last_name__istartswith=query).values_list('client__last_name', flat=True).distinct(),
+            user_tasks.filter(lead__company__istartswith=query).values_list('lead__company', flat=True).distinct(),
+            user_tasks.filter(lead__last_name__istartswith=query).values_list('lead__last_name', flat=True).distinct(),
         ]
         for qs in sources:
             for value in qs:

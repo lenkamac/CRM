@@ -30,7 +30,6 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Client</th>
             <th>Status</th>
             <th class="text-end">Actions</th>
           </tr>
@@ -39,7 +38,6 @@
           {% for team in teams %}
             <tr>
               <td>{{ team.name }}</td>
-              <td>{{ team.client|default:"—" }}</td>
               <td>
                 {% if team.is_active %}
                   <span class="badge text-bg-success">Active</span>

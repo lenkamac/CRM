@@ -9,12 +9,13 @@ from django.views.generic import ListView, DetailView
 
 
 # Create your views here.
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, ListView):
     model = Product
-
     template_name = 'product/products-list.html'
     context_object_name = 'products'
-    ordering = ['-id']
+
+    def get_queryset(self):
+        return Product.objects.filter(created_by=self.request.user).order_by('-id')
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -29,6 +30,7 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+@login_required
 def add_product(request):
     """Add a new product"""
     if request.method == 'POST':
@@ -42,7 +44,8 @@ def add_product(request):
             name=name,
             net_price=net_price,
             sold_quantity=sold_quantity,
-            description=description
+            description=description,
+            created_by=request.user,
         )
 
         messages.success(request, 'Product added successfully!')
@@ -86,8 +89,8 @@ def edit_product(request, product_id):
 def product_autocomplete(request):
     query = request.GET.get('q', '').strip()
     if query:
-        products = Product.objects.filter(name__istartswith=query).values('id', 'name')
+        products = Product.objects.filter(name__istartswith=query, created_by=request.user).values('id', 'name')
     else:
-        products = Product.objects.all().values('id', 'name')[:50]
+        products = Product.objects.filter(created_by=request.user).values('id', 'name')[:50]
     results = [{'id': p['id'], 'label': p['name']} for p in products]
     return JsonResponse(results, safe=False)

@@ -1,11 +1,13 @@
 from django.db import models
 from decimal import Decimal
+from django.contrib.auth.models import User
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
     net_price = models.DecimalField(max_digits=10, decimal_places=2)
     sold_quantity = models.IntegerField(default=0)  # Track total sold
     description = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='products')
 
     def get_total_price(self):
         """Calculate total revenue from all purchases in EUR"""

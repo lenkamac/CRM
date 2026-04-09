@@ -20,8 +20,10 @@ def calendar_view(request):
 
 # events
 def events_json(request):
+    from django.db.models import Q
     events = []
-    for event in Event.objects.all():
+    event_qs = Event.objects.filter(created_by=request.user) if request.user.is_authenticated else Event.objects.none()
+    for event in event_qs:
         events.append({
             'id': f'event-{event.id}',
             'title': event.title,
@@ -32,7 +34,12 @@ def events_json(request):
         })
 
     # Add tasks
-    for task in Task.objects.filter(due_date__isnull=False):
+    task_qs = Task.objects.filter(due_date__isnull=False)
+    if request.user.is_authenticated:
+        task_qs = task_qs.filter(Q(created_by=request.user) | Q(assigned_to=request.user))
+    else:
+        task_qs = Task.objects.none()
+    for task in task_qs:
         # Combine due_date and due_time
         if task.due_time:
             start_dt = datetime.combine(task.due_date, task.due_time)
@@ -79,7 +86,8 @@ def add_event(request):
             title=data.get('title'),
             start=data.get('start'),
             end=data.get('end') or None,
-            description=data.get('description')
+            description=data.get('description'),
+            created_by=request.user if request.user.is_authenticated else None,
         )
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
@@ -150,7 +158,10 @@ def upcoming_events_json(request):
     page_number = int(request.GET.get('page', 1))
     page_size = 5
     # Only get events that start now or in the future, ordered by soonest first
-    upcoming_events_qs = Event.objects.filter(start__gte=timezone.now()).order_by('start', 'id')
+    if request.user.is_authenticated:
+        upcoming_events_qs = Event.objects.filter(start__gte=timezone.now(), created_by=request.user).order_by('start', 'id')
+    else:
+        upcoming_events_qs = Event.objects.none()
     paginator = Paginator(upcoming_events_qs, page_size)
     page_obj = paginator.get_page(page_number)
     events = []
@@ -174,11 +185,17 @@ def upcoming_events_json(request):
 # paginator for all tasks
 def all_tasks_json(request):
     from datetime import date
+    from django.db.models import Q
     page_number = int(request.GET.get('page', 1))
     page_size = 5
     # Get tasks from today onwards, ordered by due_date
     today = date.today()
-    all_tasks_qs = Task.objects.filter(due_date__isnull=False, due_date__gte=today).order_by('due_date', 'due_time', 'id')
+    if request.user.is_authenticated:
+        all_tasks_qs = Task.objects.filter(
+            due_date__isnull=False, due_date__gte=today
+        ).filter(Q(created_by=request.user) | Q(assigned_to=request.user)).order_by('due_date', 'due_time', 'id')
+    else:
+        all_tasks_qs = Task.objects.none()
     paginator = Paginator(all_tasks_qs, page_size)
     page_obj = paginator.get_page(page_number)
     tasks = []

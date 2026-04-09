@@ -8,7 +8,7 @@ from .models import Project
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
-        fields = ["name", "client", "is_active"]
+        fields = ["name", "is_active"]
 
 
 class TeamMemberAddForm(forms.Form):
