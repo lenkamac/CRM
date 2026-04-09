@@ -171,20 +171,25 @@
             function calculateTotal() {
                 const productId = productSelect.value;
                 const quantity = parseFloat(quantityInput.value) || 0;
-                let price = parseFloat(purchasePriceInput.value);
-
-                if (!price && productId && productsData[productId]) {
-                    price = parseFloat(productsData[productId]);
-                }
-
+                const userEnteredPrice = parseFloat(purchasePriceInput.value);
                 const selectedCurrency = currencySelect.value;
-                const currencySymbol = currencySelect.options[currencySelect.selectedIndex].text;
+                const currencySymbol = selectedCurrency === 'EUR' ? '€' : '$';
 
-                if (selectedCurrency === 'USD' && price) {
-                    price = price * EUR_TO_USD;
+                let price;
+                if (userEnteredPrice) {
+                    // User entered price is already in the selected currency — no conversion
+                    price = userEnteredPrice;
+                } else if (productId && productsData[productId]) {
+                    // Product base price is stored in EUR — convert if needed
+                    price = parseFloat(productsData[productId]);
+                    if (selectedCurrency === 'USD') {
+                        price = price * EUR_TO_USD;
+                    }
+                } else {
+                    price = 0;
                 }
 
-                const total = quantity * (price || 0);
+                const total = quantity * price;
                 totalPriceDisplay.value = currencySymbol + total.toFixed(2);
             }
 
@@ -206,8 +211,13 @@
                 }
 
                 if (!price && productsData[productId]) {
+                    // Product base price is in EUR — convert to selected currency before storing
                     price = parseFloat(productsData[productId]);
+                    if (currency === 'USD') {
+                        price = price * EUR_TO_USD;
+                    }
                 }
+                // price is now in the selected currency
 
                 cart.push({
                     productId: productId,
@@ -245,7 +255,7 @@
                 let totalUsd = 0;
 
                 cart.forEach((item, index) => {
-                    const priceInCurrency = item.currency === 'USD' ? item.price * EUR_TO_USD : item.price;
+                    const priceInCurrency = item.price;  // already stored in item.currency
                     const subtotal = item.quantity * priceInCurrency;
                     const currencySymbol = item.currency === 'EUR' ? '€' : '$';
 

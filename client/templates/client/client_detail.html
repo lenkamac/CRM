@@ -572,13 +572,13 @@
                                         <td class="text-start"><a href="{% url 'product:product_detail' purchase.product.id %}">{{ purchase.product.name }}</a></td>
                                         <td class="text-center">{{ purchase.quantity }}</td>
                                         <td class="text-center">
-                                            {% if purchase.get_purchase_price %}
-                                                {{ purchase.get_purchase_price|floatformat:2 }}
+                                            {% if purchase.purchase_price %}
+                                                {{ purchase.purchase_price|floatformat:2 }}
                                             {% else %}
                                                 <span class="text-muted">--</span>
                                             {% endif %}
                                         </td>
-                                        <td class="text-center">{{ purchase.total|floatformat:2 }}</td>
+                                        <td class="text-center">{{ purchase.raw_total|floatformat:2 }}</td>
                                         <td class="text-center">{{ purchase.get_currency_display }}</td>
                                         <td class="text-center">{{ purchase.created_at|date:"d.m.Y H:i" }}</td>
                                         <td class="text-start">

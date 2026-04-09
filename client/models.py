@@ -104,6 +104,11 @@ class Purchase(models.Model):
         """Calculate total price in the selected currency"""
         return self.quantity * self.get_purchase_price()
 
+    @property
+    def raw_total(self):
+        """Calculate total using the stored price as-is, no exchange rate conversion"""
+        return self.quantity * self.purchase_price
+
     def save(self, *args, **kwargs):
         # Set purchase_price to product's net_price if not provided
         if self.purchase_price is None:
