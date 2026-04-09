@@ -196,7 +196,7 @@ def dashboard(request):
         .values('date', 'product__name', 'product_id', 'currency')
         .annotate(
             total_quantity=Sum('quantity'),
-            total_amount=Sum(F('quantity') * F('product__net_price'))
+            total_amount=Sum(F('quantity') * F('purchase_price'))
         )
         .order_by('date', 'product__name')
     )
@@ -306,15 +306,15 @@ def dashboard(request):
     )['total'] or Decimal('0')
     eur_items = eur_purchases.aggregate(Sum('quantity'))['quantity__sum'] or 0
 
-    # USD revenue (converted purchases)
+    # USD revenue (purchase_price is always stored in EUR, so sum directly)
     usd_purchases = purchases_query.filter(currency='USD')
-    usd_revenue = Decimal('0')
-    for purchase in usd_purchases:
-        usd_revenue += purchase.total
+    usd_revenue_in_eur = usd_purchases.aggregate(
+        total=Sum(F('quantity') * F('purchase_price'))
+    )['total'] or Decimal('0')
+    usd_revenue = CurrencyConverter.convert(usd_revenue_in_eur, 'EUR', 'USD')
     usd_items = usd_purchases.aggregate(Sum('quantity'))['quantity__sum'] or 0
 
-    # Calculate total revenue in EUR (EUR sales + USD sales converted to EUR)
-    usd_revenue_in_eur = CurrencyConverter.convert(usd_revenue, 'USD', 'EUR')
+    # Calculate total revenue in EUR (EUR sales + USD sales in EUR)
     total_revenue_eur = eur_revenue + usd_revenue_in_eur
 
     context = {
