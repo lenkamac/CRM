@@ -224,7 +224,7 @@
                         <select id="purchaseChartType" class="form-select form-select-sm">
                             <option value="line">Line Chart</option>
                             <option value="bar" selected>Bar Chart</option>
-                            <option value="area">Area Chart</option>
+                            <option value="pie">Pie Chart</option>
                         </select>
                     </div>
 
@@ -253,6 +253,16 @@
 
                 <!-- Plotly Chart Container -->
                 <div id="purchaseChart" style="width: 100%; height: auto;"></div>
+
+                <!-- Two fixed pie charts row -->
+                <div class="row mt-2">
+                    <div class="col-12 col-md-6">
+                        <div id="purchasePieQuantity" style="width: 100%; height: 380px;"></div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div id="purchasePieRevenue" style="width: 100%; height: 380px;"></div>
+                    </div>
+                </div>
             </div>
         </div>
 

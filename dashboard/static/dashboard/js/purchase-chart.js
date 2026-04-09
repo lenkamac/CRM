@@ -32,7 +32,69 @@
 
         updateRevenueDisplay(currentCurrency, currentDataType);
         renderPurchaseChart();
+        renderStatsPies();
         attachEventListeners();
+    }
+
+    /**
+     * Render two fixed pie charts: total products sold and total revenue in EUR
+     */
+    function renderStatsPies() {
+        const products = purchaseChartData.products_total;
+        if (!products || Object.keys(products).length === 0) return;
+
+        const colors = [
+            '#0d6efd', '#198754', '#dc3545', '#ffc107',
+            '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0',
+            '#d63384', '#6610f2'
+        ];
+
+        const labels = [];
+        const quantities = [];
+        const revenues = [];
+
+        Object.keys(products).forEach(function(productName) {
+            const d = products[productName];
+            labels.push(productName);
+            quantities.push(d.quantities.reduce(function(a, b) { return a + b; }, 0));
+            revenues.push(d.amounts_eur_total.reduce(function(a, b) { return a + b; }, 0));
+        });
+
+        const pieConfig = { responsive: true, displayModeBar: false };
+        const pieLegend = { font: { size: 11 }, bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#ddd', borderwidth: 1 };
+        const piePaperBg = 'rgb(250,250,248)';
+
+        Plotly.newPlot('purchasePieQuantity', [{
+            type: 'pie',
+            labels: labels,
+            values: quantities,
+            marker: { colors: colors },
+            hovertemplate: '<b>%{label}</b><br>Qty: %{value:,}<br>Share: %{percent}<extra></extra>',
+            textinfo: 'label+percent'
+        }], {
+            title: { text: 'Total Products Sold', font: { size: 16, family: 'Arial, sans-serif', color: '#333' } },
+            showlegend: true,
+            legend: pieLegend,
+            margin: { t: 50, r: 10, b: 10, l: 10 },
+            paper_bgcolor: piePaperBg,
+            font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
+        }, pieConfig);
+
+        Plotly.newPlot('purchasePieRevenue', [{
+            type: 'pie',
+            labels: labels,
+            values: revenues,
+            marker: { colors: colors },
+            hovertemplate: '<b>%{label}</b><br>Revenue: €%{value:,.2f}<br>Share: %{percent}<extra></extra>',
+            textinfo: 'label+percent'
+        }], {
+            title: { text: 'Total Revenue (all in EUR)', font: { size: 16, family: 'Arial, sans-serif', color: '#333' } },
+            showlegend: true,
+            legend: pieLegend,
+            margin: { t: 50, r: 10, b: 10, l: 10 },
+            paper_bgcolor: piePaperBg,
+            font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
+        }, pieConfig);
     }
 
     /**
@@ -44,7 +106,7 @@
         const currency = document.getElementById('purchaseCurrency').value;
 
         const traces = createTraces(chartType, dataType, currency);
-        const layout = createLayout(dataType, currency);
+        const layout = createLayout(dataType, currency, chartType);
         const config = createConfig();
 
         Plotly.newPlot('purchaseChart', traces, layout, config);
@@ -54,67 +116,87 @@
      * Create chart traces for each product
      */
     function createTraces(chartType, dataType, currency) {
-        const traces = [];
         const colors = [
             '#0d6efd', '#198754', '#dc3545', '#ffc107',
             '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0',
             '#d63384', '#6610f2'
         ];
-        let colorIndex = 0;
 
         // Select the correct product data based on data type and currency
         let products;
         if (dataType === 'total_products' || dataType === 'total_revenue') {
-            // Use combined data (both currencies)
             products = purchaseChartData.products_total;
         } else {
-            // Use currency-specific data
             products = currency === 'EUR' ? purchaseChartData.products_eur : purchaseChartData.products_usd;
         }
+
+        if (chartType === 'pie') {
+            const labels = [];
+            const values = [];
+
+            Object.keys(products).forEach(productName => {
+                const productData = products[productName];
+                let total;
+                if (dataType === 'quantity' || dataType === 'total_products') {
+                    total = productData.quantities.reduce((a, b) => a + b, 0);
+                } else if (dataType === 'total_revenue') {
+                    const arr = currency === 'EUR' ? productData.amounts_eur_total : productData.amounts_usd_total;
+                    total = arr.reduce((a, b) => a + b, 0);
+                } else {
+                    total = productData.amounts.reduce((a, b) => a + b, 0);
+                }
+                labels.push(productName);
+                values.push(total);
+            });
+
+            const currencySymbol = currency === 'EUR' ? '€' : '$';
+            const isAmount = dataType === 'amount' || dataType === 'total_revenue';
+            const hoverTemplate = isAmount
+                ? '<b>%{label}</b><br>Value: ' + currencySymbol + '%{value:,.2f}<br>Share: %{percent}<extra></extra>'
+                : '<b>%{label}</b><br>Value: %{value:,}<br>Share: %{percent}<extra></extra>';
+
+            return [{
+                type: 'pie',
+                labels: labels,
+                values: values,
+                marker: { colors: colors },
+                hovertemplate: hoverTemplate,
+                textinfo: 'label+percent',
+                hole: 0
+            }];
+        }
+
+        const traces = [];
+        let colorIndex = 0;
 
         Object.keys(products).forEach(productName => {
             const productData = products[productName];
             const color = colors[colorIndex % colors.length];
 
             let yData;
-            if (dataType === 'quantity') {
+            if (dataType === 'quantity' || dataType === 'total_products') {
                 yData = productData.quantities;
-            } else if (dataType === 'total_products') {
-                // Use combined quantities
-                yData = productData.quantities;
-            } else if (dataType === 'amount') {
-                yData = productData.amounts;
             } else if (dataType === 'total_revenue') {
-                // Use combined total revenue (both currencies converted) based on selected display currency
                 yData = currency === 'EUR' ? productData.amounts_eur_total : productData.amounts_usd_total;
             } else {
-                yData = productData.quantities;
+                yData = productData.amounts;
             }
 
-            const trace = {
+            traces.push({
                 x: productData.dates,
                 y: yData,
                 name: productName,
                 type: getPlotlyChartType(chartType),
                 mode: chartType === 'line' ? 'lines+markers' : undefined,
-                fill: chartType === 'area' ? 'tonexty' : undefined,
                 marker: {
                     color: color,
                     size: chartType === 'line' ? 8 : undefined,
-                    line: chartType === 'line' ? {
-                        color: 'white',
-                        width: 1
-                    } : undefined
+                    line: chartType === 'line' ? { color: 'white', width: 1 } : undefined
                 },
-                line: chartType === 'line' || chartType === 'area' ? {
-                    color: color,
-                    width: 3,
-                    shape: 'spline'
-                } : undefined,
+                line: chartType === 'line' ? { color: color, width: 3, shape: 'spline' } : undefined,
                 hovertemplate: createHoverTemplate(dataType, productName, currency)
-            };
+            });
 
-            traces.push(trace);
             colorIndex++;
         });
 
@@ -125,8 +207,11 @@
      * Get Plotly chart type based on selection
      */
     function getPlotlyChartType(chartType) {
-        if (chartType === 'line' || chartType === 'area') {
+        if (chartType === 'line') {
             return 'scatter';
+        }
+        if (chartType === 'pie') {
+            return 'pie';
         }
         return 'bar';
     }
@@ -168,52 +253,46 @@
     /**
      * Create chart layout
      */
-    function createLayout(dataType, currency) {
+    function createLayout(dataType, currency, chartType) {
+        let chartTitle;
+        if (dataType === 'quantity') chartTitle = 'Product Purchases (Quantity)';
+        else if (dataType === 'total_products') chartTitle = 'Total Products Sold';
+        else if (dataType === 'amount') chartTitle = 'Product Purchases (Revenue)';
+        else if (dataType === 'total_revenue') chartTitle = 'Total Revenue';
+        else chartTitle = 'Product Purchases';
+
+        if (chartType === 'pie') {
+            return {
+                title: { text: chartTitle, font: { size: 18, family: 'Arial, sans-serif', color: '#333' } },
+                showlegend: true,
+                legend: { font: { size: 12 }, bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#ddd', borderwidth: 1 },
+                margin: { t: 60, r: 20, b: 20, l: 20 },
+                plot_bgcolor: 'rgba(255,255,255,1)',
+                paper_bgcolor: 'rgb(250,250,248)',
+                font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
+            };
+        }
+
         const currencySymbol = currency === 'EUR' ? '€' : '$';
+        let yAxisTitle, tickFormat, tickPrefix;
 
-        let chartTitle, yAxisTitle, tickFormat, tickPrefix;
-
-        if (dataType === 'quantity') {
-            chartTitle = 'Product Purchases (Quantity)';
-            yAxisTitle = 'Quantity Sold';
+        if (dataType === 'quantity' || dataType === 'total_products') {
+            yAxisTitle = dataType === 'quantity' ? 'Quantity Sold' : 'Total Products Sold';
             tickFormat = ',';
             tickPrefix = '';
-        } else if (dataType === 'total_products') {
-            chartTitle = 'Total Products Sold';
-            yAxisTitle = 'Total Products Sold';
-            tickFormat = ',';
-            tickPrefix = '';
-        } else if (dataType === 'amount') {
-            chartTitle = 'Product Purchases (Revenue)';
-            yAxisTitle = 'Revenue (' + currencySymbol + ')';
-            tickFormat = ',.2f';
-            tickPrefix = currencySymbol;
-        } else if (dataType === 'total_revenue') {
-            chartTitle = 'Total Revenue';
-            yAxisTitle = 'Total Revenue (' + currencySymbol + ')';
-            tickFormat = ',.2f';
-            tickPrefix = currencySymbol;
         } else {
-            chartTitle = 'Product Purchases';
-            yAxisTitle = 'Value';
-            tickFormat = ',';
-            tickPrefix = '';
+            yAxisTitle = (dataType === 'total_revenue' ? 'Total Revenue' : 'Revenue') + ' (' + currencySymbol + ')';
+            tickFormat = ',.2f';
+            tickPrefix = currencySymbol;
         }
 
         return {
             title: {
                 text: chartTitle,
-                font: {
-                    size: 18,
-                    family: 'Arial, sans-serif',
-                    color: '#333'
-                }
+                font: { size: 18, family: 'Arial, sans-serif', color: '#333' }
             },
             xaxis: {
-                title: {
-                    text: 'Date',
-                    font: { size: 14, color: '#666' }
-                },
+                title: { text: 'Date', font: { size: 14, color: '#666' } },
                 type: 'date',
                 tickformat: '%Y-%m-%d',
                 gridcolor: '#e5e5e5',
@@ -221,10 +300,7 @@
                 zeroline: false
             },
             yaxis: {
-                title: {
-                    text: yAxisTitle,
-                    font: { size: 14, color: '#666' }
-                },
+                title: { text: yAxisTitle, font: { size: 14, color: '#666' } },
                 gridcolor: '#e5e5e5',
                 showgrid: true,
                 zeroline: false,
@@ -243,19 +319,10 @@
                 borderwidth: 1,
                 font: { size: 12 }
             },
-            margin: {
-                t: 60,
-                r: 150,
-                b: 80,
-                l: 80
-            },
+            margin: { t: 60, r: 150, b: 80, l: 80 },
             plot_bgcolor: 'rgba(255,255,255,1)',
             paper_bgcolor: 'rgb(250,250,248)',
-            font: {
-                family: 'Arial, sans-serif',
-                size: 12,
-                color: '#333'
-            }
+            font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
         };
     }
 
