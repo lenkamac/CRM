@@ -16,9 +16,20 @@ class ProductListView(LoginRequiredMixin, ListView):
     context_object_name = 'products'
 
     def get_queryset(self):
-        return Product.objects.filter(
+        qs = Product.objects.filter(
             Q(created_by=self.request.user) | Q(created_by__isnull=True)
-        ).order_by('-id')
+        )
+        sort = self.request.GET.get('sort')
+        if sort == 'name_asc':
+            return qs.order_by('name')
+        elif sort == 'name_desc':
+            return qs.order_by('-name')
+        return qs.order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sort'] = self.request.GET.get('sort', '')
+        return context
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):

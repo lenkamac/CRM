@@ -72,7 +72,21 @@
                                     <table class="table table-hover table-striped align-middle">
                                         <thead class="th-custom">
                                             <tr>
-                                                <th class="text-start">Name</th>
+                                                <th class="text-start">
+                                                    {% if sort == 'name_asc' %}
+                                                        <a href="?sort=name_desc" class="text-decoration-none text-reset">
+                                                            Name <i class="bi bi-sort-alpha-up"></i>
+                                                        </a>
+                                                    {% elif sort == 'name_desc' %}
+                                                        <a href="?sort=name_asc" class="text-decoration-none text-reset">
+                                                            Name <i class="bi bi-sort-alpha-down-alt"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="?sort=name_asc" class="text-decoration-none text-reset">
+                                                            Name <i class="bi bi-arrow-down-up text-muted"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </th>
                                                 <th class="text-start">Description</th>
                                                 <th class="text-center text-nowrap">Net Price</th>
                                                 <th class="text-center">Action</th>
