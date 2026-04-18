@@ -144,6 +144,7 @@
                                                     <th class="text-start">Company</th>
                                                     <th class="text-start">Name</th>
                                                     <th class="text-start">Email</th>
+                                                    <th class="text-start">Title</th>
                                                     <th class="text-center">Status</th>
                                                     <th class="text-center">Action</th>
                                                 </tr>
@@ -164,6 +165,7 @@
                                                             <td class="text-start"><a href="{% url 'client:detail' client.pk %}" class="client-a-company">{{ client.company }}</a></td>
                                                             <td class="text-start"><a href="{% url 'client:detail' client.pk %}" class="client-a-name">{{ client.first_name }} {{ client.last_name }}</a></td>
                                                             <td class="text-start">{{ client.email }}</td>
+                                                            <td class="text-start">{{ client.title }}</td>
                                                             <td class="text-center">{{ client.get_status_display }}</td>
                                                             <td class="text-center">
                                                                 <a href="{% url 'client:detail' client.pk %}"><i class="bi bi-info-circle"></i></a>

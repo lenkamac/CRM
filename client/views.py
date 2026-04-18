@@ -148,7 +148,7 @@ class AddFileView(LoginRequiredMixin, View):
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     success_url = reverse_lazy('client:list')
-    fields = ('company', 'first_name', 'last_name','phone', 'mobile', 'address', 'zipcode', 'city', 'country', 'email', 'description',
+    fields = ('company', 'first_name', 'last_name', 'title', 'phone', 'mobile', 'address', 'zipcode', 'city', 'country', 'email', 'description',
                   'status', 'website',)
 
     def get_context_data(self, **kwargs):

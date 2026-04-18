@@ -40,6 +40,7 @@ class Lead(models.Model):
     first_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255, blank=True)
     company = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
     status_sale = models.CharField(max_length=255, choices=STATUS, default='', blank=True, null=True)
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True, null=True)

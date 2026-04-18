@@ -1,6 +1,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -15,7 +16,9 @@ class ProductListView(LoginRequiredMixin, ListView):
     context_object_name = 'products'
 
     def get_queryset(self):
-        return Product.objects.filter(created_by=self.request.user).order_by('-id')
+        return Product.objects.filter(
+            Q(created_by=self.request.user) | Q(created_by__isnull=True)
+        ).order_by('-id')
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -88,9 +91,10 @@ def edit_product(request, product_id):
 @login_required
 def product_autocomplete(request):
     query = request.GET.get('q', '').strip()
+    user_filter = Q(created_by=request.user) | Q(created_by__isnull=True)
     if query:
-        products = Product.objects.filter(name__istartswith=query, created_by=request.user).values('id', 'name')
+        products = Product.objects.filter(user_filter, name__istartswith=query).values('id', 'name')
     else:
-        products = Product.objects.filter(created_by=request.user).values('id', 'name')[:50]
+        products = Product.objects.filter(user_filter).values('id', 'name')[:50]
     results = [{'id': p['id'], 'label': p['name']} for p in products]
     return JsonResponse(results, safe=False)
