@@ -145,31 +145,6 @@
                 <!-- Purchase Summary -->
                 <div class="row mb-4 justify-content-center">
                     <div class="col">
-                            <div class="card text-white" style="background-color: #4d5a6f;">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Total Revenue</h6>
-                                    <p id="totalRevenueDisplay" class="fs-4 mb-0"
-                                       data-eur="{{ total_revenue_eur|floatformat:2 }}"
-                                       data-usd="{{ total_revenue_usd|floatformat:2 }}">
-                                        ${{ total_revenue_usd|floatformat:2 }}
-                                    </p>
-                                </div>
-                            </div>
-
-                    </div>
-                    <div class="col">
-                        <div class="card text-white" style="background-color: #677569;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Products Sold</h6>
-                                <p id="totalItemsDisplay" class="fs-4 mb-0"
-                                   data-eur="{{ total_items_eur }}"
-                                   data-usd="{{ total_items_usd }}">
-                                    {{ total_items_eur }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
                         <div class="card text-white" style="background-color: #8b7d6b;">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Total Products Sold(all currency)</h6>
@@ -222,9 +197,9 @@
                             <i class="bi bi-bar-chart"></i> Chart Type:
                         </label>
                         <select id="purchaseChartType" class="form-select form-select-sm">
-                            <option value="line">Line Chart</option>
                             <option value="bar" selected>Bar Chart</option>
                             <option value="pie">Pie Chart</option>
+                            <option value="scatter">Scatter Chart</option>
                         </select>
                     </div>
 
@@ -235,8 +210,8 @@
                         <select id="purchaseDataType" class="form-select form-select-sm">
                             <option value="quantity">Quantity</option>
                             <option value="total_products">Total Products Sold</option>
-                            <option value="amount">Amount</option>
-                            <option value="total_revenue" selected>Total Revenue</option>
+                            <option value="amount">Amount (€/$)</option>
+                            <option value="total_revenue" selected>Total Revenue( all currency in €)</option>
                         </select>
                     </div>
 

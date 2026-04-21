@@ -9,6 +9,12 @@
     // Store chart data globally within this module
     let purchaseChartData = null;
 
+    const colors = [
+        '#0d6efd', '#198754', '#dc3545', '#ffc107',
+        '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0',
+        '#d63384', '#6610f2', '#9fc4f3', '#4e886b', '#ebec3d', '#c3e748'
+    ];
+
     /**
      * Initialize the purchase chart
      */
@@ -43,12 +49,6 @@
         const products = purchaseChartData.products_total;
         if (!products || Object.keys(products).length === 0) return;
 
-        const colors = [
-            '#0d6efd', '#198754', '#dc3545', '#ffc107',
-            '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0',
-            '#d63384', '#6610f2'
-        ];
-
         const labels = [];
         const quantities = [];
         const revenues = [];
@@ -70,7 +70,7 @@
             values: quantities,
             marker: { colors: colors },
             hovertemplate: '<b>%{label}</b><br>Qty: %{value:,}<br>Share: %{percent}<extra></extra>',
-            textinfo: 'label+percent'
+            textinfo: 'label+value'
         }], {
             title: { text: 'Total Products Sold', font: { size: 16, family: 'Arial, sans-serif', color: '#333' } },
             showlegend: true,
@@ -86,7 +86,7 @@
             values: revenues,
             marker: { colors: colors },
             hovertemplate: '<b>%{label}</b><br>Revenue: €%{value:,.2f}<br>Share: %{percent}<extra></extra>',
-            textinfo: 'label+percent'
+            textinfo: 'label+value'
         }], {
             title: { text: 'Total Revenue (all in EUR)', font: { size: 16, family: 'Arial, sans-serif', color: '#333' } },
             showlegend: true,
@@ -116,12 +116,6 @@
      * Create chart traces for each product
      */
     function createTraces(chartType, dataType, currency) {
-        const colors = [
-            '#0d6efd', '#198754', '#dc3545', '#ffc107',
-            '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0',
-            '#d63384', '#6610f2'
-        ];
-
         // Select the correct product data based on data type and currency
         let products;
         if (dataType === 'total_products' || dataType === 'total_revenue') {
@@ -129,6 +123,8 @@
         } else {
             products = currency === 'EUR' ? purchaseChartData.products_eur : purchaseChartData.products_usd;
         }
+
+        const numProducts = Object.keys(products || {}).length || 1;
 
         if (chartType === 'pie') {
             const labels = [];
@@ -161,9 +157,46 @@
                 values: values,
                 marker: { colors: colors },
                 hovertemplate: hoverTemplate,
-                textinfo: 'label+percent',
+                textinfo: 'label+value',
                 hole: 0
             }];
+        }
+
+        if (chartType === 'scatter') {
+            const currencySymbol = currency === 'EUR' ? '€' : '$';
+            const traces = [];
+            let colorIndex = 0;
+
+            Object.keys(products).forEach(productName => {
+                const productData = products[productName];
+
+                const amounts = currency === 'EUR'
+                    ? (productData.amounts_eur_total || productData.amounts)
+                    : (productData.amounts_usd_total || productData.amounts);
+
+                traces.push({
+                    x: productData.quantities,
+                    y: amounts,
+                    name: productName,
+                    type: 'scatter',
+                    mode: 'markers',
+                    marker: {
+                        color: colorIndex,
+                        colorscale: 'Viridis',
+                        cmin: 0,
+                        cmax: numProducts - 1,
+                        showscale: false,
+                        size: 10,
+                        opacity: 0.8,
+                        line: { color: 'white', width: 1 }
+                    },
+                    hovertemplate: '<b>' + productName + '</b><br>Quantity: %{x}<br>Price: ' + currencySymbol + '%{y:,.2f}<extra></extra>'
+                });
+
+                colorIndex++;
+            });
+
+            return traces;
         }
 
         const traces = [];
@@ -171,7 +204,6 @@
 
         Object.keys(products).forEach(productName => {
             const productData = products[productName];
-            const color = colors[colorIndex % colors.length];
 
             let yData;
             if (dataType === 'quantity' || dataType === 'total_products') {
@@ -186,14 +218,14 @@
                 x: productData.dates,
                 y: yData,
                 name: productName,
-                type: getPlotlyChartType(chartType),
-                mode: chartType === 'line' ? 'lines+markers' : undefined,
+                type: 'bar',
                 marker: {
-                    color: color,
-                    size: chartType === 'line' ? 8 : undefined,
-                    line: chartType === 'line' ? { color: 'white', width: 1 } : undefined
+                    color: colorIndex,
+                    colorscale: 'Viridis',
+                    cmin: 0,
+                    cmax: numProducts - 1,
+                    showscale: false
                 },
-                line: chartType === 'line' ? { color: color, width: 3, shape: 'spline' } : undefined,
                 hovertemplate: createHoverTemplate(dataType, productName, currency)
             });
 
@@ -201,19 +233,6 @@
         });
 
         return traces;
-    }
-
-    /**
-     * Get Plotly chart type based on selection
-     */
-    function getPlotlyChartType(chartType) {
-        if (chartType === 'line') {
-            return 'scatter';
-        }
-        if (chartType === 'pie') {
-            return 'pie';
-        }
-        return 'bar';
     }
 
     /**
@@ -274,6 +293,34 @@
         }
 
         const currencySymbol = currency === 'EUR' ? '€' : '$';
+
+        if (chartType === 'scatter') {
+            return {
+                title: { text: 'Quantity vs Price', font: { size: 18, family: 'Arial, sans-serif', color: '#333' } },
+                xaxis: {
+                    title: { text: 'Quantity', font: { size: 14, color: '#666' } },
+                    gridcolor: '#e5e5e5',
+                    showgrid: true,
+                    zeroline: false,
+                    tickformat: ','
+                },
+                yaxis: {
+                    title: { text: 'Price (' + currencySymbol + ')', font: { size: 14, color: '#666' } },
+                    gridcolor: '#e5e5e5',
+                    showgrid: true,
+                    zeroline: false,
+                    tickformat: ',.2f',
+                    tickprefix: currencySymbol
+                },
+                hovermode: 'closest',
+                showlegend: true,
+                legend: { x: 1.02, xanchor: 'left', y: 1, yanchor: 'top', bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#ddd', borderwidth: 1, font: { size: 12 } },
+                margin: { t: 60, r: 150, b: 80, l: 80 },
+                plot_bgcolor: 'rgba(255,255,255,1)',
+                paper_bgcolor: 'rgb(250,250,248)',
+                font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
+            };
+        }
         let yAxisTitle, tickFormat, tickPrefix;
 
         if (dataType === 'quantity' || dataType === 'total_products') {
@@ -335,7 +382,7 @@
             displayModeBar: true,
             displaylogo: false,
             modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-            scrollZoom: false,
+            scrollZoom: true,
             toImageButtonOptions: {
                 format: 'png',
                 filename: 'purchase_chart_' + new Date().toISOString().split('T')[0],
