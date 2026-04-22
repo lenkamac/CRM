@@ -10,35 +10,35 @@
     	<link rel="stylesheet" href="{% static 'product/product.css' %}">
     {% endblock %}
 
-    <div class="container">
+    <div class="container-fluid mx-auto pt-3" id="sales-list">
         <!-- Purchase History -->
-        <div class="page-header">
-            <h1 class="page-title">Purchase History</h1>
+        <div class="page-header mt-5">
+            <h1 class="page-title text-center">Sales</h1>
         </div>
 
         {% if purchases %}
         <div class="table-wrapper">
-            <table class="table">
-                <thead>
+            <table class="table table-hover table-striped align-middle">
+                <thead class="th-custom">
                     <tr>
-                        <th>
+                        <th class="text-start">
                             <a href="?sort={% if sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}" style="text-decoration: none; color: black;">
                                 Date
-                                {% if sort == 'date_asc' %}<i class="bi bi-caret-up-fill"></i>{% elif sort == 'date_desc' %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                                {% if sort == 'date_asc' %}▲{% elif sort == 'date_desc' %}▼{% else %}⇅{% endif %}
                             </a>
                         </th>
-                        <th>Client</th>
+                        <th class="text-start">Client</th>
                         <th>Product</th>
                         <th>
                             <a href="?sort={% if sort == 'quantity_desc' %}quantity_asc{% else %}quantity_desc{% endif %}" style="text-decoration: none; color: black;">
                                 Quantity
-                                {% if sort == 'quantity_asc' %}<i class="bi bi-caret-up-fill"></i>{% elif sort == 'quantity_desc' %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                                {% if sort == 'quantity_asc' %}▲{% elif sort == 'quantity_desc' %}▼{% else %}⇅{% endif %}
                             </a>
                         </th>
                         <th>
                             <a href="?sort={% if sort == 'total_desc' %}total_asc{% else %}total_desc{% endif %}" style="text-decoration: none; color: black;">
                                 Total Price
-                                {% if sort == 'total_asc' %}<i class="bi bi-caret-up-fill"></i>{% elif sort == 'total_desc' %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                                {% if sort == 'total_asc' %}▲{% elif sort == 'total_desc' %}▼{% else %}⇅{% endif %}
                             </a>
                         </th>
                     </tr>
@@ -52,13 +52,13 @@
                                 {{ purchase.client }}
                             </a>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <a href="{% url 'product:product_detail' purchase.product.pk %}">
                                 {{ purchase.product.name }}
                             </a>
                         </td>
-                        <td>{{ purchase.quantity }}</td>
-                        <td>
+                        <td class="text-center">{{ purchase.quantity }}</td>
+                        <td class="text-center">
                             {{ purchase.total|floatformat:2 }}
                             {% if purchase.currency == 'EUR' %}€{% else %}${% endif %}
                         </td>
