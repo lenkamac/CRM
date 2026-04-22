@@ -1,10 +1,13 @@
+from multiprocessing import context
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, ExpressionWrapper, DecimalField, F
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+
+from client.models import Purchase
 from product.models import Product
 from django.views.generic import ListView, DetailView
 
@@ -109,3 +112,36 @@ def product_autocomplete(request):
         products = Product.objects.filter(user_filter).values('id', 'name')[:50]
     results = [{'id': p['id'], 'label': p['name']} for p in products]
     return JsonResponse(results, safe=False)
+
+
+class SalesListView(LoginRequiredMixin, ListView):
+    model = Purchase
+    template_name = 'product/sales_list.html'
+    context_object_name = 'purchases'
+
+    def get_queryset(self):
+        sort = self.request.GET.get('sort', 'date_desc')
+        order_map = {
+            'date_asc': 'created_at',
+            'date_desc': '-created_at',
+            'quantity_asc': 'quantity',
+            'quantity_desc': '-quantity',
+            'total_asc': 'total_price',
+            'total_desc': '-total_price',
+        }
+        order_by = order_map.get(sort, '-created_at')
+        return Purchase.objects.filter(
+            created_by=self.request.user
+        ).select_related('client', 'product', 'created_by').annotate(
+            total_price=ExpressionWrapper(
+                F('quantity') * F('purchase_price'),
+                output_field=DecimalField()
+            )
+        ).order_by(order_by)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sort'] = self.request.GET.get('sort', 'date_desc')
+        return context
+
+

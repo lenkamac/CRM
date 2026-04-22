@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Sales list
+{% endblock %}
+
+{% block content %}
+    {% block css %}
+    	<link rel="stylesheet" href="{% static 'product/product.css' %}">
+    {% endblock %}
+
+    <div class="container">
+        <!-- Purchase History -->
+        <div class="page-header">
+            <h1 class="page-title">Purchase History</h1>
+        </div>
+
+        {% if purchases %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="?sort={% if sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}" style="text-decoration: none; color: black;">
+                                Date
+                                {% if sort == 'date_asc' %}<i class="bi bi-caret-up-fill"></i>{% elif sort == 'date_desc' %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>Client</th>
+                        <th>Product</th>
+                        <th>
+                            <a href="?sort={% if sort == 'quantity_desc' %}quantity_asc{% else %}quantity_desc{% endif %}" style="text-decoration: none; color: black;">
+                                Quantity
+                                {% if sort == 'quantity_asc' %}<i class="bi bi-caret-up-fill"></i>{% elif sort == 'quantity_desc' %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort={% if sort == 'total_desc' %}total_asc{% else %}total_desc{% endif %}" style="text-decoration: none; color: black;">
+                                Total Price
+                                {% if sort == 'total_asc' %}<i class="bi bi-caret-up-fill"></i>{% elif sort == 'total_desc' %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr>
+                        <td>{{ purchase.created_at|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'client:detail' purchase.client.pk %}">
+                                {{ purchase.client }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'product:product_detail' purchase.product.pk %}">
+                                {{ purchase.product.name }}
+                            </a>
+                        </td>
+                        <td>{{ purchase.quantity }}</td>
+                        <td>
+                            {{ purchase.total|floatformat:2 }}
+                            {% if purchase.currency == 'EUR' %}€{% else %}${% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="no-results">No purchase history found.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}
