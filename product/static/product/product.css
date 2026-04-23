@@ -72,158 +72,40 @@
 }
 
 
-/* Responsive design*/
-@media (max-width: 575.98px) {
-    #product-list {
-       font-size: 0.6rem;
-        margin: auto;
-        width: 100%;
-        padding: 25px;
-    }
-    #product-detail {
-        font-size: 0.6rem;
-        margin: 10px 0;
-        width: 100%;
-        padding: 10px;
-        height: auto;
-        overflow-x: hidden;
-    }
-
-    #btn-add-product {
-        width: auto;
-        font-size: 0.8rem;
-        margin: 5px 10px;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-
-    }
-    .products-card {
-        margin: 0;
-        padding:5px;
-    }
-    .card-header {
-        text-align: start;
-        height: 32px;
-    }
-    table thead th {
-        font-size: 0.7rem;
-    }
-    table tbody td {
-        font-size: 0.8rem;
-    }
-    table tbody td a {
-        font-size: 0.6rem;
-    }
-    .btn-view {
-        font-size: 0.7rem;
-        height: 20px;
-        padding: 4px 10px;
-        width: auto;
-    }
-    .btn-warning {
-        font-size: 0.7rem;
-        height: 20px;
-        padding: 4px 10px;
-        width: auto;
-    }
-    .btn-delete {
-        font-size: 0.6rem;
-        height: 20px;
-        padding: 4px 10px;
-        width: auto;
-    }
-    .bi-trash {
-        font-size: 0.6rem;
-    }
-    .btn-edit-product {
-        font-size: 0.7rem;
-    }
-    .btn-delete-product {
-        font-size: 0.7rem;
-    }
-    .btn-danger {
-        font-size: 0.6rem;
-    }
+.btn-filter {
+    background-color: #5d718d;
+    color: white;
+    font-weight: bold;
+}
+.btn-filter:hover {
+    background-color: #364a69;
+    color: white;
+}
+.btn-filter-clear {
+    background-color: #adb5bd;
+    color: white;
+    font-weight: bold;
+}
+.btn-filter-clear:hover {
+    background-color: #6c757d;
+    color: white;
 }
 
-@media (max-width: 767.98px) {
-    #product-list {
-       font-size: 0.6rem;
-        margin: auto;
-        width: 100%;
-        padding: 25px;
-    }
-    #product-detail {
-        font-size: 0.8rem;
-        margin: 10px 0;
-        width: 100%;
-        padding: 10px;
-        height: auto;
-        overflow-x: hidden;
-    }
-    #btn-add-product {
-        width: auto;
-        height: 25px;
-        font-size: 0.8rem;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 4px;
-
-    }
-    .products-card {
-        margin: 0;
-        padding:5px;
-    }
-    .card-header {
-        text-align: start;
-        height: 32px;
-    }
-    table thead th {
-        font-size: 0.7rem;
-    }
-    table tbody td {
-        font-size: 0.8rem;
-    }
-    table tbody td a {
-        font-size: 0.6rem;
-    }
-    .btn-view {
-        font-size: 0.7rem;
-        height: 22px;
-        width: auto;
-        padding: 4px 10px;
-    }
-    .btn-warning {
-        font-size: 0.7rem;
-        height: 22px;
-        width: auto;
-        padding: 4px 10px;
-    }
-    .btn-delete {
-        font-size: 0.6rem;
-        height: 20px;
-        width: auto;
-        padding: 3px 10px;
-    }
-    .bi-trash {
-        font-size: 0.6rem;
-    }
-    .btn-danger {
-        font-size: 0.6rem;
-        height: 22px;
-        width: auto;
-        padding: 3px 10px;
-    }
-    .btn-edit-product {
-        font-size: 0.7rem;
-    }
-    .btn-delete-product {
-        font-size: 0.7rem;
-    }
-    .btn-danger {
-        font-size: 0.7rem;
-    }
+.purchase-client-link {
+    font-weight: bold;
+    color: #1c4e6a;
+    text-decoration: none;
+}
+.purchase-client-link:hover {
+    color: #387ea6;
+    text-decoration: underline;
+}
+.purchase-product-link {
+    font-weight: bold;
+    color: #688eb4;
+    text-decoration: none;
+}
+.purchase-product-link:hover {
+    color: #364a69;
+    text-decoration: underline;
 }

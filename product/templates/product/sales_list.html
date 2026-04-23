@@ -12,64 +12,90 @@
 
     <div class="container-fluid mx-auto pt-3" id="sales-list">
         <!-- Purchase History -->
-        <div class="page-header mt-5">
-            <h1 class="page-title text-center">Sales</h1>
+        <div class="row pt-4 justify-content-center">
+            <div class="col-12 text-center">
+                <h4 class="text-center">Sales</h4>
+            </div>
         </div>
 
-        {% if purchases %}
-        <div class="table-wrapper">
-            <table class="table table-hover table-striped align-middle">
-                <thead class="th-custom">
-                    <tr>
-                        <th class="text-start">
-                            <a href="?sort={% if sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}" style="text-decoration: none; color: black;">
-                                Date
-                                {% if sort == 'date_asc' %}▲{% elif sort == 'date_desc' %}▼{% else %}⇅{% endif %}
-                            </a>
-                        </th>
-                        <th class="text-start">Client</th>
-                        <th>Product</th>
-                        <th>
-                            <a href="?sort={% if sort == 'quantity_desc' %}quantity_asc{% else %}quantity_desc{% endif %}" style="text-decoration: none; color: black;">
-                                Quantity
-                                {% if sort == 'quantity_asc' %}▲{% elif sort == 'quantity_desc' %}▼{% else %}⇅{% endif %}
-                            </a>
-                        </th>
-                        <th>
-                            <a href="?sort={% if sort == 'total_desc' %}total_asc{% else %}total_desc{% endif %}" style="text-decoration: none; color: black;">
-                                Total Price
-                                {% if sort == 'total_asc' %}▲{% elif sort == 'total_desc' %}▼{% else %}⇅{% endif %}
-                            </a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for purchase in purchases %}
-                    <tr>
-                        <td>{{ purchase.created_at|date:"d M Y" }}</td>
-                        <td>
-                            <a href="{% url 'client:detail' purchase.client.pk %}">
-                                {{ purchase.client }}
-                            </a>
-                        </td>
-                        <td class="text-center">
-                            <a href="{% url 'product:product_detail' purchase.product.pk %}">
-                                {{ purchase.product.name }}
-                            </a>
-                        </td>
-                        <td class="text-center">{{ purchase.quantity }}</td>
-                        <td class="text-center">
-                            {{ purchase.total|floatformat:2 }}
-                            {% if purchase.currency == 'EUR' %}€{% else %}${% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="row justify-content-start mb-3">
+            <div class="col-auto">
+                <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
+                    <input type="hidden" name="sort" value="{{ sort }}">
+                    <div>
+                        <label class="form-label mb-1" for="date_from">From</label>
+                        <input type="date" id="date_from" name="date_from" class="form-control form-control-sm"
+                               value="{{ date_from }}" placeholder="dd.mm.yyyy" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="form-label mb-1" for="date_to">To</label>
+                        <input type="date" id="date_to" name="date_to" class="form-control form-control-sm"
+                               value="{{ date_to }}" placeholder="dd.mm.yyyy" autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-filter">Filter</button>
+                    {% if date_from or date_to %}
+                    <a href="?sort={{ sort }}" class="btn btn-sm btn-filter-clear">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
         </div>
+
+        <div class="row justify-content-center">
+        {% if purchases %}
+            <div class="table-wrapper">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="th-custom">
+                        <tr>
+                            <th class="text-start">
+                                <a href="?sort={% if sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" style="text-decoration: none; color: black;">
+                                    Date
+                                    {% if sort == 'date_asc' %}▲{% elif sort == 'date_desc' %}▼{% else %}⇅{% endif %}
+                                </a>
+                            </th>
+                            <th class="text-start">Client</th>
+                            <th>Product</th>
+                            <th>
+                                <a href="?sort={% if sort == 'quantity_desc' %}quantity_asc{% else %}quantity_desc{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" style="text-decoration: none; color: black;">
+                                    Quantity
+                                    {% if sort == 'quantity_asc' %}▲{% elif sort == 'quantity_desc' %}▼{% else %}⇅{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?sort={% if sort == 'total_desc' %}total_asc{% else %}total_desc{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" style="text-decoration: none; color: black;">
+                                    Total Price
+                                    {% if sort == 'total_asc' %}▲{% elif sort == 'total_desc' %}▼{% else %}⇅{% endif %}
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchases %}
+                        <tr>
+                            <td>{{ purchase.created_at|date:"d.m.Y" }}</td>
+                            <td>
+                                <a href="{% url 'client:detail' purchase.client.pk %}" class="purchase-client-link">
+                                    {{ purchase.client }}
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'product:product_detail' purchase.product.pk %}" class="purchase-product-link">
+                                    {{ purchase.product.name }}
+                                </a>
+                            </td>
+                            <td class="text-center">{{ purchase.quantity }}</td>
+                            <td class="text-center">
+                                {{ purchase.total|floatformat:2 }}
+                                {% if purchase.currency == 'EUR' %}€{% else %}${% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-        <p class="no-results">No purchase history found.</p>
+            <p class="no-results">No purchase history found.</p>
         {% endif %}
+        </div>
     </div>
 
 {% endblock %}

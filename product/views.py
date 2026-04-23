@@ -1,4 +1,5 @@
 from multiprocessing import context
+from datetime import date as date_type
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -130,18 +131,33 @@ class SalesListView(LoginRequiredMixin, ListView):
             'total_desc': '-total_price',
         }
         order_by = order_map.get(sort, '-created_at')
-        return Purchase.objects.filter(
+        qs = Purchase.objects.filter(
             created_by=self.request.user
         ).select_related('client', 'product', 'created_by').annotate(
             total_price=ExpressionWrapper(
                 F('quantity') * F('purchase_price'),
                 output_field=DecimalField()
             )
-        ).order_by(order_by)
+        )
+        date_from = self.request.GET.get('date_from', '').strip()
+        date_to = self.request.GET.get('date_to', '').strip()
+        if date_from:
+            try:
+                qs = qs.filter(created_at__date__gte=date_type.fromisoformat(date_from))
+            except ValueError:
+                pass
+        if date_to:
+            try:
+                qs = qs.filter(created_at__date__lte=date_type.fromisoformat(date_to))
+            except ValueError:
+                pass
+        return qs.order_by(order_by)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sort'] = self.request.GET.get('sort', 'date_desc')
+        context['date_from'] = self.request.GET.get('date_from', '').strip()
+        context['date_to'] = self.request.GET.get('date_to', '').strip()
         return context
 
 
