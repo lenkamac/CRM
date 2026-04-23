@@ -24,7 +24,7 @@ import json
 # Client list
 class ClientListView(ListView):
     model = Client
-    paginate_by = 10
+    paginate_by = 50
 
     def get_queryset(self):
         queryset = super(ClientListView, self).get_queryset()

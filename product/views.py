@@ -120,6 +120,7 @@ class SalesListView(LoginRequiredMixin, ListView):
     model = Purchase
     template_name = 'product/sales_list.html'
     context_object_name = 'purchases'
+    paginate_by = 50
 
     def get_queryset(self):
         sort = self.request.GET.get('sort', 'date_desc')
