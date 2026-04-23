@@ -327,6 +327,7 @@ class AddPurchaseView(LoginRequiredMixin, View):
                         purchase_price=item['price'],
                         currency=item['currency'],
                         notes=f"{item.get('notes', '')}\n{general_notes}".strip(),
+                        created_at=item['createdAt'],
                         created_by=request.user
                     )
                     purchase.save()

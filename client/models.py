@@ -84,7 +84,7 @@ class Purchase(models.Model):
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Leave empty to use product's net price")
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default=EUR)
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=False)
     created_by = models.ForeignKey(User, related_name='client_purchases', on_delete=models.CASCADE)
 
     def __str__(self):

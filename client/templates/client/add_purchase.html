@@ -65,9 +65,13 @@
                                     <label for="total-price-display" class="form-label">Item Total</label>
                                     <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
                                 </div>
-                                <div class="col-12 pt-2">
+                                <div class="col-8 pt-2">
                                     <label for="item-notes" class="form-label">Item Notes (optional)</label>
                                     <textarea id="item-notes" class="form-control" rows="2" placeholder="Add notes for this item..."></textarea>
+                                </div>
+                                <div class="col-2 pt-2 text-end">
+                                    <label for="item-date" class="form-label">Date</label>
+                                    <input type="date" id="id-created-at" class="form-control" placeholder="Select date..." autocomplete="off">
                                 </div>
                                 <div class="col-12 text-center pt-3">
                                     <button type="button" id="add-to-cart-btn" class="btn mb-2 fw-bolder py-2 fs-5" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add</button>
@@ -88,7 +92,7 @@
                                                     <th>Currency</th>
                                                     <th>Subtotal</th>
                                                     <th>Notes</th>
-                                                    <th></th>
+                                                    <th>Created at</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="cart-items">
@@ -152,6 +156,7 @@
             const productNetPriceEurDisplay = document.getElementById('product-net-price-eur');
             const productNetPriceUsdDisplay = document.getElementById('product-net-price-usd');
             const itemNotesInput = document.getElementById('item-notes');
+            const createdAtInput = document.getElementById('id-created-at');
 
             const EUR_TO_USD = {{ exchange_rate|safe }};
 
@@ -206,11 +211,18 @@
                 let price = parseFloat(purchasePriceInput.value);
                 const currency = currencySelect.value;
                 const itemNotes = itemNotesInput.value;
+                const createdAt = createdAtInput.value;
 
                 if (!productId) {
                     alert('Please select a product');
                     return;
                 }
+
+                if (!createdAt) {
+                    alert('Please select a date');
+                    return;
+                }
+
                 if (quantity <= 0) {
                     alert('Please enter a valid quantity');
                     return;
@@ -225,13 +237,15 @@
                 }
                 // price is now in the selected currency
 
+
                 cart.push({
                     productId: productId,
                     productName: productName,
                     quantity: quantity,
                     price: price,
                     currency: currency,
-                    notes: itemNotes
+                    notes: itemNotes,
+                    createdAt: createdAt,
                 });
 
                 updateCartDisplay();
@@ -239,6 +253,7 @@
                 purchasePriceInput.value = '';
                 quantityInput.value = '1';
                 itemNotesInput.value = '';
+                createdAtInput.value = '';
                 productIdInput.value = '';
                 productSearchInput.value = '';
                 updateProductPrice();
@@ -282,6 +297,7 @@
                         <td>${item.currency}</td>
                         <td>${currencySymbol}${subtotal.toFixed(2)}</td>
                         <td>${item.notes || '-'}</td>
+                        <td>${item.createdAt || '-'}</td>
                         <td>
                             <button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">
                                 <i class="fas fa-times"></i>

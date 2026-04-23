@@ -25,8 +25,13 @@ class AddFileForm(forms.ModelForm):
 class PurchaseForm(forms.ModelForm):
     class Meta:
         model = Purchase
-        fields = ['product', 'quantity', 'purchase_price', 'currency', 'notes']
+        fields = ['created_at', 'product', 'quantity', 'purchase_price', 'currency', 'notes']
         widgets = {
+            'created_at': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'id': 'id_created_at',
+            }),
             'product': forms.Select(attrs={
                 'class': 'form-control',
                 'id': 'id_product',
