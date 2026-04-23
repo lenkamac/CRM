@@ -584,7 +584,7 @@
                                         </td>
                                         <td class="text-center">{{ purchase.raw_total|floatformat:2 }}</td>
                                         <td class="text-center">{{ purchase.get_currency_display }}</td>
-                                        <td class="text-center">{{ purchase.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td class="text-center">{{ purchase.created_at|date:"d.m.Y" }}</td>
                                         <td class="text-start">
                                             {% if purchase.notes %}
                                                 {{ purchase.notes|truncatewords:10 }}
@@ -743,7 +743,7 @@
 
             // Initialize flatpickr for purchase date filters (Monday as first day)
             const purchaseDateConfig = {
-                dateFormat: "Y-m-d",
+                dateFormat: "d.m.Y",
                 altInput: true,
                 altFormat: "d.m.Y",
                 allowInput: true,
@@ -784,6 +784,7 @@
                 firstDayOfWeek: 1
             }
         });
+            
 
         // Purchase product autocomplete
         (function () {

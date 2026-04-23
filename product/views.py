@@ -1,5 +1,6 @@
 from multiprocessing import context
 from datetime import date as date_type
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -140,7 +141,9 @@ class SalesListView(LoginRequiredMixin, ListView):
             )
         )
         date_from = self.request.GET.get('date_from', '').strip()
+
         date_to = self.request.GET.get('date_to', '').strip()
+
         if date_from:
             try:
                 qs = qs.filter(created_at__date__gte=date_type.fromisoformat(date_from))
@@ -158,6 +161,16 @@ class SalesListView(LoginRequiredMixin, ListView):
         context['sort'] = self.request.GET.get('sort', 'date_desc')
         context['date_from'] = self.request.GET.get('date_from', '').strip()
         context['date_to'] = self.request.GET.get('date_to', '').strip()
+
+        for key in ('date_from', 'date_to'):
+            val = context[key]
+            if val:
+                try:
+                    context[f'{key}_display'] = date_type.fromisoformat(val).strftime('%d.%m.%Y')
+                except ValueError:
+                    context[f'{key}_display'] = ''
+            else:
+                context[f'{key}_display'] = ''
         return context
 
 

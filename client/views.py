@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -327,7 +328,7 @@ class AddPurchaseView(LoginRequiredMixin, View):
                         purchase_price=item['price'],
                         currency=item['currency'],
                         notes=f"{item.get('notes', '')}\n{general_notes}".strip(),
-                        created_at=item['createdAt'],
+                        created_at=datetime.strptime(item['createdAt'], '%d.%m.%Y'),
                         created_by=request.user
                     )
                     purchase.save()
