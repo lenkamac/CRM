@@ -11,6 +11,7 @@
     {% endblock %}
 
     <div class="container-fluid mx-auto pt-3" id="sales-list">
+
         <!-- Purchase History -->
         <div class="row pt-4 justify-content-center">
             <div class="col-12 text-center">
@@ -19,7 +20,12 @@
         </div>
 
         <div class="row justify-content-start mb-3">
-            <div class="col-auto">
+            <div class="col-2 py-3 text-start">
+                <a href="{% url 'product:add_purchase_generic' %}" class="btn fw-bolder py-2" style="background-color: #517e7e; color: white;">
+                    <i class="fas fa-cart-plus px-2"></i>Add Purchase
+                </a>
+            </div>
+            <div class="col-10 text-end">
                 <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
                     <input type="hidden" name="sort" value="{{ sort }}">
                     <div>

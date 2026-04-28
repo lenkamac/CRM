@@ -12,4 +12,5 @@ urlpatterns = [
     path('delete/<int:product_id>/', views.delete_product, name='delete_product'),
     path('autocomplete/', views.product_autocomplete, name='autocomplete'),
     path('sales/', views.SalesListView.as_view(), name='sales_list'),
+    path('sales/add-purchase/', AddPurchaseGenericView.as_view(), name='add_purchase_generic'),
 ]

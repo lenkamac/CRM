@@ -1,3 +1,4 @@
+import json
 from multiprocessing import context
 from datetime import date as date_type
 from datetime import datetime
@@ -8,8 +9,11 @@ from django.db.models import Q, ExpressionWrapper, DecimalField, F
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.views import View
 
-from client.models import Purchase
+from client.forms import PurchaseForm
+from client.models import Purchase, Client
+from core.currency_service import CurrencyConverter
 from product.models import Product
 from django.views.generic import ListView, DetailView
 
@@ -114,6 +118,84 @@ def product_autocomplete(request):
         products = Product.objects.filter(user_filter).values('id', 'name')[:50]
     results = [{'id': p['id'], 'label': p['name']} for p in products]
     return JsonResponse(results, safe=False)
+
+
+class AddPurchaseGenericView(LoginRequiredMixin, View):
+    """Add purchase from the sales list — client is selected via autocomplete."""
+
+    def get(self, request):
+        purchaseform = PurchaseForm()
+        products = Product.objects.all().values('id', 'name', 'net_price')
+        products_dict = {str(p['id']): str(p['net_price']) for p in products}
+        try:
+            exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+        except Exception:
+            exchange_rate = 1.10
+        return render(request, 'product/add_purchase.html', {
+            'purchaseform': purchaseform,
+            'products_json': json.dumps(products_dict),
+            'exchange_rate': json.dumps(exchange_rate),
+        })
+
+    def post(self, request):
+        client_id = request.POST.get('client_id', '').strip()
+        client = get_object_or_404(Client, pk=client_id, created_by=request.user)
+        cart_data = request.POST.get('cart_data', '')
+        general_notes = request.POST.get('notes', '')
+
+        if cart_data:
+            try:
+                cart_items = json.loads(cart_data)
+                if not cart_items:
+                    messages.error(request, 'Please add at least one product to the cart')
+                    return redirect('product:add_purchase_generic')
+
+                purchase_count = 0
+                total_amount_eur = 0
+                total_amount_usd = 0
+
+                for item in cart_items:
+                    product = Product.objects.get(id=item['productId'])
+                    purchase = Purchase(
+                        client=client,
+                        product=product,
+                        quantity=item['quantity'],
+                        purchase_price=item['price'],
+                        currency=item['currency'],
+                        notes=f"{item.get('notes', '')}\n{general_notes}".strip(),
+                        created_at=datetime.strptime(item['createdAt'], '%d.%m.%Y'),
+                        created_by=request.user,
+                    )
+                    purchase.save()
+                    purchase_count += 1
+
+                    if item['currency'] == 'EUR':
+                        total_amount_eur += item['quantity'] * item['price']
+                    else:
+                        exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                        total_amount_eur += (item['quantity'] * item['price']) / exchange_rate
+                        total_amount_usd += item['quantity'] * item['price']
+
+                if total_amount_eur > 0 and total_amount_usd == 0:
+                    exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                    total_amount_usd = total_amount_eur * exchange_rate
+                elif total_amount_usd > 0 and total_amount_eur == 0:
+                    exchange_rate = float(CurrencyConverter.get_exchange_rate('EUR', 'USD'))
+                    total_amount_eur = total_amount_usd / exchange_rate
+
+                messages.success(request,
+                    f'{purchase_count} purchase(s) added successfully! Total: €{total_amount_eur:.2f} / ${total_amount_usd:.2f}')
+            except json.JSONDecodeError:
+                messages.error(request, 'Invalid cart data')
+            except Product.DoesNotExist:
+                messages.error(request, 'One or more products not found')
+            except Exception as e:
+                messages.error(request, f'Error: {str(e)}')
+        else:
+            messages.error(request, 'Please add products to the cart before completing the purchase')
+            return redirect('product:add_purchase_generic')
+
+        return redirect('product:sales_list')
 
 
 class SalesListView(LoginRequiredMixin, ListView):

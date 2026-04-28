@@ -1,0 +1,463 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Purchase{% endblock %}
+
+{% block content %}
+
+    {% block css %}
+        <link rel="stylesheet" href="{% static 'client/css/client.css' %}">
+    {% endblock %}
+
+    <div class="container-fluid my-3 pt-5" id="add-purchase-container">
+        <div class="row mx-lg-2">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    {% if messages %}
+                        <div class="row">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}" role="alert">
+                                    <div class="text-center">{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="row bg-white border border-2 mt-2">
+                    <div class="col-lg-12" style="background-color: #697272;">
+                        <h5 class="text-center text-white pt-2 fw-bolder">
+                            <i class="fa fa-shopping-cart px-lg-2" aria-hidden="true"></i>
+                            Add Purchase
+                        </h5>
+                    </div>
+
+                    <div class="col-12 py-3" style="background-color: #c5cbcb;">
+                        <form method="post" id="purchase-form">
+                            {% csrf_token %}
+                            <input type="hidden" id="client-id-input" name="client_id">
+
+                            <!-- Client selector -->
+                            <div class="row mx-2 py-2 mb-2" style="background-color: #e9ecec;">
+                                <div class="col-md-6">
+                                    <label for="client-search-input" class="form-label fw-bold">Client</label>
+                                    <div class="position-relative">
+                                        <input type="text" id="client-search-input" class="form-control" placeholder="Type to search client..." autocomplete="off">
+                                        <ul id="client-search-list" class="list-group position-absolute w-100" style="display:none; z-index:1001; max-height:200px; overflow-y:auto;"></ul>
+                                    </div>
+                                    <small class="text-muted d-block mt-1" id="client-selected-info"></small>
+                                </div>
+                            </div>
+
+                            <div class="row mx-2 py-2" style="background-color: #c5cbcb;">
+                                <div class="col-md-4">
+                                    <label for="product-search-input" class="form-label">Product</label>
+                                    <div class="position-relative">
+                                        <input type="text" id="product-search-input" class="form-control" placeholder="Type to search product..." autocomplete="off">
+                                        <input type="hidden" id="id_product" name="product">
+                                        <ul id="product-search-list" class="list-group position-absolute w-100" style="display:none; z-index:1000; max-height:200px; overflow-y:auto;"></ul>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Product Price: <span id="product-net-price-eur" class="fw-bold">-</span> / <span id="product-net-price-usd" class="fw-bold">-</span></small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="id_quantity" class="form-label">Quantity</label>
+                                    {{ purchaseform.quantity }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="id_purchase_price" class="form-label">Purchase price</label>
+                                    {{ purchaseform.purchase_price }}
+                                    <small class="text-muted d-block mt-1">Leave empty to use product price</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="id_currency" class="form-label">Currency</label>
+                                    {{ purchaseform.currency }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="total-price-display" class="form-label">Item Total</label>
+                                    <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
+                                </div>
+                                <div class="col-8 pt-2">
+                                    <label for="item-notes" class="form-label">Item Notes (optional)</label>
+                                    <textarea id="item-notes" class="form-control" rows="2" placeholder="Add notes for this item..."></textarea>
+                                </div>
+                                <div class="col-2 pt-2 text-end">
+                                    <label for="id-created-at" class="form-label">Date</label>
+                                    <input type="text" id="id-created-at" class="form-control" placeholder="dd.mm.yyyy" autocomplete="off">
+                                </div>
+                                <div class="col-12 text-center pt-3">
+                                    <button type="button" id="add-to-cart-btn" class="btn mb-2 fw-bolder py-2 fs-5" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add</button>
+                                </div>
+                            </div>
+
+                            <!-- Shopping Cart Display -->
+                            <div id="cart-container" class="row mx-2 mt-3 py-3" style="background-color: #e8f4f8; border: 1px solid #517e7e; display: none;">
+                                <div class="col-12">
+                                    <h5 class="mb-3"><i class="fas fa-shopping-cart"></i> Shopping Cart</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Quantity</th>
+                                                    <th>Price</th>
+                                                    <th>Currency</th>
+                                                    <th>Subtotal</th>
+                                                    <th>Notes</th>
+                                                    <th>Created at</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="cart-items">
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="fw-bold">
+                                                    <td colspan="4" class="text-end">Total (EUR):</td>
+                                                    <td><span id="cart-total-eur">€0.00</span></td>
+                                                    <td colspan="4"></td>
+                                                </tr>
+                                                <tr class="fw-bold">
+                                                    <td colspan="4" class="text-end">Total (USD):</td>
+                                                    <td><span id="cart-total-usd">$0.00</span></td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-12 pt-2">
+                                    <label for="general-notes" class="form-label">General Notes for All Products</label>
+                                    <textarea name="notes" id="general-notes" class="form-control" rows="2" placeholder="Add general notes for this purchase..."></textarea>
+                                </div>
+                                <div class="col-12 text-end pt-2">
+                                    <button type="button" id="clear-cart-btn" class="btn btn-secondary me-2"><i class="fas fa-trash px-2"></i>Clear Cart</button>
+                                    <button type="button" id="complete-purchase-btn" class="btn fw-bolder py-2" style="background-color: #517e7e; color: white;"><i class="fas fa-check px-2"></i>Complete Purchase</button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="cart_data" id="cart-data-input">
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mb-3 pb-4 mt-3">
+                <a class="back-to-dashboard" href="{% url 'product:sales_list' %}">
+                    <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Sales
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    alert.style.transition = "opacity 0.5s linear";
+                    alert.style.opacity = 0;
+                    setTimeout(function() { alert.remove(); }, 500);
+                });
+            }, 3000);
+
+            const productsData = {{ products_json|safe }};
+            const productIdInput = document.getElementById('id_product');
+            const productSearchInput = document.getElementById('product-search-input');
+            const productSearchList = document.getElementById('product-search-list');
+            const quantityInput = document.getElementById('id_quantity');
+            const purchasePriceInput = document.getElementById('id_purchase_price');
+            const currencySelect = document.getElementById('id_currency');
+            const totalPriceDisplay = document.getElementById('total-price-display');
+            const productNetPriceEurDisplay = document.getElementById('product-net-price-eur');
+            const productNetPriceUsdDisplay = document.getElementById('product-net-price-usd');
+            const itemNotesInput = document.getElementById('item-notes');
+            const createdAtInput = document.getElementById('id-created-at');
+            const clientIdInput = document.getElementById('client-id-input');
+            const clientSearchInput = document.getElementById('client-search-input');
+            const clientSearchList = document.getElementById('client-search-list');
+            const clientSelectedInfo = document.getElementById('client-selected-info');
+
+            flatpickr(createdAtInput, {
+                dateFormat: 'd.m.Y',
+                altFormat: "d.m.Y",
+                allowInput: true,
+                static: true,
+                position: "below",
+                autocomplete: false,
+                locale: { firstDayOfWeek: 1 }
+            });
+
+            const EUR_TO_USD = {{ exchange_rate|safe }};
+            let cart = [];
+
+            // --- Client autocomplete ---
+            const clientAutocompleteUrl = "{% url 'client:autocomplete' %}";
+            let clientSuggestions = [];
+            let clientActiveIndex = -1;
+
+            function closeClientList() {
+                clientSearchList.innerHTML = '';
+                clientSearchList.style.display = 'none';
+                clientActiveIndex = -1;
+            }
+
+            function selectClient(item) {
+                clientIdInput.value = item.id;
+                clientSearchInput.value = item.label;
+                clientSelectedInfo.textContent = item.label;
+                closeClientList();
+            }
+
+            clientSearchInput.addEventListener('input', function() {
+                const q = this.value.trim();
+                clientIdInput.value = '';
+                clientSelectedInfo.textContent = '';
+                clientSuggestions = [];
+                closeClientList();
+                if (!q) return;
+                fetch(clientAutocompleteUrl + '?q=' + encodeURIComponent(q))
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.length) return;
+                        clientSuggestions = data;
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action';
+                            li.style.cursor = 'pointer';
+                            li.textContent = item.label;
+                            li.addEventListener('mousedown', e => { e.preventDefault(); selectClient(item); });
+                            clientSearchList.appendChild(li);
+                        });
+                        clientSearchList.style.display = 'block';
+                        clientActiveIndex = -1;
+                    });
+            });
+
+            clientSearchInput.addEventListener('keydown', function(e) {
+                const items = [...clientSearchList.querySelectorAll('li')];
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    clientActiveIndex = Math.min(clientActiveIndex + 1, items.length - 1);
+                    items.forEach((el, i) => el.classList.toggle('active', i === clientActiveIndex));
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    clientActiveIndex = Math.max(clientActiveIndex - 1, 0);
+                    items.forEach((el, i) => el.classList.toggle('active', i === clientActiveIndex));
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (clientActiveIndex >= 0 && clientSuggestions[clientActiveIndex]) {
+                        selectClient(clientSuggestions[clientActiveIndex]);
+                    } else if (clientSuggestions.length === 1) {
+                        selectClient(clientSuggestions[0]);
+                    }
+                } else if (e.key === 'Escape') {
+                    closeClientList();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== clientSearchInput && !clientSearchList.contains(e.target)) {
+                    closeClientList();
+                }
+            });
+
+            // --- Product autocomplete ---
+            const productAutocompleteUrl = "{% url 'product:autocomplete' %}";
+            let productSuggestions = [];
+            let productActiveIndex = -1;
+
+            function closeProductList() {
+                productSearchList.innerHTML = '';
+                productSearchList.style.display = 'none';
+                productActiveIndex = -1;
+            }
+
+            function updateProductPrice() {
+                const productId = productIdInput.value;
+                if (productId && productsData[productId]) {
+                    const netPriceEur = parseFloat(productsData[productId]);
+                    const netPriceUsd = netPriceEur * EUR_TO_USD;
+                    productNetPriceEurDisplay.textContent = '€' + netPriceEur.toFixed(2);
+                    productNetPriceUsdDisplay.textContent = '$' + netPriceUsd.toFixed(2);
+                    if (!purchasePriceInput.value) { calculateTotal(); }
+                } else {
+                    productNetPriceEurDisplay.textContent = '-';
+                    productNetPriceUsdDisplay.textContent = '-';
+                    totalPriceDisplay.value = '0.00';
+                }
+            }
+
+            function calculateTotal() {
+                const productId = productIdInput.value;
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const userEnteredPrice = parseFloat(purchasePriceInput.value);
+                const selectedCurrency = currencySelect.value;
+                const currencySymbol = selectedCurrency === 'EUR' ? '€' : '$';
+                let price;
+                if (userEnteredPrice) {
+                    price = userEnteredPrice;
+                } else if (productId && productsData[productId]) {
+                    price = parseFloat(productsData[productId]);
+                    if (selectedCurrency === 'USD') { price = price * EUR_TO_USD; }
+                } else {
+                    price = 0;
+                }
+                totalPriceDisplay.value = currencySymbol + (quantity * price).toFixed(2);
+            }
+
+            function selectProduct(item) {
+                productIdInput.value = item.id;
+                productSearchInput.value = item.label;
+                closeProductList();
+                updateProductPrice();
+                calculateTotal();
+            }
+
+            productSearchInput.addEventListener('input', function() {
+                productIdInput.value = '';
+                productSuggestions = [];
+                closeProductList();
+                const q = this.value.trim();
+                if (!q) return;
+                fetch(productAutocompleteUrl + '?q=' + encodeURIComponent(q))
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.length) return;
+                        productSuggestions = data;
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action';
+                            li.style.cursor = 'pointer';
+                            li.textContent = item.label;
+                            li.addEventListener('mousedown', e => { e.preventDefault(); selectProduct(item); });
+                            productSearchList.appendChild(li);
+                        });
+                        productSearchList.style.display = 'block';
+                        productActiveIndex = -1;
+                    });
+            });
+
+            productSearchInput.addEventListener('keydown', function(e) {
+                const items = [...productSearchList.querySelectorAll('li')];
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    productActiveIndex = Math.min(productActiveIndex + 1, items.length - 1);
+                    items.forEach((el, i) => el.classList.toggle('active', i === productActiveIndex));
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    productActiveIndex = Math.max(productActiveIndex - 1, 0);
+                    items.forEach((el, i) => el.classList.toggle('active', i === productActiveIndex));
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (productActiveIndex >= 0 && productSuggestions[productActiveIndex]) {
+                        selectProduct(productSuggestions[productActiveIndex]);
+                    } else if (productSuggestions.length === 1) {
+                        selectProduct(productSuggestions[0]);
+                    }
+                } else if (e.key === 'Escape') {
+                    closeProductList();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== productSearchInput && !productSearchList.contains(e.target)) {
+                    closeProductList();
+                }
+            });
+
+            // --- Cart ---
+            document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+                if (!clientIdInput.value) {
+                    alert('Please select a client first');
+                    clientSearchInput.focus();
+                    return;
+                }
+                const productId = productIdInput.value;
+                const productName = productSearchInput.value;
+                const quantity = parseFloat(quantityInput.value) || 0;
+                let price = parseFloat(purchasePriceInput.value);
+                const currency = currencySelect.value;
+                const itemNotes = itemNotesInput.value;
+                const createdAt = createdAtInput.value;
+
+                if (!productId) { alert('Please select a product'); return; }
+                if (!createdAt) { alert('Please select a date'); return; }
+                if (quantity <= 0) { alert('Please enter a valid quantity'); return; }
+
+                if (!price && productsData[productId]) {
+                    price = parseFloat(productsData[productId]);
+                    if (currency === 'USD') { price = price * EUR_TO_USD; }
+                }
+
+                cart.push({ productId, productName, quantity, price, currency, notes: itemNotes, createdAt });
+                updateCartDisplay();
+
+                purchasePriceInput.value = '';
+                quantityInput.value = '1';
+                itemNotesInput.value = '';
+                createdAtInput.value = '';
+                productIdInput.value = '';
+                productSearchInput.value = '';
+                updateProductPrice();
+                calculateTotal();
+            });
+
+            function updateCartDisplay() {
+                const cartItemsBody = document.getElementById('cart-items');
+                const cartContainer = document.getElementById('cart-container');
+                const cartDataInput = document.getElementById('cart-data-input');
+
+                if (cart.length === 0) { cartContainer.style.display = 'none'; return; }
+                cartContainer.style.display = 'block';
+                cartItemsBody.innerHTML = '';
+
+                let totalEur = 0, totalUsd = 0;
+                cart.forEach((item, index) => {
+                    const subtotal = item.quantity * item.price;
+                    const sym = item.currency === 'EUR' ? '€' : '$';
+                    if (item.currency === 'EUR') { totalEur += subtotal; totalUsd += subtotal * EUR_TO_USD; }
+                    else { totalEur += subtotal / EUR_TO_USD; totalUsd += subtotal; }
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.productName}</td>
+                        <td>${item.quantity}</td>
+                        <td>${sym}${item.price.toFixed(2)}</td>
+                        <td>${item.currency}</td>
+                        <td>${sym}${subtotal.toFixed(2)}</td>
+                        <td>${item.notes || '-'}</td>
+                        <td>${item.createdAt || '-'}</td>
+                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart(${index})"><i class="fas fa-times"></i></button></td>
+                    `;
+                    cartItemsBody.appendChild(row);
+                });
+                document.getElementById('cart-total-eur').textContent = '€' + totalEur.toFixed(2);
+                document.getElementById('cart-total-usd').textContent = '$' + totalUsd.toFixed(2);
+                cartDataInput.value = JSON.stringify(cart);
+            }
+
+            window.removeFromCart = function(index) {
+                cart.splice(index, 1);
+                updateCartDisplay();
+            };
+
+            document.getElementById('clear-cart-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the cart?')) { cart = []; updateCartDisplay(); }
+            });
+
+            document.getElementById('complete-purchase-btn').addEventListener('click', function() {
+                if (!clientIdInput.value) { alert('Please select a client first'); clientSearchInput.focus(); return; }
+                if (cart.length === 0) { alert('Please add at least one product to the cart before completing the purchase.'); return; }
+                document.getElementById('cart-data-input').value = JSON.stringify(cart);
+                document.getElementById('purchase-form').submit();
+            });
+
+            quantityInput.addEventListener('input', calculateTotal);
+            purchasePriceInput.addEventListener('input', calculateTotal);
+            currencySelect.addEventListener('change', calculateTotal);
+
+            updateProductPrice();
+            calculateTotal();
+        });
+    </script>
+
+{% endblock %}
