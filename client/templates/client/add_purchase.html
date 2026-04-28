@@ -65,13 +65,9 @@
                                     <label for="total-price-display" class="form-label">Item Total</label>
                                     <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
                                 </div>
-                                <div class="col-8 pt-2">
+                                <div class="col-10 pt-2">
                                     <label for="item-notes" class="form-label">Item Notes (optional)</label>
                                     <textarea id="item-notes" class="form-control" rows="2" placeholder="Add notes for this item..."></textarea>
-                                </div>
-                                <div class="col-2 pt-2 text-end">
-                                    <label for="id-created-at" class="form-label">Date</label>
-                                    <input type="text" id="id-created-at" class="form-control" placeholder="dd.mm.yyyy" autocomplete="off">
                                 </div>
                                 <div class="col-12 text-center pt-3">
                                     <button type="button" id="add-to-cart-btn" class="btn mb-2 fw-bolder py-2 fs-5" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add</button>
@@ -92,7 +88,6 @@
                                                     <th>Currency</th>
                                                     <th>Subtotal</th>
                                                     <th>Notes</th>
-                                                    <th>Created at</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -102,7 +97,7 @@
                                                 <tr class="fw-bold">
                                                     <td colspan="4" class="text-end">Total (EUR):</td>
                                                     <td><span id="cart-total-eur">€0.00</span></td>
-                                                    <td colspan="4"></td>
+                                                    <td colspan="2"></td>
                                                 </tr>
                                                 <tr class="fw-bold">
                                                     <td colspan="4" class="text-end">Total (USD):</td>
@@ -116,6 +111,11 @@
                                 <div class="col-12 pt-2">
                                     <label for="general-notes" class="form-label">General Notes for All Products</label>
                                     <textarea name="notes" id="general-notes" class="form-control" rows="2" placeholder="Add general notes for this purchase..."></textarea>
+                                </div>
+                                <div class="col-md-3 pt-2">
+                                    <label for="id-created-at" class="form-label fw-bold">Date <span class="text-danger">*</span></label>
+                                    <input type="text" id="id-created-at" class="form-control" placeholder="dd.mm.yyyy" autocomplete="off">
+                                    <small class="text-muted">Applied to all products in cart</small>
                                 </div>
                                 <div class="col-12 text-end pt-2">
                                     <button type="button" id="clear-cart-btn" class="btn btn-secondary me-2"><i class="fas fa-trash px-2"></i>Clear Cart</button>
@@ -223,15 +223,9 @@
                 let price = parseFloat(purchasePriceInput.value);
                 const currency = currencySelect.value;
                 const itemNotes = itemNotesInput.value;
-                const createdAt = createdAtInput.value;
 
                 if (!productId) {
                     alert('Please select a product');
-                    return;
-                }
-
-                if (!createdAt) {
-                    alert('Please select a date');
                     return;
                 }
 
@@ -257,7 +251,6 @@
                     price: price,
                     currency: currency,
                     notes: itemNotes,
-                    createdAt: createdAt,
                 });
 
                 updateCartDisplay();
@@ -265,7 +258,6 @@
                 purchasePriceInput.value = '';
                 quantityInput.value = '1';
                 itemNotesInput.value = '';
-                createdAtInput.value = '';
                 productIdInput.value = '';
                 productSearchInput.value = '';
                 updateProductPrice();
@@ -309,7 +301,6 @@
                         <td>${item.currency}</td>
                         <td>${currencySymbol}${subtotal.toFixed(2)}</td>
                         <td>${item.notes || '-'}</td>
-                        <td>${item.createdAt || '-'}</td>
                         <td>
                             <button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">
                                 <i class="fas fa-times"></i>
@@ -341,7 +332,14 @@
                     alert('Please add at least one product to the cart before completing the purchase.');
                     return;
                 }
-                document.getElementById('cart-data-input').value = JSON.stringify(cart);
+                const date = createdAtInput.value;
+                if (!date) {
+                    alert('Please select a date for this purchase');
+                    createdAtInput.focus();
+                    return;
+                }
+                const cartWithDate = cart.map(item => ({ ...item, createdAt: date }));
+                document.getElementById('cart-data-input').value = JSON.stringify(cartWithDate);
                 document.getElementById('purchase-form').submit();
             });
 
