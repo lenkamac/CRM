@@ -30,8 +30,8 @@ class TeamMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ("name", "status", "is_active", "client", "lead", "created_by", "created_at")
-    list_filter = ("status", "is_active", "client")
+    list_display = ("name", "status", "is_active", "created_by", "created_at")
+    list_filter = ("status", "is_active")
     search_fields = ("name",)
 
 

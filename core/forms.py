@@ -35,6 +35,4 @@ class ProjectForm(forms.ModelForm):
             "description",
             "status",
             "is_active",
-            "client",
-            "lead",
         ]

@@ -77,22 +77,6 @@ class Project(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PLANNED)
     is_active = models.BooleanField(default=True)
 
-    # Optional links (per your request)
-    client = models.ForeignKey(
-        Client,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="projects",
-    )
-    lead = models.ForeignKey(
-        Lead,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="projects",
-    )
-
     created_by = models.ForeignKey(
         User,
         related_name="projects_created",
