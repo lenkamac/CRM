@@ -71,10 +71,19 @@ class Project(models.Model):
         (CANCELED, "Canceled"),
     )
 
+    PRIORITY_CHOICES = (
+        ('', '---------'),
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    )
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PLANNED)
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='', blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     created_by = models.ForeignKey(
@@ -164,3 +173,32 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return f"{self.sender} @ {self.created_at:%Y-%m-%d %H:%M}"
+
+
+class Contacts(models.Model):
+
+    METHOD_CHOICES = (
+        ('email', 'Email'),
+        ('phone', 'Phone'),
+        ('any', 'Any'),
+    )
+
+    method = models.CharField(max_length=20, choices=METHOD_CHOICES, default='any', blank=True, null=True)
+
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
+    company = models.CharField(max_length=255, blank=True, null=True)
+    job_title = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.ForeignKey(
+        User,
+        related_name="contacts_created",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        ordering = [ "last_name"]
+
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.last_name}"
