@@ -14,7 +14,7 @@ from django.db.models import Q
 from client.models import Client
 from task.models import Task
 from .models import Lead, Comment, LeadFile
-from .forms import AddCommentForm, AddFileForm
+from .forms import AddCommentForm, AddFileForm, AddLeadForm
 
 
 # Create your views here.
@@ -134,13 +134,17 @@ class AddFileView(LoginRequiredMixin, View):
 # Create a new lead
 class LeadCreateView(LoginRequiredMixin, CreateView):
     model = Lead
+    form_class = AddLeadForm
     success_url = reverse_lazy('lead:list')
-    fields = ('company', 'first_name', 'last_name', 'title','phone', 'mobile', 'address', 'zipcode', 'city', 'country', 'email', 'description',
-                  'website', 'priority', 'status', 'status_sale')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+    def form_invalid(self, form):
+        for error in form.non_field_errors():
+            messages.error(self.request, error)
+        return super().form_invalid(form)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -166,15 +170,13 @@ class LeadDeleteView(LoginRequiredMixin, DeleteView):
 # Lead update
 class LeadUpdateView(LoginRequiredMixin, UpdateView):
     model = Lead
+    form_class = AddLeadForm
+    success_url = reverse_lazy('lead:list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Edit Lead'
         return context
-
-    fields = ('company', 'first_name', 'last_name', 'phone', 'mobile','email', 'address', 'zipcode', 'city', 'country', 'description', 'website',
-              'priority', 'status', 'status_sale')
-    success_url = reverse_lazy('lead:list')
 
     def get_queryset(self):
         queryset = super(LeadUpdateView, self).get_queryset()

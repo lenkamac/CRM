@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 
-from client.forms import AddCommentForm, AddFileForm, PurchaseForm
+from client.forms import AddCommentForm, AddFileForm, PurchaseForm, AddClientForm
 from client.models import Client, Comment, ClientFile, Purchase
 from product.models import Product
 from task.models import Task
@@ -148,15 +148,19 @@ class AddFileView(LoginRequiredMixin, View):
 # Create a new client
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
+    form_class = AddClientForm
     success_url = reverse_lazy('client:list')
-    fields = ('company', 'first_name', 'last_name', 'title', 'phone', 'mobile', 'address', 'zipcode', 'city', 'country', 'email', 'description',
-                  'status', 'website',)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
-    def form_valid(self, form):
+    def form_invalid(self, form):
+        for error in form.non_field_errors():
+            messages.error(self.request, error)
+        return super().form_invalid(form)
+
+    def form_valid(self,form):
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
         self.object.save()
@@ -180,15 +184,13 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 # Update client
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
+    form_class = AddClientForm
+    success_url = reverse_lazy('client:list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Edit Client'
         return context
-
-    fields = ('company', 'first_name', 'last_name', 'phone','mobile','email', 'address', 'zipcode', 'city', 'country', 'description',
-              'status', 'website',)
-    success_url = reverse_lazy('client:list')
 
     def get_queryset(self):
         queryset = super(ClientUpdateView, self).get_queryset()

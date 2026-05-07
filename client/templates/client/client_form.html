@@ -24,6 +24,12 @@
         <div class="row justify-content-center">
             <form method="post" class="needs-validation" action="." novalidate style="background-color: #cfd2d2; padding: 20px; border-radius: 3px; width: 75%; ">
                 {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+
                <div class="row justify-content-center">
                    <div class="col-12 col-md-10 col-lg-8">
 
