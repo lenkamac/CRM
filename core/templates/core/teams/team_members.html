@@ -3,94 +3,143 @@
 
 {% block content %}
 <div class="container py-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-      <h1 class="h3 mb-1">{{ team.name }}</h1>
-      <div class="text-muted">Manage memberships</div>
-    </div>
-    <a class="btn btn-outline-secondary" href="{% url 'core:teams_manage' %}">Back to teams</a>
-  </div>
-
-  {% if messages %}
-    <div class="mb-3">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  {% if can_manage %}
-  <div class="card mb-3">
-    <div class="card-header">Add member</div>
-    <div class="card-body">
-      <form method="post" action="{% url 'core:team_member_add' team.pk %}" class="row g-2 align-items-end">
-        {% csrf_token %}
-        <div class="col-md-6">
-          <label class="form-label">User</label>
-          {{ add_form.user }}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h1 class="h3 mb-1">{{ team.name }}</h1>
+          <div class="text-muted">Manage memberships</div>
         </div>
-        <div class="col-md-4">
-          <label class="form-label">Role</label>
-          {{ add_form.role }}
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-primary w-100" type="submit">Add</button>
-        </div>
-      </form>
+        <a class="btn btn-outline-secondary" href="{% url 'core:teams_manage' %}">Back to teams</a>
     </div>
-  </div>
-  {% endif %}
 
-  <div class="card">
-    <div class="card-header">Members</div>
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th class="text-end">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in memberships %}
-            <tr>
-              <td>{{ m.user.username }}</td>
-              <td>{{ m.get_role_display }}</td>
-              <td>
-                {% if m.is_active %}
-                  <span class="badge text-bg-success">Active</span>
-                {% else %}
-                  <span class="badge text-bg-secondary">Inactive</span>
-                {% endif %}
-              </td>
-              <td class="text-end">
-                {% if can_manage %}
-                  <div class="d-flex gap-1 justify-content-end">
-                    <form method="post" action="{% url 'core:team_member_toggle_active' team.pk m.pk %}">
-                      {% csrf_token %}
-                      {% if m.is_active %}
-                        <button class="btn btn-sm btn-outline-warning" type="submit">Deactivate</button>
-                      {% else %}
-                        <button class="btn btn-sm btn-outline-success" type="submit">Re-add</button>
-                      {% endif %}
-                    </form>
-                    <form method="post" action="{% url 'core:team_member_delete' team.pk m.pk %}"
-                          onsubmit="return confirm('Permanently delete {{ m.user.username }} from this team?')">
-                      {% csrf_token %}
-                      <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                    </form>
-                  </div>
-                {% endif %}
-              </td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="4" class="text-center py-4 text-muted">No memberships.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if can_manage %}
+        <div class="card mb-3">
+            <div class="card-header">Add member</div>
+            <div class="card-body">
+                <form method="post" action="{% url 'core:team_member_add' team.pk %}" class="row g-2 align-items-end">
+                    {% csrf_token %}
+                        <div class="col-md-6">
+                            <label class="form-label">User</label>
+                            {{ add_form.user }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Role</label>
+                            {{ add_form.role }}
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" type="submit">Add</button>
+                        </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+
+
+    <div class="card">
+        <div class="card-header">Members</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Created at</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for m in memberships %}
+                    <tr>
+                        <td>{{ m.user.username }}</td>
+                        <td>{{ m.get_role_display }}</td>
+                        <td>
+                            {% if m.is_active %}
+                                <span class="badge text-bg-success">Active</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ m.joined_at }}</td>
+                        <td class="text-end">
+                            {% if can_manage %}
+                                <div class="d-flex gap-1 justify-content-end">
+                                    <form method="post"
+                                          action="{% url 'core:team_member_toggle_active' team.pk m.pk %}">
+                                        {% csrf_token %}
+                                        {% if m.is_active %}
+                                            <button class="btn btn-sm btn-outline-warning" type="submit">Deactivate
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-success" type="submit">Re-add</button>
+                                        {% endif %}
+                                    </form>
+                                    <form method="post" action="{% url 'core:team_member_delete' team.pk m.pk %}"
+                                          onsubmit="return confirm('Permanently delete {{ m.user.username }} from this team?')">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No memberships.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
+
+    {# ── Conversations ────────────────────────────────── #}
+    <div class="card mb-3">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <span>Conversations</span>
+      <button class="btn btn-sm btn-primary" type="button"
+              data-bs-toggle="collapse" data-bs-target="#newConvForm">
+        New conversation
+      </button>
+    </div>
+    <div class="collapse" id="newConvForm">
+      <div class="card-body border-bottom">
+        <form method="post" action="{% url 'core:conversation_create' team.pk %}" class="row g-2 align-items-end">
+          {% csrf_token %}
+          <div class="col-md-10">
+            <label class="form-label">Title <span class="text-muted">(optional)</span></label>
+            {{ conv_form.title }}
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" type="submit">Start</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% if conversations %}
+      <ul class="list-group list-group-flush">
+        {% for conv in conversations %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'core:conversation_detail' team.pk conv.pk %}">
+              {{ conv.title|default:"(no title)" }}
+            </a>
+            <small class="text-muted">{{ conv.created_at|date:"d M Y" }} · by {{ conv.created_by.username }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="card-body text-muted">No conversations yet.</div>
+    {% endif %}
+    </div>
+
+
 </div>
 {% endblock %}

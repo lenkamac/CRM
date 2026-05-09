@@ -32,4 +32,15 @@ urlpatterns = [
         views.project_team_remove,
         name="project_team_remove",
     ),
+    path("teams/<int:team_pk>/conversations/add/", views.conversation_create, name="conversation_create"),
+    path(
+        "teams/<int:team_pk>/conversations/<int:conv_pk>/",
+        views.ConversationDetailView.as_view(),
+        name="conversation_detail",
+    ),
+    path(
+        "teams/<int:team_pk>/conversations/<int:conv_pk>/messages/add/",
+        views.message_create,
+        name="message_create",
+    ),
 ]

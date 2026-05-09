@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ conversation.title|default:"Conversation" }} — {{ team.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 780px;">
+
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-0">{{ conversation.title|default:"(no title)" }}</h1>
+      <small class="text-muted">{{ team.name }} · started by {{ conversation.created_by.username }} on {{ conversation.created_at|date:"d M Y" }}</small>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:team_members' team.pk %}">Back to team</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {# ── Message thread ───────────────────────────────── #}
+  <div class="card mb-3">
+    <div class="card-body p-3" style="max-height: 480px; overflow-y: auto;" id="messageThread">
+      {% for msg in message_list %}
+        <div class="mb-3 {% if msg.sender == request.user %}text-end{% endif %}">
+          <div class="d-inline-block p-2 rounded
+               {% if msg.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}"
+               style="max-width: 70%;">
+            {{ msg.body }}
+          </div>
+          <div class="text-muted" style="font-size: .75rem;">
+            {{ msg.sender.username }} · {{ msg.created_at|date:"d M Y H:i" }}
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-muted text-center mb-0">No messages yet. Say hello!</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# ── Post a message ───────────────────────────────── #}
+  <form method="post" action="{% url 'core:message_create' team.pk conversation.pk %}">
+    {% csrf_token %}
+    <div class="mb-2">
+      {{ msg_form.body.as_widget }}
+    </div>
+    <div class="text-end">
+      <button class="btn btn-primary" type="submit">Send</button>
+    </div>
+  </form>
+
+</div>
+
+<script>
+  // Auto-scroll to the bottom of the message thread on page load
+  const thread = document.getElementById('messageThread');
+  if (thread) thread.scrollTop = thread.scrollHeight;
+</script>
+{% endblock %}

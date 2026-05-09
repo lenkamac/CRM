@@ -9,8 +9,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 
-from .forms import ProjectTeamAddForm, TeamForm, TeamMemberAddForm, ProjectForm
-from .models import Project, ProjectTeamAssignment, Team, TeamMembership
+from .forms import ProjectTeamAddForm, TeamForm, TeamMemberAddForm, ProjectForm, ConversationForm, MessageForm
+from .models import Conversation, Message, Project, ProjectTeamAssignment, Team, TeamMembership
 
 
 def _can_manage_team(user, team):
@@ -184,6 +184,11 @@ class TeamMembersView(LoginRequiredMixin, DetailView):
             .filter(team=self.object)
             .order_by("-is_active", "user__username")
         )
+        ctx["conv_form"] = ConversationForm()
+        ctx["conversations"] = (
+            Conversation.objects.filter(team=self.object, is_active=True)
+            .order_by("-created_at")
+        )
         return ctx
 
 
@@ -326,3 +331,74 @@ def project_team_remove(request, project_pk: int, assignment_pk: int):
     assignment.save(update_fields=["is_active"])
     messages.success(request, "Team unassigned (deactivated).")
     return redirect("core:project_detail", pk=project.pk)
+
+
+def _is_team_member(user, team):
+    """Return True if the user is the creator or an active member of the team."""
+    if team.created_by == user:
+        return True
+    return TeamMembership.objects.filter(team=team, user=user, is_active=True).exists()
+
+
+@login_required
+def conversation_create(request, team_pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    team = get_object_or_404(Team, pk=team_pk)
+    if not _is_team_member(request.user, team):
+        raise Http404()
+
+    form = ConversationForm(request.POST)
+    if form.is_valid():
+        conv = form.save(commit=False)
+        conv.team = team
+        conv.created_by = request.user
+        conv.save()
+        messages.success(request, "Conversation started.")
+        return redirect("core:conversation_detail", team_pk=team.pk, conv_pk=conv.pk)
+
+    messages.error(request, "Could not create conversation.")
+    return redirect("core:team_members", pk=team.pk)
+
+
+class ConversationDetailView(LoginRequiredMixin, DetailView):
+    model = Conversation
+    template_name = "core/teams/conversation_detail.html"
+    context_object_name = "conversation"
+    pk_url_kwarg = "conv_pk"
+
+    def get_object(self, queryset=None):
+        team = get_object_or_404(Team, pk=self.kwargs["team_pk"])
+        if not _is_team_member(self.request.user, team):
+            raise Http404()
+        return get_object_or_404(Conversation, pk=self.kwargs["conv_pk"], team=team, is_active=True)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["team"] = get_object_or_404(Team, pk=self.kwargs["team_pk"])
+        ctx["msg_form"] = MessageForm()
+        ctx["message_list"] = self.object.messages.select_related("sender").order_by("created_at")
+        return ctx
+
+
+@login_required
+def message_create(request, team_pk: int, conv_pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    team = get_object_or_404(Team, pk=team_pk)
+    if not _is_team_member(request.user, team):
+        raise Http404()
+
+    conv = get_object_or_404(Conversation, pk=conv_pk, team=team, is_active=True)
+    form = MessageForm(request.POST)
+    if form.is_valid():
+        msg = form.save(commit=False)
+        msg.conversation = conv
+        msg.sender = request.user
+        msg.save()
+    else:
+        messages.error(request, "Message cannot be empty.")
+
+    return redirect("core:conversation_detail", team_pk=team.pk, conv_pk=conv.pk)

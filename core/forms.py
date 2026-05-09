@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from .models import Team, TeamMembership, ProjectTeamAssignment
-from .models import Project
+from .models import Project, Conversation, Message
 
 
 class TeamForm(forms.ModelForm):
@@ -36,3 +36,21 @@ class ProjectForm(forms.ModelForm):
             "status",
             "is_active",
         ]
+
+
+class ConversationForm(forms.ModelForm):
+    class Meta:
+        model = Conversation
+        fields = ["title"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "Conversation title (optional)"}),
+        }
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ["body"]
+        widgets = {
+            "body": forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": "Write a message…"}),
+        }
