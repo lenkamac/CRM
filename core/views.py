@@ -34,11 +34,14 @@ def _manageable_teams(user):
     ).values_list("team_id", flat=True)
     return Team.objects.filter(Q(created_by=user) | Q(pk__in=managed_pks))
 
-# Create your views here.
+# Create your view
+# s here.
+# Basic index page
 def index(request):
     return render(request, 'core/index.html')
 
 
+# Project views
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = Project
     form_class = ProjectForm
@@ -71,6 +74,7 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse("core:project_list")
 
+
 class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
     template_name = "core/projects/project_list.html"
@@ -80,6 +84,47 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return Project.objects.filter(created_by=self.request.user).order_by("-created_at")
 
 
+class ProjectCreateView(LoginRequiredMixin, CreateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = "core/projects/project_form.html"
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        messages.success(self.request, "Project created.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("core:project_detail", kwargs={"pk": self.object.pk})
+
+
+class ProjectDetailView(LoginRequiredMixin, DetailView):
+    model = Project
+    template_name = "core/projects/project_detail.html"
+    context_object_name = "project"
+
+    def get_queryset(self):
+        return Project.objects.filter(created_by=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        ctx["assigned_teams"] = (
+            ProjectTeamAssignment.objects.select_related("team")
+            .filter(project=self.object, is_active=True)
+            .order_by("-assigned_at")
+        )
+
+        add_form = ProjectTeamAddForm()
+        add_form.fields["team"].queryset = Team.objects.filter(
+            created_by=self.request.user,
+            is_active=True,
+        ).order_by("name")
+        ctx["add_team_form"] = add_form
+        return ctx
+
+
+# Team views
 class TeamListView(LoginRequiredMixin, ListView):
     model = Team
     template_name = "core/teams/manage_teams.html"
@@ -117,6 +162,27 @@ class TeamCreateView(LoginRequiredMixin, CreateView):
         return reverse("core:teams_manage")
 
 
+class TeamDetailView(LoginRequiredMixin, DetailView):
+    model = Team
+    template_name = "core/teams/team_detail.html"
+    context_object_name = "team"
+
+    def get_queryset(self):
+        queryset = super(TeamDetailView,self).get_queryset()
+        return queryset.filter(created_by=self.request.user, pk=self.kwargs.get("pk"))
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['team_members'] =TeamMembership.objects.select_related("user").filter(team=self.object).order_by("-is_active", "user__username")
+        ctx["team_project"] = (
+            ProjectTeamAssignment.objects.select_related("project")
+            .filter(team=self.object, is_active=True)
+            .order_by("-assigned_at")
+        )
+
+        return ctx
+
+
 class TeamUpdateView(LoginRequiredMixin, UpdateView):
     model = Team
     form_class = TeamForm
@@ -132,6 +198,7 @@ class TeamUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse("core:teams_manage")
 
+
 class TeamDeleteView(LoginRequiredMixin, DeleteView):
     model = Team
     template_name = "core/teams/team_confirm_delete.html"
@@ -146,18 +213,6 @@ class TeamDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("core:teams_manage")
-
-
-@login_required
-def team_toggle_active(request, pk: int):
-    if request.method != "POST":
-        raise Http404()
-
-    team = get_object_or_404(Team, pk=pk, created_by=request.user)
-    team.is_active = not team.is_active
-    team.save(update_fields=["is_active"])
-    messages.success(request, f"Team {'activated' if team.is_active else 'deactivated'}.")
-    return redirect("core:teams_manage")
 
 
 class TeamMembersView(LoginRequiredMixin, DetailView):
@@ -190,6 +245,39 @@ class TeamMembersView(LoginRequiredMixin, DetailView):
             .order_by("-created_at")
         )
         return ctx
+
+
+class ConversationDetailView(LoginRequiredMixin, DetailView):
+    model = Conversation
+    template_name = "core/teams/conversation_detail.html"
+    context_object_name = "conversation"
+    pk_url_kwarg = "conv_pk"
+
+    def get_object(self, queryset=None):
+        team = get_object_or_404(Team, pk=self.kwargs["team_pk"])
+        if not _is_team_member(self.request.user, team):
+            raise Http404()
+        return get_object_or_404(Conversation, pk=self.kwargs["conv_pk"], team=team, is_active=True)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["team"] = get_object_or_404(Team, pk=self.kwargs["team_pk"])
+        ctx["msg_form"] = MessageForm()
+        ctx["message_list"] = self.object.messages.select_related("sender").order_by("created_at")
+        return ctx
+
+
+# functionality for team and project management
+@login_required
+def team_toggle_active(request, pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    team = get_object_or_404(Team, pk=pk, created_by=request.user)
+    team.is_active = not team.is_active
+    team.save(update_fields=["is_active"])
+    messages.success(request, f"Team {'activated' if team.is_active else 'deactivated'}.")
+    return redirect("core:teams_manage")
 
 
 @login_required
@@ -250,45 +338,6 @@ def team_member_delete(request, team_pk: int, membership_pk: int):
     membership.delete()
     messages.success(request, f"Member '{membership.user.username}' has been removed from the team.")
     return redirect("core:team_members", pk=team.pk)
-
-
-class ProjectCreateView(LoginRequiredMixin, CreateView):
-    model = Project
-    form_class = ProjectForm
-    template_name = "core/projects/project_form.html"
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        messages.success(self.request, "Project created.")
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse("core:project_detail", kwargs={"pk": self.object.pk})
-
-class ProjectDetailView(LoginRequiredMixin, DetailView):
-    model = Project
-    template_name = "core/projects/project_detail.html"
-    context_object_name = "project"
-
-    def get_queryset(self):
-        return Project.objects.filter(created_by=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
-        ctx["assigned_teams"] = (
-            ProjectTeamAssignment.objects.select_related("team")
-            .filter(project=self.object, is_active=True)
-            .order_by("-assigned_at")
-        )
-
-        add_form = ProjectTeamAddForm()
-        add_form.fields["team"].queryset = Team.objects.filter(
-            created_by=self.request.user,
-            is_active=True,
-        ).order_by("name")
-        ctx["add_team_form"] = add_form
-        return ctx
 
 
 @login_required
@@ -360,26 +409,6 @@ def conversation_create(request, team_pk: int):
 
     messages.error(request, "Could not create conversation.")
     return redirect("core:team_members", pk=team.pk)
-
-
-class ConversationDetailView(LoginRequiredMixin, DetailView):
-    model = Conversation
-    template_name = "core/teams/conversation_detail.html"
-    context_object_name = "conversation"
-    pk_url_kwarg = "conv_pk"
-
-    def get_object(self, queryset=None):
-        team = get_object_or_404(Team, pk=self.kwargs["team_pk"])
-        if not _is_team_member(self.request.user, team):
-            raise Http404()
-        return get_object_or_404(Conversation, pk=self.kwargs["conv_pk"], team=team, is_active=True)
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["team"] = get_object_or_404(Team, pk=self.kwargs["team_pk"])
-        ctx["msg_form"] = MessageForm()
-        ctx["message_list"] = self.object.messages.select_related("sender").order_by("created_at")
-        return ctx
 
 
 @login_required

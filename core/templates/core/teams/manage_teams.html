@@ -36,7 +36,7 @@
                     <tbody>
                       {% for team in teams %}
                         <tr>
-                          <td>{{ team.name }}</td>
+                          <td><a href="{% url 'core:team_detail' team.pk %}">{{ team.name }}</a></td>
                           <td>
                             {% if team.is_active %}
                               <span class="badge text-bg-success">Active</span>

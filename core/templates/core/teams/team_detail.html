@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Team - {{ team.name }}{% endblock %}
+
+{% block content %}
+
+    <div class="container py-4 bg-warning">
+
+        <div class="row">
+            <div class="col-2">
+                <a href="{% url 'core:teams_manage' %}" class="btn btn-primary">Back to Teams</a>
+            </div>
+            <div class="col-10">
+                <h1 class="text-center">Team Detail</h1>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-6 bg-light">
+                <h4>Team Information</h4>
+                <p><strong>Name:</strong> {{ team.name }}</p>
+                <p><strong>Description:</strong> {{ team.description }}</p>
+                <p><strong>Created By:</strong> {{ team.created_by.username }}</p>
+                <p><strong>Created At:</strong> {{ team.created_at }}</p>
+                <p><strong>Updated At:</strong> {{ team.updated_at }}</p>
+                <p><strong>Is Active:</strong> {{ team.is_active }}</p>
+            </div>
+        </div>
+    <div class="row mt-3">
+        <div class="col-5 bg-info">
+            <h4 class="text-center">Team Members</h4>
+            {% if team_members %}
+                <ul>
+                    {% for member in team_members %}
+                        <li>{{ member.user.username }} - {{ member.role }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No members in this team.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-6 bg-light">
+            <h4 class="text-center">Team Project</h4>
+            {% if team_project %}
+                <ul>
+                    {% for assignment in team_project %}
+                        <li>{{ assignment.project.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No project assigned to this team.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    </div>
+
+{% endblock %}
