@@ -43,7 +43,6 @@ class TeamMembership(models.Model):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="memberships")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="team_memberships")
-
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=MEMBER)
     is_active = models.BooleanField(default=True)
     joined_at = models.DateTimeField(auto_now_add=True)
@@ -84,6 +83,8 @@ class Project(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PLANNED)
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='', blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     created_by = models.ForeignKey(

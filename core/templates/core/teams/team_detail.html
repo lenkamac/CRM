@@ -4,7 +4,7 @@
 
 {% block content %}
 
-    <div class="container py-4 bg-warning">
+    <div class="container py-4">
 
         <div class="row mt-3 mb-4">
             <div class="col-2">
@@ -17,7 +17,7 @@
         <div class="row mt-3">
             <div class="col-12">
                 <div class="row justify-content-around">
-                    <div class="col-5 rounded-3 pt-3">
+                    <div class="col-5 bg-white rounded-3 pt-3">
                         <table class="table border-0">
                             <thead class="border-0">
                                 <tr class="text-center">
@@ -44,34 +44,71 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-1"></div>
-                    <div class="col-5 bg-light">
-                        <h4 class="text-center">Team Project</h4>
-                        {% if team_project %}
-                            <ul>
-                                {% for assignment in team_project %}
-                                    <li>{{ assignment.project.name }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No project assigned to this team.</p>
-                        {% endif %}
+                    <div class="col-6 pt-3 rounded-3 bg-white">
+                        <table class="table border-0">
+                            <thead class="border-0">
+                                <tr class="text-center">
+                                    <th colspan="6"><h4>Team Project</h4></th>
+                                </tr>
+                                <tr>
+                                    <th class="border-0" style="background-color: #dcdede;">Name</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Status</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Priority</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Start Date</th>
+                                    <th class="border-0" style="background-color: #dcdede;">End Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-0">
+                            {% if team_project %}
+                                    {% for assignment in team_project %}
+                                        <tr>
+                                            <td class="border-0"><a href="{% url 'core:project_detail' assignment.project.id %}">{{ assignment.project.name }}</a> </td>
+                                            <td class="border-0" >{{ assignment.project.status}}</td>
+                                            <td class="border-0"><span class="{% if assignment.project.priority == 'urgent' %}text-danger{% elif assignment.project.priority == 'high' %}text-warning{% elif assignment.project.priority == 'medium' %}text-info{% else %}text-black{% endif %}">
+                                                {{ assignment.project.priority }}</span></td>
+                                            <td class="border-0">{% if assignment.project.start_date %}{{ assignment.project.start_date }}{% else %}{% endif %}</td>
+                                            <td class="border-0">{% if assignment.project.end_date %}{{ assignment.project.end_date }}{% else %}{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                            {% else %}
+                                <p>No project assigned to this team.</p>
+                            {% endif %}
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    <div class="row mt-3">
-        <div class="col-6 bg-info">
-            <h4 class="text-center">Team Members</h4>
-            {% if team_members %}
-                <ul>
-                    {% for member in team_members %}
-                        <li>{{ member.user.username }} - {{ member.role }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No members in this team.</p>
-            {% endif %}
+    <div class="row mt-5" >
+        <div class="col-5 bg-white rounded-3 pt-3 mx-4">
+            <table class="table border-0">
+                <thead class="border-0">
+                    <tr class="text-center border-0">
+                        <th colspan="4" class="border-0"><h4 class="text-center">Team Members</h4></th>
+                    </tr>
+                    <tr class="border-0">
+                        <th class="border-0" style="background-color: #dcdede;">User</th>
+                        <th class="border-0" style="background-color: #dcdede;">Role</th>
+                        <th class="border-0" style="background-color: #dcdede;">Email</th>
+                        <th class="border-0" style="background-color: #dcdede;">Phone</th>
+                    </tr>
+                </thead>
+                <tbody class="border-0">
+                    {% if team_members %}
+                            {% for member in team_members %}
+                                <tr>
+                                    <td class="border-0">{{ member.user.username }}</td>
+                                    <td class="border-0">{{ member.role }}</td>
+                                    <td class="border-0">{{ member.user.userprofile.email }}</td>
+                                    <td class="border-0">{% if member.user.userprofile.phone_number %}{{ member.user.userprofile.phone_number }}
+                                        {% elif member.user.userprofile.mobile_number %} {{ member.user.userprofile.mobile_number }}
+                                    {% else %} {% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                    {% else %}
+                        <p>No members in this team.</p>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
 
 
