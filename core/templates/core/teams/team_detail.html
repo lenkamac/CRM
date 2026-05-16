@@ -35,7 +35,7 @@
                                 </tr>
                                 <tr>
                                     <td class="border-0"><strong>Created At:</strong> </td>
-                                    <td class="border-0 text-start">{{ team.created_at }}</td>
+                                    <td class="border-0 text-start">{{ team.created_at|date:"d.m.Y H:i" }}</td>
                                 </tr>
                                 <tr>
                                     <td class="border-0"><strong>Updated At:</strong> </td>
@@ -66,8 +66,8 @@
                                             <td class="border-0" >{{ assignment.project.status}}</td>
                                             <td class="border-0"><span class="{% if assignment.project.priority == 'urgent' %}text-danger{% elif assignment.project.priority == 'high' %}text-warning{% elif assignment.project.priority == 'medium' %}text-info{% else %}text-black{% endif %}">
                                                 {{ assignment.project.priority }}</span></td>
-                                            <td class="border-0">{% if assignment.project.start_date %}{{ assignment.project.start_date }}{% else %}{% endif %}</td>
-                                            <td class="border-0">{% if assignment.project.end_date %}{{ assignment.project.end_date }}{% else %}{% endif %}</td>
+                                            <td class="border-0">{% if assignment.project.start_date %}{{ assignment.project.start_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
+                                            <td class="border-0">{% if assignment.project.end_date %}{{ assignment.project.end_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
                                         </tr>
                                     {% endfor %}
                             {% else %}

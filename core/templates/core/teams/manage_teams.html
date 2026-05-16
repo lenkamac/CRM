@@ -30,6 +30,9 @@
                       <tr>
                         <th>Name</th>
                         <th>Status</th>
+                          <th>Created By</th>
+                          <th>Created At</th>
+                          <th>Members</th>
                         <th class="text-end">Actions</th>
                       </tr>
                     </thead>
@@ -44,6 +47,9 @@
                               <span class="badge text-bg-secondary">Inactive</span>
                             {% endif %}
                           </td>
+                        <td>{{ team.created_by }}</td>
+                        <td>{{ team.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ team.members.count }}</td>
                           <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'core:team_members' team.pk %}">Members</a>
                             {% if team.pk in manageable_team_pks %}

@@ -41,7 +41,7 @@
                   <span class="badge text-bg-secondary">No</span>
                 {% endif %}
               </td>
-              <td>{{ project.created_at }}</td>
+              <td>{{ project.created_at|date:"d.m.Y H:i" }}</td>
               <td class="text-end">
                 <a class="btn btn-sm btn-outline-primary" href="{% url 'core:project_detail' project.pk %}">Details</a>
                 <a class="btn btn-sm btn-outline-secondary" href="{% url 'core:project_edit' project.pk %}">Edit</a>
