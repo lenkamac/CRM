@@ -51,9 +51,23 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return Project.objects.filter(created_by=self.request.user)
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["team"].queryset = Team.objects.filter(created_by=self.request.user, is_active=True)
+        return form
+
     def form_valid(self, form):
+        response = super().form_valid(form)
+        team = form.cleaned_data.get("team")
+        if team:
+            assignment, created = ProjectTeamAssignment.objects.get_or_create(
+                project=self.object, team=team, defaults={"is_active": True}
+            )
+            if not created and not assignment.is_active:
+                assignment.is_active = True
+                assignment.save(update_fields=["is_active"])
         messages.success(self.request, "Project updated.")
-        return super().form_valid(form)
+        return response
 
     def get_success_url(self):
         return reverse("core:project_detail", kwargs={"pk": self.object.pk})
@@ -81,7 +95,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
     context_object_name = "projects"
 
     def get_queryset(self):
-        return Project.objects.filter(created_by=self.request.user).order_by("-created_at")
+        return Project.objects.filter(created_by=self.request.user).prefetch_related('team_assignments__team').order_by("-created_at")
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
@@ -89,10 +103,19 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     form_class = ProjectForm
     template_name = "core/projects/project_form.html"
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["team"].queryset = Team.objects.filter(created_by=self.request.user, is_active=True)
+        return form
+
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        response = super().form_valid(form)
+        team = form.cleaned_data.get("team")
+        if team:
+            ProjectTeamAssignment.objects.create(project=self.object, team=team, is_active=True)
         messages.success(self.request, "Project created.")
-        return super().form_valid(form)
+        return response
 
     def get_success_url(self):
         return reverse("core:project_detail", kwargs={"pk": self.object.pk})

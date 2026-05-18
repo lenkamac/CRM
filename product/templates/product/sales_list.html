@@ -23,7 +23,7 @@
             <div class="col-12">
                 <div class="row justify-content-start py-2">
                     <div class="col-2  text-start pt-4 ">
-                        <a href="{% url 'product:add_purchase_generic' %}" class="btn justify-content-center align-items-center fw-bolder" style="background-color: #517e7e; color: white;">
+                        <a href="{% url 'product:add_purchase_generic' %}" class="btn btn-sm justify-content-center align-items-center fw-bolder" style="background-color: #517e7e; color: white;">
                             <i class="fas fa-cart-plus px-2"></i>Add Purchase
                         </a>
                     </div>
@@ -31,12 +31,12 @@
                         <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
                             <input type="hidden" name="sort" value="{{ sort }}">
                             <div class="text-start">
-                                <label class="form-label mb-1" for="date_from">From</label>
+                                <label class="form-label fs-6 mb-1" for="date_from">From</label>
                                 <input type="text" id="date_from" name="date_from" class="form-control form-control-sm"
                                        value="{{ date_from }}" placeholder="dd.mm.yyyy" autocomplete="off">
                             </div>
                             <div class="text-start">
-                                <label class="form-label mb-1" for="date_to">To</label>
+                                <label class="form-label fs-6 mb-1" for="date_to">To</label>
                                 <input type="text" id="date_to" name="date_to" class="form-control form-control-sm"
                                        value="{{ date_to }}" placeholder="dd.mm.yyyy" autocomplete="off">
                             </div>

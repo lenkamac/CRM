@@ -34,6 +34,12 @@ class ProjectForm(forms.ModelForm):
     end_date = forms.DateField(required=False,
                                input_formats=['%d.%m.%Y', '%d/%m/%Y', '%Y-%m-%d'],
                                widget=forms.DateInput(format='%d.%m.%Y', attrs={'class': 'form-control', 'placeholder': 'dd.mm.yyyy'}))
+    team = forms.ModelChoiceField(
+        queryset=Team.objects.none(),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+        empty_label="— No team —",
+    )
 
     class Meta:
         model = Project

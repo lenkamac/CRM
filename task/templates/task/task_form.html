@@ -5,13 +5,13 @@
 {% block content %}
 
     <div class="container mx-auto mt-4 pt-lg-3">
-        <h1 class="my-4 text-center">{{ title }}</h1>
+        <h4 class="my-4 text-center">{{ title }}</h4>
 
-        <form method="post">
+        <form method="post" style="background-color: #c0c6c6; padding: 20px; border-radius: 3px; width:100%;">
             {% csrf_token %}
             {# Regular fields first #}
             <div class="mb-3">
-                <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                <label for="{{ form.title.id_for_label }}" class="form-label fs-6">Title</label>
                 {{ form.title }}
                 {% if form.title.errors %}
                     <div class="alert alert-danger mt-1">
@@ -21,7 +21,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                <label for="{{ form.description.id_for_label }}" class="form-label fs-6">Description</label>
                 {{ form.description }}
                 {% if form.description.errors %}
                     <div class="alert alert-danger mt-1">
@@ -33,7 +33,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        <label for="{{ form.status.id_for_label }}" class="form-label fs-6">Status</label>
                         {{ form.status }}
                         {% if form.status.errors %}
                             <div class="alert alert-danger mt-1">
@@ -44,7 +44,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                        <label for="{{ form.priority.id_for_label }}" class="form-label fs-6">Priority</label>
                         {{ form.priority }}
                         {% if form.priority.errors %}
                             <div class="alert alert-danger mt-1">
@@ -56,9 +56,10 @@
             </div>
 
             <div class="row">
+
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label">Assigned To</label>
+                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label fs-6">Assigned To</label>
                         {{ form.assigned_to }}
                         {% if form.assigned_to.errors %}
                             <div class="alert alert-danger mt-1">
@@ -83,7 +84,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="{{ form.lead.id_for_label }}" class="form-label">Related Lead</label>
+                        <label for="{{ form.lead.id_for_label }}" class="form-label fs-6">Related Lead</label>
                         {{ form.lead }}
                         {% if form.lead.errors %}
                             <div class="alert alert-danger mt-1">
@@ -94,7 +95,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="{{ form.client.id_for_label }}" class="form-label">Related Client</label>
+                        <label for="{{ form.client.id_for_label }}" class="form-label fs-6">Related Client</label>
                         {{ form.client }}
                         {% if form.client.errors %}
                             <div class="alert alert-danger mt-1">
@@ -111,9 +112,9 @@
                 </div>
             {% endif %}
 
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Save Task</button>
-                <a href="{% if next %}{{ next }}{% elif task.id %}{% url 'task:task_detail' task.id %}{% else %}{% url 'task:task_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+            <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-sm btn-primary">Save Task</button>
+                <a href="{% if next %}{{ next }}{% elif task.id %}{% url 'task:task_detail' task.id %}{% else %}{% url 'task:task_list' %}{% endif %}" class="btn btn-sm btn-secondary">Cancel</a>
             </div>
 
 

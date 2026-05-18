@@ -11,7 +11,7 @@
 
 
 
-<div class="container py-4">
+<div class="container mx-auto pt-5">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="h3 mb-0">Projects</h1>
       <a class="btn btn-primary" href="{% url 'core:project_add' %}">Create project</a>
@@ -22,31 +22,43 @@
       <table class="table table-hover align-middle mb-0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Active</th>
-            <th>Created</th>
-            <th class="text-end">Action</th>
+            <th class="bg-light">Name</th>
+            <th class="bg-light">Team</th>
+            <th class="bg-light">Status</th>
+            <th class="bg-light">Start date</th>
+            <th class="bg-light">End date</th>
+            <th class="bg-light">Active</th>
+            <th class="bg-light">Created</th>
+            <th class="text-center bg-light">Action</th>
           </tr>
         </thead>
         <tbody>
           {% for project in projects %}
             <tr>
-              <td>{{ project.name }}</td>
-              <td>{{ project.get_status_display }}</td>
-              <td>
+                <td>{{ project.name }}</td>
+                <td>
+                {% for assignment in project.team_assignments.all %}
+                <span >{{ assignment.team.name }}</span>
+                {% empty %}
+                <span class="text-muted">—</span>
+                {% endfor %}
+                </td>
+                <td>{{ project.status }}</td>
+                <td>{% if project.start_date %}{{ project.start_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
+                <td>{% if project.end_date %}{{ project.end_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
+                <td>
                 {% if project.is_active %}
-                  <span class="badge text-bg-success">Yes</span>
+                <span class="badge text-bg-success">Yes</span>
                 {% else %}
-                  <span class="badge text-bg-secondary">No</span>
+                <span class="badge text-bg-secondary">No</span>
                 {% endif %}
-              </td>
-              <td>{{ project.created_at|date:"d.m.Y H:i" }}</td>
-              <td class="text-end">
-                <a class="btn btn-sm btn-outline-primary" href="{% url 'core:project_detail' project.pk %}">Details</a>
+                </td>
+                <td>{{ project.created_at|date:"d.m.Y H:i" }}</td>
+                <td class="text-center">
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'core:project_detail' project.pk %}">Info</a>
                 <a class="btn btn-sm btn-outline-secondary" href="{% url 'core:project_edit' project.pk %}">Edit</a>
                 <a class="btn btn-sm btn-outline-danger" href="{% url 'core:project_delete' project.pk %}">Delete</a>
-              </td>
+                </td>
             </tr>
           {% empty %}
             <tr><td colspan="5" class="text-center py-4 text-muted">No projects found.</td></tr>

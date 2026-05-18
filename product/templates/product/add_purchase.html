@@ -28,10 +28,10 @@
             <div class="col-12">
                 <div class="row bg-white border border-2 mt-2">
                     <div class="col-lg-12" style="background-color: #697272;">
-                        <h5 class="text-center text-white pt-2 fw-bolder">
+                        <h4 class="text-center text-white pt-2 fw-bolder">
                             <i class="fa fa-shopping-cart px-lg-2" aria-hidden="true"></i>
                             Add Purchase
-                        </h5>
+                        </h4>
                     </div>
 
                     <div class="col-12 py-3" style="background-color: #c5cbcb;">
@@ -42,7 +42,7 @@
                             <!-- Client selector -->
                             <div class="row mx-2 py-2 mb-2">
                                 <div class="col-md-6">
-                                    <label for="client-search-input" class="form-label fw-bold">Client</label>
+                                    <label for="client-search-input" class="form-label fw-bold fs-6">Client</label>
                                     <div class="position-relative">
                                         <input type="text" id="client-search-input" class="form-control" placeholder="Type to search client..." autocomplete="off">
                                         <ul id="client-search-list" class="list-group position-absolute w-100" style="display:none; z-index:1001; max-height:200px; overflow-y:auto;"></ul>
@@ -50,7 +50,7 @@
                                     <small class="text-muted d-block mt-1" id="client-selected-info"></small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="product-search-input" class="form-label">Product</label>
+                                    <label for="product-search-input" class="form-label fs-6">Product</label>
                                     <div class="position-relative">
                                         <input type="text" id="product-search-input" class="form-control" placeholder="Type to search product..." autocomplete="off">
                                         <input type="hidden" id="id_product" name="product">
@@ -62,28 +62,28 @@
 
                             <div class="row mx-2 py-2" style="background-color: #c5cbcb;">
                                 <div class="col-3">
-                                    <label for="id_quantity" class="form-label">Quantity</label>
+                                    <label for="id_quantity" class="form-label fs-6">Quantity</label>
                                     {{ purchaseform.quantity }}
                                 </div>
                                 <div class="col-3">
-                                    <label for="id_purchase_price" class="form-label">Purchase price</label>
+                                    <label for="id_purchase_price" class="form-label fs-6">Purchase price</label>
                                     {{ purchaseform.purchase_price }}
                                     <small class="text-muted d-block mt-1">Leave empty to use product price</small>
                                 </div>
                                 <div class="col-3">
-                                    <label for="id_currency" class="form-label">Currency</label>
+                                    <label for="id_currency" class="form-label fs-6">Currency</label>
                                     {{ purchaseform.currency }}
                                 </div>
                                 <div class="col-3">
-                                    <label for="total-price-display" class="form-label">Item Total</label>
+                                    <label for="total-price-display" class="form-label fs-6">Item Total</label>
                                     <input type="text" class="form-control" id="total-price-display" readonly value="0.00">
                                 </div>
-                                <div class="col-10 pt-2">
-                                    <label for="item-notes" class="form-label">Item Notes (optional)</label>
-                                    <textarea id="item-notes" class="form-control" rows="2" placeholder="Add notes for this item..."></textarea>
+                                <div class="col-12 pt-2">
+                                    <label for="item-notes" class="form-label fs-6">Item Notes (optional)</label>
+                                    <textarea id="item-notes" class="form-control w-100" rows="3" placeholder="Add notes for this item..."></textarea>
                                 </div>
                                 <div class="col-12 text-center pt-3">
-                                    <button type="button" id="add-to-cart-btn" class="btn mb-2 fw-bolder py-2 fs-5" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add</button>
+                                    <button type="button" id="add-to-cart-btn" class="btn btn-sm fw-bolder  fs-6" style="background-color: #517e7e; color: white;"><i class="fas fa-cart-plus px-2"></i>Add</button>
                                 </div>
                             </div>
 
@@ -122,17 +122,17 @@
                                     </div>
                                 </div>
                                 <div class="col-12 pt-2">
-                                    <label for="general-notes" class="form-label">General Notes for All Products</label>
+                                    <label for="general-notes" class="form-label fs-6 fw-bolder">General Notes for All Products</label>
                                     <textarea name="notes" id="general-notes" class="form-control" rows="2" placeholder="Add general notes for this purchase..."></textarea>
                                 </div>
                                 <div class="col-md-3 pt-2">
-                                    <label for="id-created-at" class="form-label fw-bold">Date <span class="text-danger">*</span></label>
+                                    <label for="id-created-at" class="form-label fs-6 fw-bolder">Date <span class="text-danger">*</span></label>
                                     <input type="text" id="id-created-at" class="form-control" placeholder="dd.mm.yyyy" autocomplete="off">
                                     <small class="text-muted">Applied to all products in cart</small>
                                 </div>
                                 <div class="col-12 text-end pt-2">
-                                    <button type="button" id="clear-cart-btn" class="btn btn-secondary me-2"><i class="fas fa-trash px-2"></i>Clear Cart</button>
-                                    <button type="button" id="complete-purchase-btn" class="btn fw-bolder py-2" style="background-color: #517e7e; color: white;"><i class="fas fa-check px-2"></i>Complete Purchase</button>
+                                    <button type="button" id="clear-cart-btn" class="btn btn-sm btn-secondary me-2"><i class="fas fa-trash px-2"></i>Clear Cart</button>
+                                    <button type="button" id="complete-purchase-btn" class="btn btn-sm fw-bolder me-2" style="background-color: #517e7e; color: white;"><i class="fas fa-check px-2"></i>Complete Purchase</button>
                                 </div>
                             </div>
                             <input type="hidden" name="cart_data" id="cart-data-input">
@@ -142,8 +142,8 @@
             </div>
 
             <div class="col-12 mb-3 pb-4 mt-3">
-                <a class="back-to-dashboard" href="{% url 'product:sales_list' %}">
-                    <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Sales
+                <a class="btn btn-sm btn-outline-dark fw-bolder fs-6" href="{% url 'product:sales_list' %}">
+                    <i class="fa-solid fa-arrow-left px-2"></i>Back to Sales
                 </a>
             </div>
         </div>

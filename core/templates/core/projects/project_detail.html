@@ -9,68 +9,71 @@
     {% endblock %}
 
 
-<div class="container py-4">
-  <div class="mb-3">
-    <h1 class="h3 mb-1">{{ project.name }}</h1>
-    <div class="text-muted">{{ project.get_status_display }}{% if not project.is_active %} • Inactive{% endif %}</div>
-    {% if project.description %}
-      <p class="mt-2 mb-0">{{ project.description }}</p>
-    {% endif %}
-  </div>
+    <div class="container mx-auto pt-4">
 
-  {% if messages %}
-    <div class="mb-3">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  <div class="card mb-3">
-    <div class="card-header">Assign team</div>
-    <div class="card-body">
-      <form method="post" action="{% url 'core:project_team_add' project.pk %}" class="row g-2 align-items-end">
-        {% csrf_token %}
-        <div class="col-md-10">
-          <label class="form-label">Team</label>
-          {{ add_team_form.team }}
+        <div class="row pt-4">
+            <div class="col-2">
+                <a href="{% url 'core:project_list' %}" class="btn btn-sm btn-outline-dark">Back to Projects</a>
+            </div>
+            <div class="col-8 text-center">
+                <h4 class="h3 mb-1">{{ project.name }}</h4>
+            </div>
+            <div class="col-2 text-end"><span class="text-muted fs-6">{% if project.is_active %} <span class="text-primary">• Active</span>{% elif not project.is_active %} • Inactive{% endif %}</span></div>
         </div>
-        <div class="col-md-2">
-          <button class="btn btn-primary w-100" type="submit">Add</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">Assigned teams</div>
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr>
-            <th>Team</th>
-            <th>Assigned</th>
-            <th class="text-end">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for a in assigned_teams %}
-            <tr>
-              <td>{{ a.team.name }}</td>
-              <td>{{ a.assigned_at }}</td>
-              <td class="text-end">
-                <form method="post" action="{% url 'core:project_team_remove' project.pk a.pk %}">
-                  {% csrf_token %}
-                  <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                </form>
-              </td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="3" class="text-center py-4 text-muted">No teams assigned.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        <div class="row">
+            {% if messages %}
+                <div class="mb-3">
+                  {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="card mt-3">
+                    <div class="card-header text-center fw-bolder">Assigned teams</div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Team</th>
+                                        <th>Assigned</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for a in assigned_teams %}
+                                    <tr>
+                                        <td>{{ a.team.name }}</td>
+                                        <td>{{ a.assigned_at|date:"d.m.Y H:i" }}</td>
+                                        <td class="text-end">
+                                            <form method="post" action="{% url 'core:project_team_remove' project.pk a.pk %}">
+                                            {% csrf_token %}
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">No teams assigned.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                  </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 mt-4">
+                <label>Description</label>
+                {% if project.description %}
+                    <textarea class="mt-2 mb-0 w-100" style="height: 150px">{{ project.description }}</textarea>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
-  </div>
-</div>
 {% endblock %}

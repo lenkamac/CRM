@@ -38,7 +38,7 @@
             <div class="col-12 py-2">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <a href="{% url 'task:task_add' %}" class="btn justify-content-center align-items-center" id="btn-add-task">
+                        <a href="{% url 'task:task_add' %}" class="btn btn-sm justify-content-center align-items-center" id="btn-add-task">
                             <i class="fas fa-plus"></i> New Task
                         </a>
                     </div>
@@ -62,7 +62,7 @@
                                     left: 0;
                                 "></ul>
                             </div>
-                            <button type="submit" class="btn btn-search text-nowrap">Search</button>
+                            <button type="submit" class="btn btn-sm btn-search text-nowrap">Search</button>
                         </form>
                     </div>
                 </div>
@@ -202,7 +202,7 @@
                                                     {% elif task.lead.company %}
                                                         <a href="{% url 'lead:detail' task.lead.id %}">{{ task.lead.company }}</a>
                                                     {% else %}
-                                                        <span class="text-muted">n/a</span>
+                                                        <span class="text-muted">-----</span>
                                                     {% endif %}
                                                 </td>
                                                 <td class="text-center text-nowrap">
@@ -219,7 +219,7 @@
                                                             <span class="text-muted">--:--</span>
                                                         {% endif %}
                                                     </td>
-                                                    <td class="text-start text-nowrap" style="width: auto;">
+                                                    <td class=" text-center text-nowrap" style="width: auto;">
                                                         <a href="{% url 'task:task_detail' task.pk %}" class="text-decoration-none titel-link">
                                                             {{ task.title }}
                                                         </a>

@@ -11,18 +11,23 @@
 
 
     <div class="container  mx-auto mt-4 pt-lg-3">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h1 class="h3 mb-0">{% if object %}Edit Project{% else %}Create Project{% endif %}</h1>
-            <a class="btn btn-outline-secondary" href="{% url 'core:project_list' %}">Back</a>
+        <div class="row mb-3">
+           <div class="col-1"> <a class="btn btn-outline-secondary text-nowrap text-dark" href="{% url 'core:project_list' %}"><i class="fas fa-arrow-left px-1"></i>Back to Projects</a></div>
+           <div class="col-11 text-center"><h4 class="text-center" style="padding-left: 0px; margin-left:0;">{% if object %}Edit Project{% else %}Create Project{% endif %}</h4></div>
         </div>
 
-
-          <form method="post">
+          <form method="post" style="background-color: #cfd2d2; padding: 20px; border-radius: 3px; width: 100%;">
             {% csrf_token %}
 
-            <div class="mb-3">
-                <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
-                {{ form.name }}
+            <div class="row align-items-end">
+                <div class="col-8">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                     {{ form.name }}
+                </div>
+                <div class="col-2 text-end">
+                    <label for="{{ form.is_active.id_for_label }}" class="form-label">Is active</label>
+                    {{ form.is_active }}
+                </div>
             </div>
             <div class="mb-3">
                 <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
@@ -80,13 +85,10 @@
                 </div>
             </div>
 
-            <div class="row justify-content-end">
-                <div class="col-2 text-end">
-                    <label for="{{ form.is_active.id_for_label }}" class="form-label">Is active</label>
-                    {{ form.is_active }}
-                </div>
+            <div class="mb-3">
+                <label for="{{ form.team.id_for_label }}" class="form-label">Assign team <span class="text-muted fw-normal">(optional)</span></label>
+                {{ form.team }}
             </div>
-
 
             <button class="btn btn-primary" type="submit">
               {% if object %}Save changes{% else %}Create{% endif %}

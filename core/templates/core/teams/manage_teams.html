@@ -28,12 +28,12 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>Status</th>
-                          <th>Created By</th>
-                          <th>Created At</th>
-                          <th>Members</th>
-                        <th class="text-end">Actions</th>
+                        <th class="bg-light">Name</th>
+                        <th class="bg-light">Status</th>
+                          <th class="bg-light">Created By</th>
+                          <th class="bg-light">Created At</th>
+                          <th class="bg-light">Members</th>
+                        <th class="text-center bg-light">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -50,7 +50,7 @@
                         <td>{{ team.created_by }}</td>
                         <td>{{ team.created_at|date:"d.m.Y H:i" }}</td>
                         <td>{{ team.members.count }}</td>
-                          <td class="text-end">
+                          <td class="text-center">
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'core:team_members' team.pk %}">Members</a>
                             {% if team.pk in manageable_team_pks %}
                               <a class="btn btn-sm btn-outline-secondary" href="{% url 'core:team_edit' team.pk %}">Edit</a>

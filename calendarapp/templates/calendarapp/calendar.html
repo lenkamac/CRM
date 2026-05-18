@@ -12,33 +12,19 @@
 
         <div class="row justify-content-lg-center mt-3">
             <div class="col-sm-12 col-md-12 col-lg-7 py-3 px-4">
-                <h2 class="text-center fw-bolder">Calendar</h2>
+                <h4 class="text-center fw-bolder">Calendar</h4>
                 <div id="calendar"></div>
             </div>
 
             <div class="col-sm-12 col-md-12 col-lg-4 my-4 py-3 px-3" style="background-color: #c0c6c6;">
                 <div class="row">
-                    <div class="col-12 text-center">
-                        <h4 class="text-center py-3 fw-bolder">Upcoming Events</h4>
-                    </div>
-                    <div class="col-12 text-center">
-                        <button class="btn add-button text-center" data-bs-toggle="modal" data-bs-target="#addEventModal"
-                            id="addEventBtn"><i class="fa-solid fa-plus px-2"></i>Add Event
-                        </button>
-                    </div>
-                    <div class="col-12 mt-3">
-                        <div class="text-start">
-                            <ul id="upcoming-events-list" class="list-group"></ul>
-                            <div id="upcoming-pagination" class="mt-2 text-center"></div>
-                        </div>
-                    </div>
-                    <div class="col-12 mt-3">
-                        <h4 class="text-center py-3 fw-bolder">Tasks</h4>
-                    </div>
                     <div class="col-12">
+                        <h4 class="text-center fw-bolder">Tasks</h4>
+                    </div>
+                    <div class="col-12 mt-0">
                         <div class="text-center">
                             <!-- Add Task Button -->
-                            <button type="button" class="btn add-button mb-2" id="add-task-btn">
+                            <button type="button" class="btn btn-sm add-button  fs-6 fw-bolder mb-2" id="add-task-btn">
                                 <i class="fas fa-plus"></i> Add Task
                             </button>
                         </div>
@@ -47,6 +33,20 @@
                         <div class="text-start">
                             <ul id="upcoming-tasks-list" class="list-group"></ul>
                             <div id="tasks-pagination" class="mt-2 text-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center mt-5">
+                        <h4 class="text-center fw-bolder">Upcoming Events</h4>
+                    </div>
+                    <div class="col-12 text-center">
+                        <button class="btn btn-sm fs-6 mt-1 fw-bolder add-button text-center" data-bs-toggle="modal" data-bs-target="#addEventModal"
+                            id="addEventBtn"><i class="fa-solid fa-plus px-2"></i>Add Event
+                        </button>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <div class="text-start">
+                            <ul id="upcoming-events-list" class="list-group"></ul>
+                            <div id="upcoming-pagination" class="mt-2 text-center"></div>
                         </div>
                     </div>
                 </div>
