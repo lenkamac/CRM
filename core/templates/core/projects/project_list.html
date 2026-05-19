@@ -14,7 +14,7 @@
 <div class="container mx-auto pt-5">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="h3 mb-0">Projects</h1>
-      <a class="btn btn-primary" href="{% url 'core:project_add' %}">Create project</a>
+      <a class="btn btn-sm btn-primary fs-6 fw-bolder" href="{% url 'core:project_add' %}" style="background-color: #688eb4; color: white;"><i class="fas fa-plus px-2"></i>Create project</a>
   </div>
 
   <div class="card">
@@ -35,15 +35,29 @@
         <tbody>
           {% for project in projects %}
             <tr>
-                <td>{{ project.name }}</td>
+                <td><a href="{% url 'core:project_detail' project.id %}" class=" fs-6 fw-bolder" style="color:#688eb4;">{{ project.name }}</a></td>
                 <td>
                 {% for assignment in project.team_assignments.all %}
-                <span >{{ assignment.team.name }}</span>
+                    <span>{{ assignment.team.name }}</span>
                 {% empty %}
-                <span class="text-muted">—</span>
+                    <span class="text-muted">—</span>
                 {% endfor %}
                 </td>
-                <td>{{ project.status }}</td>
+                <td>
+                {% if project.status == 'planned' %}
+                    <span class="badge text-bg-secondary">Planned</span>
+                {% elif project.status == 'active' %}
+                    <span class="badge text-bg-success">Active</span>
+                {% elif project.status == 'on_hold' %}
+                    <span class="badge text-bg-warning">On hold</span>
+                {% elif project.status == 'done' %}
+                    <span class="badge text-bg-primary">Done</span>
+                {% elif project.status == 'canceled' %}
+                    <span class="badge text-bg-danger">Canceled</span>
+                {% else %}
+                    <span class="badge text-bg-light text-dark">{{ project.status }}</span>
+                {% endif %}
+                </td>
                 <td>{% if project.start_date %}{{ project.start_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
                 <td>{% if project.end_date %}{{ project.end_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
                 <td>

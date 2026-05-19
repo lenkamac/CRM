@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ conversation.title|default:"Conversation" }} — {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto pt-4" style="max-width: 780px;">
+
+  <div class="row pt-5">
+    <div class="col-1">
+        <a class="btn btn-outline-secondary btn-sm fs-6 fw-bolder text-dark text-nowrap" href="{% url 'core:project_detail' project.pk %}" style="background-color: #b9c5c5;"><i class="bi bi-arrow-left px-1"></i>Back to project</a>
+    </div>
+      <div class="col-11">
+        <h1 class="h4 mb-0 text-center text-capitalize">{{ conversation.title|default:"(no title)" }}</h1>
+      </div>
+    <div class="col-12 pt-5">
+      <small class="text-muted">Project {{ project.name }} · Started by {{ conversation.created_by.username }} on {{ conversation.created_at|date:"d M Y" }}</small>
+
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card mb-3">
+    <div class="card-body p-3" style="max-height: 480px; overflow-y: auto;" id="messageThread">
+      {% for msg in message_list %}
+        <div class="mb-3 {% if msg.sender == request.user %}text-end{% endif %}">
+          <div class="d-inline-block p-2 rounded
+               {% if msg.sender == request.user %}bg-success-subtle text-dark{% else %}bg-light{% endif %}"
+               style="max-width: 70%;">
+            {{ msg.body }}
+          </div>
+          <div class="text-muted" style="font-size: .75rem;">
+            {{ msg.sender.username }} · {{ msg.created_at|date:"d M Y H:i" }}
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-muted text-center mb-0">No messages yet. Say hello!</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <form method="post" action="{% url 'core:project_message_create' project.pk conversation.pk %}">
+    {% csrf_token %}
+    <div class="mb-2">
+      {{ msg_form.body.as_widget }}
+    </div>
+    <div class="text-end">
+      <button class="btn btn-sm btn-primary" type="submit">Send</button>
+    </div>
+  </form>
+
+</div>
+
+<script>
+  const thread = document.getElementById('messageThread');
+  if (thread) thread.scrollTop = thread.scrollHeight;
+</script>
+{% endblock %}

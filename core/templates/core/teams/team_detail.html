@@ -4,11 +4,15 @@
 
 {% block content %}
 
-    <div class="container py-4">
+    {% block css %}
+    	<link rel="stylesheet" href="{% static 'teams/teams.css' %}">
+    {% endblock %}
+
+    <div class="container-fluid py-4 mx-auto" id="team-details">
 
         <div class="row mt-3 mb-4">
             <div class="col-2">
-                <a href="{% url 'core:teams_manage' %}" class="btn btn-secondary">Back to Teams</a>
+                <a href="{% url 'core:teams_manage' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i>Back to Teams</a>
             </div>
             <div class="col-10">
                 <h4 class="text-center">Team: {{ team.name }} - {% if team.is_active %}Active{% else %}Inactive{% endif %}</h4>
@@ -17,7 +21,7 @@
         <div class="row mt-3">
             <div class="col-12">
                 <div class="row justify-content-around">
-                    <div class="col-5 bg-white rounded-3 pt-3">
+                    <div class="col-3 bg-white rounded-3 pt-3">
                         <table class="table border-0">
                             <thead class="border-0">
                                 <tr class="text-center">
@@ -44,76 +48,187 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-6 pt-3 rounded-3 bg-white">
+                    <div class="col-8 bg-white rounded-3 pt-3">
                         <table class="table border-0">
                             <thead class="border-0">
-                                <tr class="text-center">
-                                    <th colspan="6"><h4>Team Project</h4></th>
+                                <tr class="text-center border-0">
+                                    <th colspan="4" class="border-0"><h4 class="text-center">Team Members</h4></th>
                                 </tr>
-                                <tr>
-                                    <th class="border-0" style="background-color: #dcdede;">Name</th>
-                                    <th class="border-0" style="background-color: #dcdede;">Status</th>
-                                    <th class="border-0" style="background-color: #dcdede;">Priority</th>
-                                    <th class="border-0" style="background-color: #dcdede;">Start Date</th>
-                                    <th class="border-0" style="background-color: #dcdede;">End Date</th>
+                                <tr class="border-0">
+                                    <th class="border-0" style="background-color: #dcdede;">User</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Role</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Email</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Phone</th>
                                 </tr>
                             </thead>
                             <tbody class="border-0">
-                            {% if team_project %}
-                                    {% for assignment in team_project %}
-                                        <tr>
-                                            <td class="border-0"><a href="{% url 'core:project_detail' assignment.project.id %}">{{ assignment.project.name }}</a> </td>
-                                            <td class="border-0" >{{ assignment.project.status}}</td>
-                                            <td class="border-0"><span class="{% if assignment.project.priority == 'urgent' %}text-danger{% elif assignment.project.priority == 'high' %}text-warning{% elif assignment.project.priority == 'medium' %}text-info{% else %}text-black{% endif %}">
-                                                {{ assignment.project.priority }}</span></td>
-                                            <td class="border-0">{% if assignment.project.start_date %}{{ assignment.project.start_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
-                                            <td class="border-0">{% if assignment.project.end_date %}{{ assignment.project.end_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
-                                        </tr>
-                                    {% endfor %}
-                            {% else %}
-                                <p>No project assigned to this team.</p>
-                            {% endif %}
+                                {% if team_members %}
+                                        {% for member in team_members %}
+                                            <tr>
+                                                <td class="border-0">{{ member.user.username }}</td>
+                                                <td class="border-0">{{ member.role }}</td>
+                                                <td class="border-0">{{ member.user.userprofile.email }}</td>
+                                                <td class="border-0">{% if member.user.userprofile.phone_number %}{{ member.user.userprofile.phone_number }}
+                                                    {% elif member.user.userprofile.mobile_number %} {{ member.user.userprofile.mobile_number }}
+                                                {% else %} {% endif %}</td>
+                                            </tr>
+                                        {% endfor %}
+                                {% else %}
+                                    <p>No members in this team.</p>
+                                {% endif %}
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    <div class="row mt-5" >
-        <div class="col-5 bg-white rounded-3 pt-3 mx-4">
-            <table class="table border-0">
-                <thead class="border-0">
-                    <tr class="text-center border-0">
-                        <th colspan="4" class="border-0"><h4 class="text-center">Team Members</h4></th>
-                    </tr>
-                    <tr class="border-0">
-                        <th class="border-0" style="background-color: #dcdede;">User</th>
-                        <th class="border-0" style="background-color: #dcdede;">Role</th>
-                        <th class="border-0" style="background-color: #dcdede;">Email</th>
-                        <th class="border-0" style="background-color: #dcdede;">Phone</th>
-                    </tr>
-                </thead>
-                <tbody class="border-0">
-                    {% if team_members %}
-                            {% for member in team_members %}
+        <div class="row mt-5" >
+            <div class="col-6 pt-3 rounded-3 bg-white">
+                <table class="table border-0">
+                    <thead class="border-0">
+                        <tr class="text-center">
+                            <th colspan="6"><h4>Team Project</h4></th>
+                        </tr>
+                        <tr>
+                            <th class="border-0" style="background-color: #dcdede;">Name</th>
+                            <th class="border-0" style="background-color: #dcdede;">Status</th>
+                            <th class="border-0" style="background-color: #dcdede;">Priority</th>
+                            <th class="border-0" style="background-color: #dcdede;">Start Date</th>
+                            <th class="border-0" style="background-color: #dcdede;">End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-0">
+                    {% if team_project %}
+                            {% for assignment in team_project %}
                                 <tr>
-                                    <td class="border-0">{{ member.user.username }}</td>
-                                    <td class="border-0">{{ member.role }}</td>
-                                    <td class="border-0">{{ member.user.userprofile.email }}</td>
-                                    <td class="border-0">{% if member.user.userprofile.phone_number %}{{ member.user.userprofile.phone_number }}
-                                        {% elif member.user.userprofile.mobile_number %} {{ member.user.userprofile.mobile_number }}
-                                    {% else %} {% endif %}</td>
+                                    <td class="border-0"><a href="{% url 'core:project_detail' assignment.project.id %}">{{ assignment.project.name }}</a> </td>
+                                    <td class="border-0" >
+                                        {% if assignment.project.status == 'planned' %}
+                                            <span class="badge text-bg-secondary">Planned</span>
+                                        {% elif assignment.project.status == 'active' %}
+                                            <span class="badge text-bg-success">Active</span>
+                                        {% elif assignment.project.status == 'on_hold' %}
+                                            <span class="badge text-bg-warning">On hold</span>
+                                        {% elif assignment.project.status == 'done' %}
+                                            <span class="badge text-bg-primary">Done</span>
+                                        {% elif assignment.project.status == 'canceled' %}
+                                            <span class="badge text-bg-danger">Canceled</span>
+                                        {% else %}
+                                            <span class="badge text-bg-light text-dark">{{ assignment.project.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="border-0"><span class="{% if assignment.project.priority == 'urgent' %}text-danger{% elif assignment.project.priority == 'high' %}text-warning{% elif assignment.project.priority == 'medium' %}text-info{% else %}text-black{% endif %}">
+                                        {{ assignment.project.priority }}</span></td>
+                                    <td class="border-0">{% if assignment.project.start_date %}{{ assignment.project.start_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
+                                    <td class="border-0">{% if assignment.project.end_date %}{{ assignment.project.end_date|date:"d.m.Y" }}{% else %}{% endif %}</td>
                                 </tr>
                             {% endfor %}
                     {% else %}
-                        <p>No members in this team.</p>
+                        <p>No project assigned to this team.</p>
                     {% endif %}
-                </tbody>
-            </table>
+                </table>
+            </div>
+            <div class="col-6">
+                <div class="card mt-3">
+                    <div class="card-header text-center fw-bolder">Conversations</div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Started by</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for conv in conversations %}
+                                <tr>
+                                    <td>{{ conv.title|default:"(no title)" }}</td>
+                                    <td>{{ conv.created_by.username }}</td>
+                                    <td>{{ conv.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'core:conversation_detail' team.pk conv.pk %}" class="btn btn-sm btn-outline-primary">Open</a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConvModal"
+                                                data-conv-pk="{{ conv.pk }}"
+                                                data-conv-title="{{ conv.title|default:'(no title)' }}">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4" class="text-center py-4 text-muted">No conversations yet.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newConversationModal">
+                            + New Conversation
+                        </button>
+                    </div>
+                </div>
+
+                {# Modal: start a new conversation #}
+                <div class="modal fade" id="newConversationModal" tabindex="-1" aria-labelledby="newConversationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" action="{% url 'core:conversation_create' team.pk %}">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="newConversationModalLabel">New Conversation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="form-label" for="id_title">Title <span class="text-muted">(optional)</span></label>
+                                    {{ conv_form.title }}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Start</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {# Modal: delete conversation #}
+                <div class="modal fade" id="deleteConvModal" tabindex="-1" aria-labelledby="deleteConvModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" id="deleteConvForm" action="">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteConvModalLabel">Delete Conversation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete <strong id="deleteConvTitle"></strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-
-
     </div>
 
-    </div>
+    <script>
+            const deleteConvModal = document.getElementById('deleteConvModal');
+            deleteConvModal.addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                const convPk = btn.getAttribute('data-conv-pk');
+                const convTitle = btn.getAttribute('data-conv-title');
+                document.getElementById('deleteConvTitle').textContent = convTitle;
+                document.getElementById('deleteConvForm').action = "{% url 'core:conversation_delete' team.pk 0 %}".replace('/0/', '/' + convPk + '/');
+            });
+        </script>
 
 {% endblock %}

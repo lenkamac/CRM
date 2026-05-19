@@ -144,6 +144,11 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             is_active=True,
         ).order_by("name")
         ctx["add_team_form"] = add_form
+        ctx["conv_form"] = ConversationForm()
+        ctx["conversations"] = (
+            Conversation.objects.filter(project=self.object, is_active=True)
+            .order_by("-created_at")
+        )
         return ctx
 
 
@@ -202,7 +207,11 @@ class TeamDetailView(LoginRequiredMixin, DetailView):
             .filter(team=self.object, is_active=True)
             .order_by("-assigned_at")
         )
-
+        ctx["conv_form"] = ConversationForm()
+        ctx["conversations"] = (
+            Conversation.objects.filter(team=self.object, is_active=True)
+            .order_by("-created_at")
+        )
         return ctx
 
 
@@ -454,3 +463,90 @@ def message_create(request, team_pk: int, conv_pk: int):
         messages.error(request, "Message cannot be empty.")
 
     return redirect("core:conversation_detail", team_pk=team.pk, conv_pk=conv.pk)
+
+
+@login_required
+def conversation_delete(request, team_pk: int, conv_pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    team = get_object_or_404(Team, pk=team_pk)
+    if not _is_team_member(request.user, team):
+        raise Http404()
+
+    conv = get_object_or_404(Conversation, pk=conv_pk, team=team)
+    conv.is_active = False
+    conv.save(update_fields=["is_active"])
+    messages.success(request, "Conversation deleted.")
+    return redirect("core:team_detail", pk=team.pk)
+
+
+# Project-scoped conversation views
+
+@login_required
+def project_conversation_create(request, project_pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    project = get_object_or_404(Project, pk=project_pk, created_by=request.user)
+    form = ConversationForm(request.POST)
+    if form.is_valid():
+        conv = form.save(commit=False)
+        conv.project = project
+        conv.created_by = request.user
+        conv.save()
+        messages.success(request, "Conversation started.")
+        return redirect("core:project_conversation_detail", project_pk=project.pk, conv_pk=conv.pk)
+
+    messages.error(request, "Could not create conversation.")
+    return redirect("core:project_detail", pk=project.pk)
+
+
+class ProjectConversationDetailView(LoginRequiredMixin, DetailView):
+    model = Conversation
+    template_name = "core/projects/project_conversation_detail.html"
+    context_object_name = "conversation"
+    pk_url_kwarg = "conv_pk"
+
+    def get_object(self, queryset=None):
+        project = get_object_or_404(Project, pk=self.kwargs["project_pk"], created_by=self.request.user)
+        return get_object_or_404(Conversation, pk=self.kwargs["conv_pk"], project=project, is_active=True)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["project"] = get_object_or_404(Project, pk=self.kwargs["project_pk"])
+        ctx["msg_form"] = MessageForm()
+        ctx["message_list"] = self.object.messages.select_related("sender").order_by("created_at")
+        return ctx
+
+
+@login_required
+def project_message_create(request, project_pk: int, conv_pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    project = get_object_or_404(Project, pk=project_pk, created_by=request.user)
+    conv = get_object_or_404(Conversation, pk=conv_pk, project=project, is_active=True)
+    form = MessageForm(request.POST)
+    if form.is_valid():
+        msg = form.save(commit=False)
+        msg.conversation = conv
+        msg.sender = request.user
+        msg.save()
+    else:
+        messages.error(request, "Message cannot be empty.")
+
+    return redirect("core:project_conversation_detail", project_pk=project.pk, conv_pk=conv.pk)
+
+
+@login_required
+def project_conversation_delete(request, project_pk: int, conv_pk: int):
+    if request.method != "POST":
+        raise Http404()
+
+    project = get_object_or_404(Project, pk=project_pk, created_by=request.user)
+    conv = get_object_or_404(Conversation, pk=conv_pk, project=project)
+    conv.is_active = False
+    conv.save(update_fields=["is_active"])
+    messages.success(request, "Conversation deleted.")
+    return redirect("core:project_detail", pk=project.pk)
