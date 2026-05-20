@@ -4,12 +4,12 @@
 {% block content %}
 <div class="container py-4" style="max-width: 780px;">
 
-  <div class="d-flex align-items-center justify-content-between mb-3">
+  <div class="d-flex align-items-center justify-content-between mb-3 mt-4">
     <div>
       <h1 class="h4 mb-0">{{ conversation.title|default:"(no title)" }}</h1>
       <small class="text-muted">{{ team.name }} · started by {{ conversation.created_by.username }} on {{ conversation.created_at|date:"d M Y" }}</small>
     </div>
-    <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:team_members' team.pk %}">Back to team</a>
+      <a class="btn btn-sm text-dark btn-outline-secondary bg-success-subtle btn-sm" href="{% url 'core:team_members' team.pk %}"><i class="fas fa-arrow-left px-1"></i>Back to team</a>
   </div>
 
   {% if messages %}
@@ -24,11 +24,11 @@
       {% for msg in message_list %}
         <div class="mb-3 {% if msg.sender == request.user %}text-end{% endif %}">
           <div class="d-inline-block p-2 rounded
-               {% if msg.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}"
+               {% if msg.sender == request.user %}bg-success-subtle text-dark{% else %}bg-light{% endif %}"
                style="max-width: 70%;">
             {{ msg.body }}
           </div>
-          <div class="text-muted" style="font-size: .75rem;">
+          <div class="text-muted pt-2" style="font-size: .75rem;">
             {{ msg.sender.username }} · {{ msg.created_at|date:"d M Y H:i" }}
           </div>
         </div>
@@ -45,7 +45,7 @@
       {{ msg_form.body.as_widget }}
     </div>
     <div class="text-end">
-      <button class="btn btn-primary" type="submit">Send</button>
+      <button class="btn btn-sm fw-bolder btn-primary" type="submit">Send</button>
     </div>
   </form>
 
