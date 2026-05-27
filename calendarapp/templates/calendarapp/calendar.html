@@ -117,6 +117,18 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
+                                    <label for="taskClient" class="form-label">Client <small class="text-muted">(optional)</small></label>
+                                    <select class="form-select" id="taskClient" name="client_id">
+                                        <option value="">---------</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="taskLead" class="form-label">Lead <small class="text-muted">(optional)</small></label>
+                                    <select class="form-select" id="taskLead" name="lead_id">
+                                        <option value="">---------</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
                                     <label for="taskDesc" class="form-label">Description</label>
                                     <textarea class="form-control" id="taskDesc" name="description"></textarea>
                                 </div>
@@ -279,6 +291,7 @@
     <script>
         // Pass event URL from Django to JS file
         var calendarEventsUrl = "{% url 'calendarapp:events_json' %}";
+        var clientsLeadsUrl = "{% url 'calendarapp:clients_leads_json' %}";
     </script>
     <script src="{% static 'calendarapp/calendarapp.js' %}"></script>
 

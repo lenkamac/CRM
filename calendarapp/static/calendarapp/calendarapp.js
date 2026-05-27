@@ -321,6 +321,35 @@ document.addEventListener('DOMContentLoaded', function() {
         bootstrap.Modal.getInstance(document.getElementById('dateClickChoiceModal')).hide();
     });
 
+    // Populate client/lead selects when add task modal opens
+    document.getElementById('addTaskModal').addEventListener('show.bs.modal', function() {
+        fetch(clientsLeadsUrl)
+            .then(r => r.json())
+            .then(data => {
+                const clientSel = document.getElementById('taskClient');
+                const leadSel = document.getElementById('taskLead');
+                // keep first empty option, replace the rest
+                clientSel.innerHTML = '<option value="">---------</option>';
+                leadSel.innerHTML = '<option value="">---------</option>';
+                data.clients.forEach(c => {
+                    const label = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.company || `Client #${c.id}`;
+                    clientSel.innerHTML += `<option value="${c.id}">${label}</option>`;
+                });
+                data.leads.forEach(l => {
+                    const label = [l.first_name, l.last_name].filter(Boolean).join(' ') || l.company || `Lead #${l.id}`;
+                    leadSel.innerHTML += `<option value="${l.id}">${label}</option>`;
+                });
+            });
+    });
+
+    // Selecting a client clears lead and vice versa
+    document.getElementById('taskClient').addEventListener('change', function() {
+        if (this.value) document.getElementById('taskLead').value = '';
+    });
+    document.getElementById('taskLead').addEventListener('change', function() {
+        if (this.value) document.getElementById('taskClient').value = '';
+    });
+
     // Add task form submit handler
     document.getElementById('addTaskForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -335,6 +364,8 @@ document.addEventListener('DOMContentLoaded', function() {
             priority: document.getElementById('taskPriority').value,
             status: document.getElementById('taskStatus').value,
             description: document.getElementById('taskDesc').value,
+            client_id: document.getElementById('taskClient').value || null,
+            lead_id: document.getElementById('taskLead').value || null,
         };
 
         fetch('add_task/', {
@@ -353,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 calendar.refetchEvents();
                 loadAllTasks();
-                bootstrap.Modal.getInstance(document.getElementById('addTaskModal')).hide();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addTaskModal')).hide();
                 e.target.reset();
             } else {
                 alert('Failed to add task.');
@@ -812,292 +843,7 @@ function deleteTask(taskId) {
         })
         .then(response => {
             if (response.ok) {
-                // Reload the page to refresh both the calendar and task list
-                location.reload();
-            } else {
-                alert('Failed to delete task.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting task.');
-        });
-    }
-}
-
-// Helper functions for badge colors
-function getPriorityColor(priority) {
-    if (priority === 'urgent') return 'danger';
-    if (priority === 'high') return 'orange';
-    if (priority === 'medium') return 'success';
-    if (priority === 'low') return 'primary';
-    return 'secondary';
-}
-
-function getStatusColor(status) {
-    if (status === 'completed') return 'success';
-    if (status === 'in_progress') return 'primary';
-    if (status === 'canceled') return 'dark';
-    return 'secondary';
-}
-
-// --- Task Action Functions ---
-
-function showTaskDetail(taskId) {
-    // Fetch task data
-    fetch(calendarEventsUrl)
-        .then(response => response.json())
-        .then(events => {
-            // Filter only tasks and find the specific task
-            const task = events.filter(e => e.type === 'task').find(e => String(e.id).replace('task-', '') === String(taskId));
-
-            if (task) {
-                // Fill in the task details modal
-                let detailsHtml = `<p><strong>Title:</strong> ${task.title}</p>`;
-                detailsHtml += `<p><strong>Due:</strong> ${formatDateDisplay(task.start)}</p>`;
-
-                if (task.priority) {
-                    detailsHtml += `<p><strong>Priority:</strong> <span class="badge bg-${getPriorityColor(task.priority)}">${task.priority}</span></p>`;
-                }
-
-                if (task.status) {
-                    detailsHtml += `<p><strong>Status:</strong> <span class="badge bg-${getStatusColor(task.status)}">${task.status}</span></p>`;
-                }
-
-                if (task.assigned_to) {
-                    detailsHtml += `<p><strong>Assigned to:</strong> ${task.assigned_to}</p>`;
-                }
-
-                if (task.description) {
-                    detailsHtml += `<p><strong>Description:</strong> ${task.description}</p>`;
-                }
-
-                // Show the details in a modal
-                document.getElementById('taskDetailModalBody').innerHTML = detailsHtml;
-                var taskDetailModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('taskDetailModal'));
-                taskDetailModal.show();
-            } else {
-                console.error("Task not found for ID:", taskId);
-            }
-        })
-        .catch(err => console.error("Error loading task details:", err));
-}
-
-function editTask(taskId) {
-    // Redirect to edit page with return parameter
-    window.location.href = `/dashboard/tasks/${taskId}/edit/?next=${encodeURIComponent(window.location.pathname)}`;
-}
-
-function deleteTask(taskId) {
-    if (confirm('Are you sure you want to delete this task?')) {
-        // Create form data to send the next URL
-        const formData = new FormData();
-        formData.append('next', window.location.pathname);
-
-        fetch(`/dashboard/tasks/${taskId}/delete/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Task deleted successfully.');
                 loadAllTasks();
-                // Also refresh the calendar if it exists on the page
-                const calendarEl = document.getElementById('calendar');
-                if (calendarEl && typeof calendar !== 'undefined') {
-                    calendar.refetchEvents();
-                }
-            } else {
-                alert('Failed to delete task.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting task.');
-        });
-    }
-}
-
-// Helper functions for badge colors
-function getPriorityColor(priority) {
-    if (priority === 'urgent') return 'danger';
-    if (priority === 'high') return 'orange';
-    if (priority === 'medium') return 'success';
-    if (priority === 'low') return 'primary';
-    return 'secondary';
-}
-
-function getStatusColor(status) {
-    if (status === 'completed') return 'success';
-    if (status === 'in_progress') return 'primary';
-    if (status === 'canceled') return 'dark';
-    return 'secondary';
-}
-
-// --- Task Action Functions ---
-
-function showTaskDetail(taskId) {
-    // Fetch task data
-    fetch(calendarEventsUrl)
-        .then(response => response.json())
-        .then(events => {
-            // Filter only tasks and find the specific task
-            const task = events.filter(e => e.type === 'task').find(e => String(e.id).replace('task-', '') === String(taskId));
-
-            if (task) {
-                // Fill in the task details modal
-                let detailsHtml = `<p><strong>Title:</strong> ${task.title}</p>`;
-                detailsHtml += `<p><strong>Due:</strong> ${formatDateDisplay(task.start)}</p>`;
-
-                if (task.priority) {
-                    detailsHtml += `<p><strong>Priority:</strong> <span class="badge bg-${getPriorityColor(task.priority)}">${task.priority}</span></p>`;
-                }
-
-                if (task.status) {
-                    detailsHtml += `<p><strong>Status:</strong> <span class="badge bg-${getStatusColor(task.status)}">${task.status}</span></p>`;
-                }
-
-                if (task.assigned_to) {
-                    detailsHtml += `<p><strong>Assigned to:</strong> ${task.assigned_to}</p>`;
-                }
-
-                if (task.description) {
-                    detailsHtml += `<p><strong>Description:</strong> ${task.description}</p>`;
-                }
-
-                // Show the details in a modal
-                document.getElementById('taskDetailModalBody').innerHTML = detailsHtml;
-                var taskDetailModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('taskDetailModal'));
-                taskDetailModal.show();
-            } else {
-                console.error("Task not found for ID:", taskId);
-            }
-        })
-        .catch(err => console.error("Error loading task details:", err));
-}
-
-function editTask(taskId) {
-    // Redirect to edit page with return parameter
-    window.location.href = `/dashboard/tasks/${taskId}/edit/?next=${encodeURIComponent(window.location.pathname)}`;
-}
-
-function deleteTask(taskId) {
-    if (confirm('Are you sure you want to delete this task?')) {
-        // Create form data to send the next URL
-        const formData = new FormData();
-        formData.append('next', window.location.pathname);
-
-        fetch(`/dashboard/tasks/${taskId}/delete/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Task deleted successfully.');
-                loadAllTasks();
-                // Also refresh the calendar if it exists on the page
-                const calendarEl = document.getElementById('calendar');
-                if (calendarEl && typeof calendar !== 'undefined') {
-                    calendar.refetchEvents();
-                }
-            } else {
-                alert('Failed to delete task.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting task.');
-        });
-    }
-}
-
-// Helper functions for badge colors
-function getPriorityColor(priority) {
-    if (priority === 'urgent') return 'danger';
-    if (priority === 'high') return 'orange';
-    if (priority === 'medium') return 'success';
-    if (priority === 'low') return 'primary';
-    return 'secondary';
-}
-
-function getStatusColor(status) {
-    if (status === 'completed') return 'success';
-    if (status === 'in_progress') return 'primary';
-    if (status === 'canceled') return 'dark';
-    return 'secondary';
-}
-
-// --- Task Action Functions ---
-
-function showTaskDetail(taskId) {
-    // Fetch task data
-    fetch(calendarEventsUrl)
-        .then(response => response.json())
-        .then(events => {
-            // Filter only tasks and find the specific task
-            const task = events.filter(e => e.type === 'task').find(e => String(e.id).replace('task-', '') === String(taskId));
-
-            if (task) {
-                // Fill in the task details modal
-                let detailsHtml = `<p><strong>Title:</strong> ${task.title}</p>`;
-                detailsHtml += `<p><strong>Due:</strong> ${formatDateDisplay(task.start)}</p>`;
-
-                if (task.priority) {
-                    detailsHtml += `<p><strong>Priority:</strong> <span class="badge bg-${getPriorityColor(task.priority)}">${task.priority}</span></p>`;
-                }
-
-                if (task.status) {
-                    detailsHtml += `<p><strong>Status:</strong> <span class="badge bg-${getStatusColor(task.status)}">${task.status}</span></p>`;
-                }
-
-                if (task.assigned_to) {
-                    detailsHtml += `<p><strong>Assigned to:</strong> ${task.assigned_to}</p>`;
-                }
-
-                if (task.description) {
-                    detailsHtml += `<p><strong>Description:</strong> ${task.description}</p>`;
-                }
-
-                // Show the details in a modal
-                document.getElementById('taskDetailModalBody').innerHTML = detailsHtml;
-                var taskDetailModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('taskDetailModal'));
-                taskDetailModal.show();
-            } else {
-                console.error("Task not found for ID:", taskId);
-            }
-        })
-        .catch(err => console.error("Error loading task details:", err));
-}
-
-function editTask(taskId) {
-    // Redirect to edit page with return parameter
-    window.location.href = `/dashboard/tasks/${taskId}/edit/?next=${encodeURIComponent(window.location.pathname)}`;
-}
-
-function deleteTask(taskId) {
-    if (confirm('Are you sure you want to delete this task?')) {
-        // Create form data to send the next URL
-        const formData = new FormData();
-        formData.append('next', window.location.pathname);
-
-        fetch(`/dashboard/tasks/${taskId}/delete/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Task deleted successfully.');
-                loadAllTasks();
-                // Also refresh the calendar if it exists on the page
                 const calendarEl = document.getElementById('calendar');
                 if (calendarEl && typeof calendar !== 'undefined') {
                     calendar.refetchEvents();

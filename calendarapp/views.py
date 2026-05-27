@@ -10,6 +10,8 @@ from django.utils import timezone
 
 from .models import Event
 from task.models import Task
+from client.models import Client
+from lead.models import Lead
 
 
 # html page for event and calendar
@@ -140,6 +142,20 @@ def add_task(request):
                 due_time_val = time(int(parts[0]), int(parts[1]))
             except (ValueError, IndexError):
                 due_time_val = None
+        lead = None
+        client = None
+        lead_id = data.get('lead_id')
+        client_id = data.get('client_id')
+        if lead_id:
+            try:
+                lead = Lead.objects.get(id=lead_id)
+            except Lead.DoesNotExist:
+                pass
+        elif client_id:
+            try:
+                client = Client.objects.get(id=client_id)
+            except Client.DoesNotExist:
+                pass
         Task.objects.create(
             title=data.get('title'),
             due_date=due_date,
@@ -148,9 +164,19 @@ def add_task(request):
             status=data.get('status') or 'todo',
             description=data.get('description') or '',
             created_by=request.user,
+            lead=lead,
+            client=client,
         )
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
+
+
+# clients and leads for task form selects
+@login_required
+def clients_leads_json(request):
+    clients = list(Client.objects.filter(created_by=request.user).values('id', 'first_name', 'last_name', 'company'))
+    leads = list(Lead.objects.filter(created_by=request.user).values('id', 'first_name', 'last_name', 'company'))
+    return JsonResponse({'clients': clients, 'leads': leads})
 
 
 # paginator for upcoming events

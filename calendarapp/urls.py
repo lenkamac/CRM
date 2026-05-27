@@ -13,4 +13,5 @@ urlpatterns = [
     path('add_task/', views.add_task, name='add_task'),
     path('upcoming_events/', views.upcoming_events_json, name='upcoming_events_json'),
     path('all_tasks/', views.all_tasks_json, name='all_tasks_json'),
+    path('clients_leads/', views.clients_leads_json, name='clients_leads_json'),
 ]
