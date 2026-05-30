@@ -6,11 +6,12 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 
-from .forms import ProjectTeamAddForm, TeamForm, TeamMemberAddForm, ProjectForm, ConversationForm, MessageForm
-from .models import Conversation, Message, Project, ProjectTeamAssignment, Team, TeamMembership
+from .forms import ProjectTeamAddForm, TeamForm, TeamMemberAddForm, ProjectForm, ConversationForm, MessageForm, \
+    ContactAddForm
+from .models import Conversation, Message, Project, ProjectTeamAssignment, Team, TeamMembership, Contacts
 
 
 def _can_manage_team(user, team):
@@ -550,3 +551,48 @@ def project_conversation_delete(request, project_pk: int, conv_pk: int):
     conv.save(update_fields=["is_active"])
     messages.success(request, "Conversation deleted.")
     return redirect("core:project_detail", pk=project.pk)
+
+
+# Contact
+class ContactListView(ListView):
+    model = Contacts
+    paginate_by = 50
+
+    def get_queryset(self):
+        queryset = super(ContactListView, self).get_queryset()
+        queryset = queryset.filter(created_by=self.request.user)
+
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(last_name__icontains=query) |
+                Q(company__icontains=query) |
+                Q(email__icontains=query)
+            )
+
+
+        return queryset
+
+
+# Add new Contacts
+class ContactCreateView(LoginRequiredMixin, CreateView):
+    model = Contacts
+    form_class = ContactAddForm
+    template_name = 'core/contact_add.html'
+    success_url = reverse_lazy('core:contact_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_invalid(self, form):
+        for error in form.non_field_errors():
+            messages.error(self.request, error)
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = self.request.user
+        self.object.save()
+
+        return redirect(self.get_success_url())

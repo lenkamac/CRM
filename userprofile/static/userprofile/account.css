@@ -36,79 +36,30 @@
     width: auto;
     background-color: #697272;
     color: #e9ecf6;
-    font-weight: bold;
-    font-size: 1rem;
     border: none;
     border-radius: 5px;
-    height: 40px;
     text-align: center;
 }
-
 .btn-account-edit a {
     font-weight: bold;
     color: #e9ecf6;
-    font-size: 1.2rem;
     text-align: center;
-    padding-bottom: 3px;
-    margin-bottom: 4px;
     text-decoration: none;
 }
 .bi-pencil-square {
     color: darkorange;
-    font-size: 1rem;
 }
 
 .btn-account-password {
-    width: auto;
     background-color: #809b9b;
     color: #e9ecf6;
     font-weight: bold;
-    font-size: 1.2rem;
     border: none;
-    height: 40px;
     border-radius: 5px;
 }
 .btn-account-password a {
     font-weight: bold;
     color: #e9ecf6;
-    font-size: 1.2rem;
-    text-align: start;
-    padding: 2px;
     margin-bottom: 4px;
     text-decoration: none;
-}
-
-@media (max-width: 575.98px) {
-    #account-container {
-        font-size: 0.6rem;
-        margin: auto;
-        width: 100%;
-        padding: 25px;
-    }
-    .btn-account-edit {
-        width: auto;
-        font-size: 0.8rem;
-        margin: 5px 10px;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-    .btn-account-password {
-        width: auto;
-        font-size: 0.7rem;
-        margin: 5px 10px;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        padding: 0 15px;
-    }
-}
-@media (max-width: 767.98px) {
-    #account-container {
-        font-size: 0.6rem;
-        margin: auto;
-        width: 100%;
-        padding: 25px;
-    }
 }

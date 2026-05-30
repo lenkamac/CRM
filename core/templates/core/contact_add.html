@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+	Add Contact
+{% endblock %}
+
+{% block content %}
+
+    <style>
+    body{
+        background-color: #f2f2f8;
+    }
+    </style>
+
+    <div class="container-fluid mx-auto mt-4" id="add-contact-container">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center">
+                <h4 class=" mb-4 pt-lg-3">Add Contact</h4>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <form method="post" class="needs-validation" action="." novalidate style="background-color: #cfd2d2; padding: 20px; border-radius: 3px; width: 75%; ">
+                {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-10 col-lg-8">
+
+                            <!-- Company -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label for="{{ form.company.id_for_label }}" class="form-label">{{ form.company.label }}: {% if form.company.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                    {{ form.company|add_class:"form-control" }}
+                                    {% for error in form.company.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- First Name / Last Name -->
+                            <div class="row mb-3">
+                                <div class="col-12 col-sm-6">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}: {% if form.first_name.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                    {{ form.first_name|add_class:"form-control" }}
+                                    {% for error in form.first_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}: {% if form.last_name.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                    {{ form.last_name|add_class:"form-control" }}
+                                    {% for error in form.last_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                           <div class="row mb-3">
+                               <div class="col-12">
+                                        <label for="{{ form.job_title.id_for_label }}" class="form-label">{{ form.job_title.label }}: {% if form.job_title.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                        {{ form.job_title|add_class:"form-control" }}
+                                        {% for error in form.job_title.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                    </div>
+                           </div>
+
+                            <!-- Phone / Email -->
+                            <div class="row mb-3">
+                                 <div class="col-6">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label">Tel: {% if form.phone_number.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                    {{ form.phone_number|add_class:"form-control" }}
+                                    {% for error in form.phone.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                           <div class="row mb-3 justify-content-start">
+                               <div class="col-12">
+                                   <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}: {% if form.email.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                        {{ form.email|add_class:"form-control" }}
+                                        {% for error in form.email.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                               </div>
+                           </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label for="{{ form.method.id_for_label }}" class="form-label">{{ form.method.label }}: {% if form.method.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                        {{ form.method|add_class:"form-control" }}
+                                        {% for error in form.method.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-flex gap-2 justify-content-md-end">
+                                <button type="submit" class="form-submit-btn py-lg-2">Submit</button>
+                                <button type="button" class="btn btn-cancel btn-secondary fw-bolder py-lg-2 d-flex align-items-center justify-content-center" onclick="window.location.href='{% url 'core:contact_list' %}'">
+                                    <span style="font-size: 1.2rem;text-align: center;">Cancel</span>
+                                </button>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+            </form>
+        </div>
+
+    </div>
+
+
+{% endblock %}

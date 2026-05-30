@@ -31,7 +31,7 @@
         <div class="row mt-4">
             <div class="col-12">
                 <div class="text-center">
-                    <h2 class="fw-bolder">Username: <span class="username pt-lg-3">{{ request.user.username }}</span></h2>
+                    <h4 class="fw-bolder">Username: <span class="username pt-lg-3">{{ request.user.username }}</span></h4>
                 </div>
             </div>
         </div>
@@ -57,6 +57,30 @@
                         <div class="text-start">
                             <h4 class="fw-bold">Profile</h4>
                         </div>
+                    </div>
+                </div>
+                <div class="row my-2">
+                    <div class="col col-lg-5 fs-6 fw-bolder text-nowrap">
+                        <i class="bi bi-person-circle px-2"></i>Name:
+                    </div>
+                    <div class="col col-lg-7">
+                        {% if user.last_name  %}
+                            {{ user.first_name }} {{ user.last_name }}
+                        {% else %}
+                            not available
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row my-2 py-1">
+                    <div class="col col-lg-5 fs-6 fw-bolder text-nowrap">
+                        <i class="bi bi-building px-2"></i>Company:
+                    </div>
+                    <div class="col col-lg-7">
+                        {% if user_profile.company %}
+                            {{ user_profile.company }}
+                        {% else %}
+                            not available
+                        {% endif %}
                     </div>
                 </div>
                 <div class="row my-2 py-1">
@@ -137,28 +161,15 @@
                     </div>
                 </div>
 
-                <div class="row my-2 py-1">
-                    <div class="col col-lg-5 fs-6 fw-bolder text-nowrap">
-                        <i class="bi bi-building px-2"></i>Company:
-                    </div>
-                    <div class="col col-lg-7">
-                        {% if user_profile.company %}
-                            {{ user_profile.company }}
-                        {% else %}
-                            not available
-                        {% endif %}
-                    </div>
-                </div>
-
                 <div class="row my-lg-2 py-lg-1 mt-lg-4 pt-4">
                     <div class="col-12 pt-lg-3">
                         <div class="text-lg-start">
-                            <button class="btn btn-account-edit mx-lg-2 my-sm-2">
-                                <i class="bi bi-pencil-square fs-4"></i>
+                            <button class="btn btn-sm btn-account-edit mx-lg-2 my-sm-2">
+                                <i class="bi bi-pencil-square fs-6"></i>
                                 <a href="{% url 'userprofile:edit-profile' %}">Edit profile</a>
                             </button>
-                            <button class="btn btn-account-password mx-lg-2">
-                                <i class="bi bi-lock fs-4"></i>
+                            <button class="btn btn-sm btn-account-password mx-lg-2">
+                                <i class="bi bi-lock fs-6"></i>
                                 <a href="{% url 'userprofile:change-password' %}">Change Password</a>
                             </button>
                         </div>

@@ -32,4 +32,9 @@ urlpatterns = [
     path("projects/<int:project_pk>/conversations/<int:conv_pk>/", views.ProjectConversationDetailView.as_view(), name="project_conversation_detail"),
     path("projects/<int:project_pk>/conversations/<int:conv_pk>/messages/add/", views.project_message_create, name="project_message_create"),
     path("projects/<int:project_pk>/conversations/<int:conv_pk>/delete/", views.project_conversation_delete, name="project_conversation_delete"),
+
+    # Url for contacts management
+    path("contacts/", views.ContactListView.as_view(), name="contact_list"),
+    path("contacts/add/", views.ContactCreateView.as_view(), name="contact_add"),
 ]
+

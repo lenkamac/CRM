@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from .models import Team, TeamMembership, ProjectTeamAssignment
 from .models import Project, Conversation, Message
+from .models import Contacts
 
 
 class TeamForm(forms.ModelForm):
@@ -62,6 +63,7 @@ class ProjectForm(forms.ModelForm):
 
             return cleaned_data
 
+
 class ConversationForm(forms.ModelForm):
     class Meta:
         model = Conversation
@@ -78,3 +80,30 @@ class MessageForm(forms.ModelForm):
         widgets = {
             "body": forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": "Write a message…"}),
         }
+
+
+# Contacts
+class ContactAddForm(forms.ModelForm):
+    class Meta:
+        model = Contacts
+        fields = ["first_name", "last_name", "email", "phone_number", "method", "company", "job_title"]
+
+        def  clean(self):
+            cleaned_data = super().clean()
+            first_name = cleaned_data.get('first_name', '').strip()
+            last_name = cleaned_data.get('last_name', '').strip()
+
+            if first_name or last_name:
+                qs = Contacts.objects.filter(
+                    first_name__iexact=first_name,
+                    last_name__iexact=last_name
+                )
+                if self.instance.pk:
+                    qs = qs.exclude(pk=self.instance.pk)
+                if qs.exists():
+                    name = f'{first_name} {last_name}'.strip()
+                    raise forms.ValidationError(
+                        f'A contact named "{name}" already exists in the list.'
+                    )
+            return cleaned_data
+
