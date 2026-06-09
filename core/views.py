@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
@@ -562,6 +562,10 @@ class ContactListView(ListView):
         queryset = super(ContactListView, self).get_queryset()
         queryset = queryset.filter(created_by=self.request.user)
 
+        contact_id = self.request.GET.get('id')
+        if contact_id:
+            return queryset.filter(pk=contact_id)
+
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.filter(
@@ -569,7 +573,6 @@ class ContactListView(ListView):
                 Q(company__icontains=query) |
                 Q(email__icontains=query)
             )
-
 
         return queryset
 
@@ -596,3 +599,57 @@ class ContactCreateView(LoginRequiredMixin, CreateView):
         self.object.save()
 
         return redirect(self.get_success_url())
+
+
+# Edit contact
+class ContactUpdateView(LoginRequiredMixin, UpdateView):
+    model = Contacts
+    form_class = ContactAddForm
+    template_name = 'core/contact_edit.html'
+    success_url = reverse_lazy('core:contact_list')
+
+    def get_queryset(self):
+        return Contacts.objects.filter(created_by=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, "Contact updated.")
+        return super().form_valid(form)
+
+
+# Delete contact
+class ContactDeleteView(LoginRequiredMixin, DeleteView):
+    model = Contacts
+    success_url = reverse_lazy('core:contact_list')
+
+    def get_queryset(self):
+        queryset = super(ContactDeleteView, self).get_queryset()
+        return queryset.filter(created_by=self.request.user, pk=self.kwargs.get("pk"))
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        messages.success(request, "Contact deleted.")
+        return redirect(self.get_success_url())
+
+
+def contact_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        contacts = Contacts.objects.filter(created_by=request.user).filter(
+            Q(last_name__istartswith=query) |
+            Q(company__istartswith=query) |
+            Q(email__istartswith=query)
+        ).values('id', 'last_name', 'company', 'email')[:]
+        for contact in contacts:
+            if contact['last_name']:
+                label = f"{contact['last_name']}".strip()
+            if contact['company']:
+                label = f"{contact['company']}".strip()
+            if contact['email']:
+                label = f"{contact['email']}".strip()
+            results.append({'id':contact['id'], 'label': label, 'email': contact['email']})
+
+    return JsonResponse(results, safe=False)
+
+

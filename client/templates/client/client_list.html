@@ -25,7 +25,7 @@
         <div class="row pt-md-3 justify-content-center">
             <div class="col-sm-12">
                 <div class="text-center pt-md-3">
-                    <h4 class="fw-bolder pt-sm-4">Clients</h4>
+                    <h4 class="fw-bolder">Clients</h4>
                 </div>
             </div>
             <div class="col-12">
@@ -59,12 +59,12 @@
                                         <div class="col-sm-12 col-md-12 pt-md-2">
                                             <div class="row py-2 align-items-center">
                                                 <div class="col-1 text-start">
-                                                    <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'client:add' %}"><i class="fas fa-plus px-2"></i>Add client</a>
+                                                    <a class="btn btn-sm add-button  justify-content-center align-items-end fs-6 fw-bolder" href="{% url 'client:add' %}"><i class="fas fa-plus px-1"></i>Add client</a>
                                                 </div>
-                                                <div class="col-1 text-start px-5 mx-3">
+                                                <div class="col-1 px-0 text-start">
                                                     <!-- Dropdown for actions -->
                                                     <div class="dropdown d-inline-block">
-                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <button class="btn btn-sm fs-6 btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
@@ -85,26 +85,26 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <div class="col-5 text-end ms-auto" style="position: relative;">
-                                                    <input type="text" id="client-search" name="q" class="form-control"
-                                                   placeholder="Find client by name, email, or company"
-                                                   value="{{ request.GET.q|default:'' }}"
-                                                   autocomplete="off">
-                                                    <ul id="client-autocomplete-list" class="list-group" style="
-                                                        display: none;
-                                                        position: absolute;
-                                                        z-index: 1000;
-                                                        width: 100%;
-                                                        max-height: 260px;
-                                                        overflow-y: auto;
-                                                        box-shadow: 0 4px 12px rgba(0,0,0,.15);
-                                                        left: 0;
-                                                        text-align: left;
-                                                    "></ul>
-                                                </div>
-                                                <div class="col-2">
+                                                <div class="col-auto ms-auto d-flex align-items-center gap-2 pe-0">
+                                                    <div style="position: relative; width: 340px;">
+                                                        <input type="text" id="client-search" name="q" class="form-control"
+                                                           placeholder="Find client by name, email, or company"
+                                                           value="{{ request.GET.q|default:'' }}"
+                                                           autocomplete="off">
+                                                        <ul id="client-autocomplete-list" class="list-group" style="
+                                                            display: none;
+                                                            position: absolute;
+                                                            z-index: 1000;
+                                                            width: 100%;
+                                                            max-height: 260px;
+                                                            overflow-y: auto;
+                                                            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                                            left: 0;
+                                                            text-align: left;
+                                                        "></ul>
+                                                    </div>
                                                     <button type="submit"
-                                                            class="btn btn-search justify-content-center align-items-center">Search
+                                                            class="btn btn-sm fs-6 btn-search justify-content-center align-items-center">Search
                                                     </button>
                                                 </div>
 
@@ -235,7 +235,7 @@
             <div class="col-lg-12">
                 <div class="text-start">
                     <a href="{% url 'dashboard:dashboard' %}" class="back-to-dashboard">
-                        <i class="fa-solid fa-arrow-left px-3"></i>Back to the dashboard
+                        <i class="fa-solid fa-arrow-left px-1"></i>Back to the dashboard
                     </a>
                 </div>
             </div>

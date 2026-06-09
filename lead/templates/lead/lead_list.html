@@ -25,7 +25,7 @@
         <div class="row pt-md-3 justify-content-center">
             <div class="col-sm-12">
                 <div class="text-center pt-md-3">
-                    <h4 class="fw-bolder pt-sm-4">Leads</h4>
+                    <h4 class="fw-bolder">Leads</h4>
                 </div>
             </div>
             <div class="col-12">
@@ -58,12 +58,12 @@
                                         <div class="col-sm-12 col-md-12 pt-md-2">
                                             <div class="row py-2 justify-content-center align-items-start">
                                                 <div class="col-1 text-start pt-4">
-                                                    <a class="btn add-button  justify-content-center align-items-center mx-2 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
+                                                    <a class="btn btn-sm add-button  justify-content-center align-items-center fs-6 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
                                                 </div>
-                                                <div class="col-1 text-center pt-4">
+                                                <div class="col-1 text-start px-0 pt-4">
                                                     <!-- Dropdown for actions -->
                                                     <div class="dropdown d-inline-block">
-                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <button class="btn btn-sm fs-6 btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
@@ -103,7 +103,7 @@
                                                 </div>
                                                 <div class="col-2 pt-4">
                                                     <button type="submit"
-                                                            class="btn btn-search justify-content-center align-items-center">Search
+                                                            class="btn btn-sm fs-6 btn-search justify-content-center align-items-center">Search
                                                     </button>
                                                 </div>
                                                 <div class="col-3">
@@ -112,7 +112,7 @@
                                                             <div class="col-4">
                                                                 <label class="form-label fs-6">Priority</label>
                                                                 <div class="dropdown bg-white">
-                                                                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                                                                    <button class="btn btn-sm fs-6 btn-outline-secondary dropdown-toggle w-100 text-start"
                                                                             type="button" id="priorityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                                         ---------
                                                                     </button>
@@ -131,7 +131,7 @@
                                                             <div class="col-4">
                                                                 <label class="form-label fs-6">Created at</label>
                                                                 <div class="dropdown bg-white">
-                                                                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100 text-start"
                                                                             type="button" id="createdAtDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                                         {% if request.GET.created_at == 'today' %}Today
                                                                         {% elif request.GET.created_at == 'this_week' %}Last 7 days
@@ -148,7 +148,7 @@
                                                                 </div>
                                                             </div>
                                                             <div class="col-4  justify-content-start align-items-start pt-4">
-                                                                <button type="submit" class="btn btn-secondary fw-bolder">Apply Filters</button>
+                                                                <button type="submit" class="btn btn-sm fs-6 btn-secondary fw-bolder">Apply Filters</button>
                                                             </div>
                                                         </div>
                                                     </form>

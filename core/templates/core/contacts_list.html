@@ -10,89 +10,189 @@
     {% endblock %}
 
 <div class="container mx-auto pt-5">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="h3 mb-0">Contacts</h1>
-    <a class="btn btn-sm btn-primary fs-6 fw-bolder" href="{% url 'core:contact_add' %}" style="background-color: #688eb4; color: white;"><i class="fas fa-plus px-2"></i>Add contact</a>
-  </div>
-
-  <!-- Search -->
-  <form method="get" class="mb-3">
-    <div class="input-group">
-      <input type="text" name="q" class="form-control" placeholder="Search by name, email or company" value="{{ request.GET.q|default:'' }}">
-      <button class="btn btn-outline-secondary" type="submit">Search</button>
-      {% if request.GET.q %}
-        <a href="{% url 'core:contact_list' %}" class="btn btn-outline-danger">Clear</a>
-      {% endif %}
+    <div class="row">
+        <div class="col-12">
+            <h4 class="text-center mb-2">Contacts</h4>
+        </div>
     </div>
-  </form>
-
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr>
-            <th class="bg-light">Name</th>
-            <th class="bg-light">Company</th>
-            <th class="bg-light">Job title</th>
-            <th class="bg-light">Email</th>
-            <th class="bg-light">Phone</th>
-            <th class="bg-light">Method</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for contact in contacts_list %}
-            <tr>
-              <td>{{ contact.first_name }} {{ contact.last_name }}</td>
-              <td>{{ contact.company|default:"—" }}</td>
-              <td>{{ contact.job_title|default:"—" }}</td>
-              <td>{{ contact.email|default:"—" }}</td>
-              <td>{{ contact.phone_number|default:"—" }}</td>
-              <td>{{ contact.get_method_display|default:"—" }}</td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="6" class="text-center py-4 text-muted">No contacts found.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="row align-items-center mb-3">
+        <div class="col-auto">
+            <a class="btn btn-sm btn-primary fs-6 fw-bolder text-nowrap" href="{% url 'core:contact_add' %}" style="background-color: #688eb4; color: white;"><i class="fas fa-plus"></i>Add contact</a>
+        </div>
+        <div class="col-auto ms-auto d-flex align-items-center gap-2 pe-0">
+            <!-- Search -->
+            <div class="input-group" style="position: relative; width: 400px;">
+                <input type="text" id="contact-search-input" name="q" class="form-control" placeholder="Search by name, email or company" value="{{ request.GET.q|default:'' }}" autocomplete="off">
+                <button class="btn btn-search fs-6 btn-outline-secondary" type="submit">Search</button>
+                {% if request.GET.q or request.GET.id %}
+                    <a href="{% url 'core:contact_list' %}" class="btn btn-outline-danger">Clear</a>
+                {% endif %}
+                <ul id="contact-autocomplete-list" class="list-group" style="display: none; position: absolute; top: 100%; z-index: 1000; width: 100%; max-height: 260px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,.15); left: 0; text-align: left"></ul>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Pagination -->
-  {% if is_paginated %}
-    <nav class="mt-3" aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo;</a>
-          </li>
-        {% else %}
-          <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-        {% endif %}
-        {% for num in page_obj.paginator.page_range %}
-          {% if page_obj.number == num %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-          {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
-            </li>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="bg-light">Name</th>
+                                <th class="bg-light">Company</th>
+                                <th class="bg-light">Job title</th>
+                                <th class="bg-light">Email</th>
+                                <th class="bg-light">Phone</th>
+                                <th class="bg-light">Method</th>
+                                <th class="text-center bg-light">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for contact in contacts_list %}
+                            <tr>
+                                <td>{{ contact.first_name }} {{ contact.last_name }}</td>
+                                <td>{{ contact.company|default:"—" }}</td>
+                                <td>{{ contact.job_title|default:"—" }}</td>
+                                <td>{{ contact.email|default:"—" }}</td>
+                                <td>{{ contact.phone_number|default:"—" }}</td>
+                                <td>{{ contact.get_method_display|default:"—" }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'core:contact_edit' contact.pk %}" class="px-2 fs-6 fw-bolder"><i class="bi bi-pencil-square"></i></a>
+                                    <a href="{% url 'core:contact_delete' contact.pk %}" class="px-2 text-danger fw-bolder fs-6" onclick="return confirm('Delete {{ contact.first_name }} {{ contact.last_name }}?')"><i class="bi bi-trash-fill"></i></a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No contacts found.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Pagination -->
+          {% if is_paginated %}
+            <nav class="mt-3" aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo;</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                  {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&raquo;</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+              </ul>
+            </nav>
           {% endif %}
-        {% endfor %}
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&raquo;</a>
-          </li>
-        {% else %}
-          <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-        {% endif %}
-      </ul>
-    </nav>
-  {% endif %}
+    </div>
 
-  <div class="mt-3">
-    <a href="{% url 'dashboard:dashboard' %}" class="text-decoration-none" style="color: #688eb4;">
+  <div class="row mt-3">
+    <a href="{% url 'dashboard:dashboard' %}" class="text-decoration-none" style="color: #41464b;">
       <i class="fa-solid fa-arrow-left px-2"></i>Back to dashboard
     </a>
   </div>
 </div>
+
+<script>
+(function () {
+    const input = document.getElementById('contact-search-input');
+    const list  = document.getElementById('contact-autocomplete-list');
+    const autocompleteUrl = "{% url 'core:contact_autocomplete' %}";
+    const listBase = "{% url 'core:contact_list' %}";
+    let activeIndex = -1;
+    let suggestions = [];
+
+    function closeList() {
+        list.innerHTML = '';
+        list.style.display = 'none';
+        activeIndex = -1;
+    }
+
+    function goToContact(item) {
+        window.location.href = listBase + '?id=' + item.id;
+    }
+
+    function setActive(items) {
+        items.forEach((el, i) => {
+            el.classList.toggle('active', i === activeIndex);
+        });
+    }
+
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim();
+        closeList();
+        suggestions = [];
+
+    if (!q) return;
+    fetch(`${autocompleteUrl}?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.length) return;
+                    suggestions = data;
+                    data.forEach((item, idx) => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action';
+                        li.style.cursor = 'pointer';
+                        li.textContent = item.label;
+                        li.dataset.index = idx;
+                        li.addEventListener('mousedown', function (e) {
+                            e.preventDefault();
+                            goToContact(item);
+                        });
+                        list.appendChild(li);
+                    });
+                    list.style.display = 'block';
+                    activeIndex = -1;
+                });
+        });
+
+        input.addEventListener('keydown', function (e) {
+            const items = [...list.querySelectorAll('li')];
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                setActive(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                setActive(items);
+            } else if (e.key === 'Enter' && activeIndex >= 0) {
+                e.preventDefault();
+                goToContact(suggestions[activeIndex]);
+            } else if (e.key === 'Escape') {
+                closeList();
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!list.contains(e.target) && e.target !== input) closeList();
+        });
+
+
+
+
+})();
+</script>
 
 {% endblock %}

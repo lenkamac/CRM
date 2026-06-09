@@ -23,7 +23,7 @@
             <div class="col-12">
                 <div class="row justify-content-start py-2">
                     <div class="col-2  text-start pt-4 ">
-                        <a href="{% url 'product:add_purchase_generic' %}" class="btn btn-sm justify-content-center align-items-center fw-bolder" style="background-color: #517e7e; color: white;">
+                        <a href="{% url 'product:add_purchase_generic' %}" class="btn btn-sm fs-6 justify-content-center align-items-center fw-bolder" style="background-color: #517e7e; color: white;">
                             <i class="fas fa-cart-plus px-2"></i>Add Purchase
                         </a>
                     </div>
@@ -40,7 +40,7 @@
                                 <input type="text" id="date_to" name="date_to" class="form-control form-control-sm"
                                        value="{{ date_to }}" placeholder="dd.mm.yyyy" autocomplete="off">
                             </div>
-                            <button type="submit" class="btn btn-sm btn-filter">Filter</button>
+                            <button type="submit" class="btn btn-sm fs-6 btn-filter">Filter</button>
                             {% if date_from or date_to %}
                             <a href="?sort={{ sort }}" class="btn btn-sm btn-filter-clear">Clear</a>
                             {% endif %}

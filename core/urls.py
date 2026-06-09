@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import ContactDeleteView, ContactUpdateView
 
 app_name = "core"
 
@@ -36,5 +37,8 @@ urlpatterns = [
     # Url for contacts management
     path("contacts/", views.ContactListView.as_view(), name="contact_list"),
     path("contacts/add/", views.ContactCreateView.as_view(), name="contact_add"),
+    path('contacts/<int:pk>/edit/', ContactUpdateView.as_view(), name='contact_edit'),
+    path('contacts/<int:pk>/delete/', ContactDeleteView.as_view(), name='contact_delete'),
+    path('contacts/autocomplete/', views.contact_autocomplete, name='contact_autocomplete'),
 ]
 

@@ -38,7 +38,7 @@
             <div class="col-12 py-2">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <a href="{% url 'task:task_add' %}" class="btn btn-sm justify-content-center align-items-center" id="btn-add-task">
+                        <a href="{% url 'task:task_add' %}" class="btn btn-sm fs-6 justify-content-center align-items-center" id="btn-add-task">
                             <i class="fas fa-plus"></i> New Task
                         </a>
                     </div>
@@ -62,7 +62,7 @@
                                     left: 0;
                                 "></ul>
                             </div>
-                            <button type="submit" class="btn btn-sm btn-search text-nowrap">Search</button>
+                            <button type="submit" class="btn btn-sm fs-6 btn-search text-nowrap">Search</button>
                         </form>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                                 <div class="col-md-2">
                                     <label class="form-label fs-6">Status</label>
                                      <div class="dropdown">
-                                     <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                     <button class="btn btn-sm fs-6 btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                          <span id="statusFilterText">
                                             {% if not request.GET.getlist.status %}
                                                 All
@@ -152,7 +152,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-12 d-flex justify-content-end align-items-end">
-                                    <button type="submit" class="btn btn-secondary fw-bolder">Apply Filters</button>
+                                    <button type="submit" class="btn btn-sm fs-6 btn-secondary fw-bolder">Apply Filters</button>
                                 </div>
                             </form>
                         </div>
