@@ -2,10 +2,12 @@
 
 <nav class="navbar navbar-expand-md fixed-top">
     <div class="container-fluid">
-        <!-- Hamburger Button: Visible only on small screens -->
+        <!-- Hamburger Button: Visible only on small screens, only when logged in -->
+        {% if request.user.is_authenticated %}
         <button class="btn btn-light d-md-none me-2" type="button" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
+        {% endif %}
         <a class="navbar-brand mb-auto" href="{% url 'index' %}">CRM System</a>
         <!-- Toggler for responsive menu -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
