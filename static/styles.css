@@ -309,8 +309,6 @@ table {
     border: none;
 }
 .btn-delete {
-    font-weight: bold;
-    font-size: 1.1rem;
     color: #bb0808;
 }
 .btn-delete:hover {
@@ -350,14 +348,7 @@ table {
     margin: 5px;
     padding: 5px;
 }
-.comment-btn {
-    background-color: #ABABAF;
-    text-align: center;
-    border-radius: 5px;
-    width: 100px;
-    font-weight: bold;
-    font-size: 1.1rem;
-}
+
 .comment-btn:hover {
     background-color: #353E46;
     color: white;
@@ -435,26 +426,19 @@ main {
 
 /* Styling for files*/
 .download-a {
-    padding-right: 5px;
-    padding-top: 2px;
-    font-size: 1.2rem;
     color: #414141;
 }
 .files-p {
-    border-left: 3px solid #3b4869;
+    border-left: 3px solid #517e7e;
     height: auto;
-    padding: 0 4px;
-    margin-top: 5px;
     background-color: white;
-    font-size: 1.1rem;
 }
 .download-a {
-    font-size: 1.2rem;
-    font-weight: bold;
+    font-weight: bolder;
 }
 .download-a:hover {
     font-weight: bold;
-    font-size: 20px;
+    color: #517e7e;
 }
 
 

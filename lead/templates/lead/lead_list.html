@@ -171,29 +171,29 @@
                                         <table class="table table-hover">
                                             <thead class="th-custom">
                                                 <tr>
-                                                    <th class="text-center">
+                                                    <th class="text-center" style="background-color: #6d8d8d; color: white;">
                                                         <!-- Select All checkbox -->
                                                         <label for="select-all"></label>
                                                         <input type="checkbox" id="select-all" />
                                                     </th>
-                                                    <th class="text-start">
+                                                    <th class="text-start" style="background-color: #6d8d8d; color: white;">
                                                         <a href="?sort={% if request.GET.sort == 'created_at' %}-created_at{% else %}created_at{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="text-decoration-none text-black">
-                                                            Created at
+                                                            <span style="color: white;">Created at</span>
                                                             {% if request.GET.sort == 'created_at' %}
-                                                               ▲
+                                                               <span style="color: white;">▲</span>
                                                             {% elif request.GET.sort == '-created_at' or not request.GET.sort %}
-                                                               ▼
+                                                               <span style="color: white;">▼</span>
                                                             {% endif %}
                                                         </a>
                                                     </th>
-                                                    <th class="text-start">Company</th>
-                                                    <th class="text-start">Name</th>
-                                                    <th class="text-start">Email</th>
-                                                    <th class="text-start">Title</th>
-                                                    <th class="text-center">Priority</th>
-                                                    <th class="text-center">Status</th>
-                                                    <th class="text-center text-nowrap">Status sales</th>
-                                                    <th>Action</th>
+                                                    <th class="text-start" style="background-color: #6d8d8d; color: white;">Company</th>
+                                                    <th class="text-start" style="background-color: #6d8d8d; color: white;">Name</th>
+                                                    <th class="text-start" style="background-color: #6d8d8d; color: white;">Email</th>
+                                                    <th class="text-start" style="background-color: #6d8d8d; color: white;">Title</th>
+                                                    <th class="text-center" style="background-color: #6d8d8d; color: white;">Priority</th>
+                                                    <th class="text-center" style="background-color: #6d8d8d; color: white;">Status</th>
+                                                    <th class="text-center text-nowrap" style="background-color: #6d8d8d; color: white;">Status sales</th>
+                                                    <th class="text-center" style="background-color: #6d8d8d; color: white;">Action</th>
                                                 </tr>
                                             </thead>
 
