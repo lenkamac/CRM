@@ -248,20 +248,16 @@ table {
 /* form style */
 .form-submit-btn {
     background-color: #849c9d;
-    font-weight: bold;
-    font-size: 1.1rem;
-    width: 100px;
     color: white;
     border: 1px solid #1c4e6a;
     border-radius: 5px;
 }
 .form-submit-btn:hover {
-    background-color: #697272;
+    background-color: #354646;
     color: white;
 }
 .form-label {
     font-weight: bold;
-    font-size: 1.2rem;
 }
 
 /* custom button*/

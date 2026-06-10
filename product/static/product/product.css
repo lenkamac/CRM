@@ -19,13 +19,21 @@
 
 .form-label {
     color: #353E46;
-    font-weight: bold;
 }
 
 #btn-add-product {
     color: white;
     font-weight: bold;
     background-color: #5d718d;
+}
+#add-product-btn {
+    background-color: #364a69;
+    color: white;
+    font-weight: bolder;
+}
+#add-product-btn:hover {
+    background-color: rgb(104 142 180 / 0.85);
+    color: white;
 }
 
 #client-link {

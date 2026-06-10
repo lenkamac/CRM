@@ -15,14 +15,11 @@
     </style>
 
     <div class="container-fluid mx-auto mt-4" id="add-contact-container">
-        <div class="row justify-content-center">
-            <div class="col-12 text-center">
-                <h4 class=" mb-4 pt-lg-3">Add Contact</h4>
-            </div>
-        </div>
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center pt-4">
             <form method="post" class="needs-validation" action="." novalidate style="background-color: #cfd2d2; padding: 20px; border-radius: 3px; width: 75%; ">
+                <h4 class="mb-3 text-center" style="background-color: #364a69; padding: 5px; border-radius: 3px; color: white; margin: -20px -20px 20px -20px;">Add Contact</h4>
+
                 {% csrf_token %}
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger" role="alert">
@@ -89,8 +86,8 @@
 
                             <!-- Submit Button -->
                             <div class="d-flex gap-2 justify-content-md-end">
-                                <button type="submit" class="form-submit-btn py-lg-2">Submit</button>
-                                <button type="button" class="btn btn-cancel btn-secondary fw-bolder py-lg-2 d-flex align-items-center justify-content-center" onclick="window.location.href='{% url 'core:contact_list' %}'">
+                                <button type="submit" class="btn fs-6 fw-bolder py-lg-2" style="background-color: #5d718d; color: white;">Submit</button>
+                                <button type="button" class="btn btn-sm fs-6 btn-cancel btn-secondary d-flex align-items-center justify-content-center" onclick="window.location.href='{% url 'core:contact_list' %}'">
                                     <span style="font-size: 1.2rem;text-align: center;">Cancel</span>
                                 </button>
                             </div>
