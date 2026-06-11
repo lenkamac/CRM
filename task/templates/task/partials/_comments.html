@@ -5,16 +5,25 @@
   <div class="task-comment" data-comment-id="{{ comment.id }}">
     <div class="comment mb-3 pb-3 border-bottom">
       <div class="d-flex align-items-start">
-        <strong>@{{ comment.created_by.username }}</strong>
+        <strong class="fs-6 px-2 rounded-pill" style="background-color: #d9dddd;">@{{ comment.created_by.username }}</strong>
         <small class="text-muted ms-3">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
       </div>
-      <p class="comment-content mt-0 pt-1" id="comment-content-{{ comment.id }}">{{ comment.content|linebreaks }}</p>
+      <p class="mt-0 pt-1 comment-text" id="comment-content-{{ comment.id }}">{{ comment.content|linebreaks }}</p>
       <!-- ...edit/delete buttons as before -->
-        <button class="delete-comment-btn px-3 bg-danger fw-bolder" data-comment-id="{{ comment.id }}">Delete</button>
-        <button class="edit-comment-btn px-3 mx-2 text-bg-warning" data-comment-id="{{ comment.id }}">Edit</button>
+        <button class="btn btn-sm fs-6 fw-bolder edit-comment-btn" data-comment-id="{{ comment.id }}" style="color: #677569;"><i class="bi bi-pencil"></i></button>
+        <button class="btn py-1 delete-comment-btn fs-6 fw-bolder" data-comment-id="{{ comment.id }}"><i class="bi bi-trash"></i></button>
+
         <form class="edit-comment-form" id="edit-comment-form-{{ comment.id }}" style="display: none;">
-            <textarea name="content" id="edit-comment-textarea-{{ comment.id }}">{{ comment.content }}</textarea>
-            <button type="button" class="save-comment-btn" data-comment-id="{{ comment.id }}">Save</button>
+            <div class="row">
+                <div class="col-10">
+                    <textarea name="content" id="edit-comment-textarea-{{ comment.id }}" style="width: 100%;">{{ comment.content }}</textarea>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-sm save-comment-btn" data-comment-id="{{ comment.id }}">Save</button>
+            <button type="button" class="cancel-comment-btn btn btn-sm bg-light" data-comment-id="{{ comment.id }}">Cancel</button>
+                </div>
+            </div>
+
         </form>
     </div>
   </div>

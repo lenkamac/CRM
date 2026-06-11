@@ -59,7 +59,7 @@
                                         <div class="col-sm-12 col-md-12 pt-md-2">
                                             <div class="row py-2 align-items-center">
                                                 <div class="col-1 text-start">
-                                                    <a class="btn btn-sm add-button  justify-content-center align-items-end fs-6 fw-bolder" href="{% url 'client:add' %}"><i class="fas fa-plus px-1"></i>Add client</a>
+                                                    <a class="btn btn-sm justify-content-center align-items-end fs-6 fw-bolder" href="{% url 'client:add' %}" style="background-color: #4c6c8ad9; color: white;"><i class="fas fa-plus px-1"></i>Add client</a>
                                                 </div>
                                                 <div class="col-1 px-0 text-start">
                                                     <!-- Dropdown for actions -->
@@ -104,7 +104,7 @@
                                                         "></ul>
                                                     </div>
                                                     <button type="submit"
-                                                            class="btn btn-sm fs-6 btn-search justify-content-center align-items-center">Search
+                                                            class="btn btn-sm fs-6 btn-secondary justify-content-center align-items-center">Search
                                                     </button>
                                                 </div>
 
@@ -126,27 +126,27 @@
                                         <table class="table table-hover">
                                             <thead class="th-custom">
                                                 <tr>
-                                                    <th class="text-center">
+                                                    <th class="text-center" style="background-color: #4c6c8ad9; color: white;">
                                                         <!-- Select All checkbox -->
                                                         <label for="select-all"></label>
                                                         <input type="checkbox" id="select-all" />
                                                     </th>
-                                                    <th class="text-start">
+                                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">
                                                         <a href="?sort={% if request.GET.sort == 'created_at' %}-created_at{% else %}created_at{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="text-decoration-none text-black">
-                                                            Created at
+                                                            <span style="background-color: #4c6c8ad9; color: white;">Created at</span>
                                                             {% if request.GET.sort == 'created_at' %}
-                                                                ▲
+                                                                <span style="background-color: #4c6c8ad9; color: white;">▲</span>
                                                             {% elif request.GET.sort == '-created_at' or not request.GET.sort %}
-                                                                ▼
+                                                                <span style="background-color: #4c6c8ad9; color: white;">▼</span>
                                                             {% endif %}
                                                         </a>
                                                     </th>
-                                                    <th class="text-start">Company</th>
-                                                    <th class="text-start">Name</th>
-                                                    <th class="text-start">Email</th>
-                                                    <th class="text-start">Title</th>
-                                                    <th class="text-center">Status</th>
-                                                    <th class="text-center">Action</th>
+                                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">Company</th>
+                                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">Name</th>
+                                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">Email</th>
+                                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">Title</th>
+                                                    <th class="text-center" style="background-color: #4c6c8ad9; color: white;">Status</th>
+                                                    <th class="text-center" style="background-color: #4c6c8ad9; color: white;">Action</th>
                                                 </tr>
                                             </thead>
                                             {% if object_list %}
@@ -162,10 +162,10 @@
                                                                 </label>
                                                             </td>
                                                             <td class="text-start">{{ client.created_at|date:"d.m.Y H:i" }}</td>
-                                                            <td class="text-start"><a href="{% url 'client:detail' client.pk %}" class="client-a-company">{{ client.company }}</a></td>
-                                                            <td class="text-start"><a href="{% url 'client:detail' client.pk %}" class="client-a-name">{{ client.first_name }} {{ client.last_name }}</a></td>
+                                                            <td class="text-start"><a href="{% url 'client:detail' client.pk %}" class="client-a-company">{% if client.company %} {{ client.company }} {% else %}{% endif %}</a></td>
+                                                            <td class="text-start"><a href="{% url 'client:detail' client.pk %}" class="client-a-name">{% if client.last_name %} {{ client.first_name }} {{ client.last_name }} {% else %}{% endif %}</a></td>
                                                             <td class="text-start">{{ client.email }}</td>
-                                                            <td class="text-start">{{ client.title }}</td>
+                                                            <td class="text-start">{%  if client.title %}{{ client.title }}{% else %}{% endif %}</td>
                                                             <td class="text-center">{{ client.get_status_display }}</td>
                                                             <td class="text-center">
                                                                 <a href="{% url 'client:detail' client.pk %}"><i class="bi bi-info-circle"></i></a>

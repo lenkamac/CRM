@@ -261,6 +261,11 @@ table {
 }
 
 /* custom button*/
+
+.a a:hover {
+    color: #677569;
+}
+
 .add-button {
     background-color: #517e7e;
     color: white;
@@ -328,6 +333,10 @@ table {
     background-color: #4f8a8b;
     color: white;
 }
+.btn-search:hover {
+    background-color: #697272;
+    color: white;
+}
 
 /* not found message*/
 .not-found-message {
@@ -366,11 +375,11 @@ table {
 }
 .comment-content {
     background-color: white;
-    padding: 10px;
+    padding: 8px;
     margin: 0;
 }
 .comment {
-    font-size: 1.1rem;
+    font-size: 1rem;
     background-color: white;
     color: black;
 }

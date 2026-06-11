@@ -15,12 +15,12 @@
 
 /*Client detail page */
 .card-title {
-    background-color: #697272;
+    background-color: #4c6c8ad9;
     color: white;
     border-radius: 5px;
 }
 .card-footer {
-    background-color: #697272;
+    background-color: #4c6c8ad9;
     color: white;
 }
 
@@ -35,22 +35,6 @@
 .client-detail-table td {
     text-align: left;
     font-size: 1rem;
-}
-
-
-/* Responsive design*/
-@media (max-width: 575px) {
-    #client-container {
-        font-size: 0.6rem;
-        margin: 25px auto;
-        width: 100%;
-        padding: 25px;
-        height: 100vh;;
-    }
-    .client-detail-table td {
-        font-size: 0.9rem;
-    }
-
 }
 
 .client-a-company {
@@ -72,22 +56,3 @@
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-    #client-container {
-        font-size: 0.6rem;
-        margin: 25px auto;
-        width: 100%;
-        padding: 25px;
-        height: 100vh;
-    }
-}
-
-@media (max-width: 991px) {
-    #client-container {
-        font-size: 0.7rem;
-        margin: 25px auto;
-        width: 100%;
-        padding: 25px;
-        height: 100vh;
-    }
-}

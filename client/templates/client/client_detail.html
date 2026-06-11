@@ -5,7 +5,7 @@
 
 
 {% block title %}
-	Client Detail - {{ client.last_name }}, {{ client.first_name }}
+	Client Detail - {{ client.last_name }} {{ client.first_name }}
 {% endblock %}
 
 {% block content %}
@@ -17,7 +17,7 @@
 
     <!-- Page Content -->
     <div class="container-fluid my-3" id="client-container">
-        <div class="row mx-lg-2">
+        <div class="row mx-lg-2 pt-2">
             <div class="col-lg-12">
                <div class="text-center">
                     <!-- Display messages -->
@@ -36,11 +36,11 @@
             </div>
         </div>
 
-        <div class="row bg-transparent mt-3 pt-3">
+        <div class="row bg-transparent mt-3 mx-lg-2 pt-3">
             <div class="col-12 col-lg-4">
                  <div class="card card-detail">
                      <div class="card-detail-header position-relative">
-                         <h5 class="card-title text-center fw-bolder py-2">
+                         <h5 class="card-title text-center py-1">
                              <i class="fa-solid fa-id-card"></i> {% if client %} Client info {% else %} Info{% endif %}
                          </h5>
                          <div class="position-absolute top-50 end-0 translate-middle-y pe-2 py-2">
@@ -77,7 +77,7 @@
                                     <td class="fw-normal pe-2">{% if client.company %}
                                         {{ client.company }}
                                     {% else %}
-                                        <span class="text-muted">n/a</span>
+
                                     {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
@@ -85,7 +85,7 @@
                                     <td class="fw-normal pe-2">{% if client.last_name %}
                                         {{ client.first_name }} {{ client.last_name }}
                                     {% else %}
-                                        <span class="text-muted">n/a</span>
+
                                     {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
@@ -94,15 +94,15 @@
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Title:</td>
-                                    <td class="fw-normal pe-2">{{ client.title }}</td>
+                                    <td class="fw-normal pe-2">{% if client.title %} {{ client.title }} {% else %}{% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Tel:</td>
-                                    <td class="fw-normal pe-2">{{ client.phone }}</td>
+                                    <td class="fw-normal pe-2">{% if client.phone %} {{ client.phone }} {% else %}{% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Mobile:</td>
-                                    <td class="fw-normal pe-2">{{ client.mobile }}</td>
+                                    <td class="fw-normal pe-2">{% if client.mobile %} {{ client.mobile }} {% else %}{% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
                                     <td class="fs-6 fw-bolder" style="width: 160px;">Address:</td>
@@ -111,7 +111,7 @@
                                             {{ client.address }}, <br>
                                             {{ client.zipcode }} {{ client.city }}
                                         {% else %}
-                                            <span class="text-muted">n/a</span>
+
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -121,7 +121,7 @@
                                         {% if client.country %}
                                             {{ client.country }}
                                         {% else %}
-                                            <span class="text-muted">n/a</span>
+
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -133,7 +133,7 @@
                                             {{ client.description|truncatewords:10 }}
                                         </span>
                                         {% else %}
-                                            <span class="text-muted">n/a</span>
+
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -142,7 +142,7 @@
                                     <td class="fw-normal pe-2">{% if client.status %}
                                         {{ client.status }}
                                     {% else %}
-                                        <span class="text-muted">n/a</span>
+
                                     {% endif %}</td>
                                 </tr>
                                 <tr class="pb-1">
@@ -161,14 +161,14 @@
                                         {% if client.website %}
                                             {{ client.website }}
                                         {% else %}
-                                            <span class="text-muted">n/a</span>
+
                                         {% endif %}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                      </div>
-                     <div class="card-footer">
+                     <div class="card-footer mt-2">
                          <div class="row justify-content-start">
                              <div class="col-12 pb-1">
                                  <span class="fw-bolder">Created at:</span>
@@ -181,332 +181,292 @@
                          </div>
                      </div>
                  </div>
-            </div>
+             </div>
 
-            <div class="col-12 col-lg-8">
-                <!-- Comment section -->
-                <div class="row bg-white border rounded-3 border-2 justify-content-sm-center">
-                    <div class="col-lg-12 rounded-3" style="background-color: #697272;">
-                        <h5 class="text-white text-center pt-2 fw-bolder">
-                            <i class="fa-solid fa-comment mx-lg-2 px-lg-2"></i>Comments
-                        </h5>
+            <!-- File section -->
+            <div class="col-12 col-lg-8 bg-white rounded-3 border border-2">
+
+                <h5 class="text-center text-white fw-bolder py-1 rounded-top-3"
+                    style="background-color: #4c6c8ad9; margin: 0 calc(var(--bs-gutter-x) * -.5);">
+                    <i class="fa-solid fa-file-pen"></i>Files
+                </h5>
+
+                <!--Add file form -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-start fs-6 fw-bolder">Upload file:</h6>
                     </div>
-                    <div class="col-lg-12 mt-3 pt-2">
-                        <div class="row mx-2 bg-transparent">
-                            {% for comment in comments %}
-                                <div class="col-lg-12 mb-0">
-                                    <p class="fw-bolder fs-6 w-100 my-0" style="color: white; background-color: #3a435e;">
-                                        @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
-                                    </p>
-                                </div>
-                                <div class="col-lg-12 comment-content">
-                                    <div class="files-p my-0" style="max-height: 25rem; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.5rem;">
-                                        {{ comment.content|linebreaks }}
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="row justify-content-center justify-content-sm-start">
-                                        <div class="col-12 mt-0 pt-0 mb-4">
-                                            <!-- Delete Button -->
-                                            <form method="post" action="{% url 'client:delete_comment' client.id comment.id %}" style="display: inline;">
-                                                {% csrf_token %}
-                                                    <button type="submit" class="btn-delete"
-                                                            onclick="return confirm('Are you sure you want to delete this comment?');"
-                                                            style="border: none; background-color: transparent">
-                                                        Delete
-                                                    </button>
-                                            </form>
-
-                                            <!-- Edit Button -->
-                                           <a href="#" data-bs-toggle="modal"
-                                              data-bs-target="#editCommentModal-{{ comment.id }}" class="btn-edit px-3"
-                                              style="text-decoration: none;">Edit
-                                           </a>
-                                           <!-- Edit Comment Modal -->
-                                           <div class="modal fade" id="editCommentModal-{{ comment.id }}" tabindex="-1"
-                                                aria-labelledby="editCommentLabel-{{ comment.id }}" aria-hidden="true">
-                                               <div class="modal-dialog">
-                                                   <div class="modal-content">
-                                                       <div class="modal-header">
-                                                           <h5 class="modal-title"
-                                                               id="editCommentLabel-{{ comment.id }}">Edit Comment
-                                                           </h5>
-                                                           <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                   aria-label="Close">
-                                                           </button>
-                                                       </div>
-                                                       <div class="modal-body">
-                                                           <form method="post"
-                                                                 action="{% url 'client:edit-client-comment' client.id comment.id %}">
-                                                               {% csrf_token %}
-                                                               <textarea name="content" class="form-control" rows="4" autofocus>{{ comment.content }}</textarea>
-                                                               <button type="submit" class="btn mt-2 save-btn">Save</button>
-                                                           </form>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% empty %}
-                                <p class="not-found-message">No comments found for this client.</p>
-                            {% endfor %}
-                        </div>
-                        <div class="row mx-2 justify-content-center mt-0">
-                            <!-- Pagination -->
-                            <div class="col-lg-12">
-                                <div class="row justify-content-center">
-                                    <div class="col-2 text-center">
-                                        <nav>
-                                            <ul class="pagination">
-                                                {% if comments.has_previous %}
-                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.previous_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">&laquo; Prev</a></li>
-                                                {% endif %}
-                                                <li class="px-lg-4">Page {{ comments.number }} of {{ comments.paginator.num_pages }}</li>
-                                                {% if comments.has_next %}
-                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.next_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">Next &raquo;</a></li>
-                                                {% endif %}
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
+                    <div class="col-12 pt-2">
+                        <form method="post" action="{% url 'client:add_client_file' client.pk %}" enctype="multipart/form-data"
+                        class="row g-2 align-items-center">
+                        {% csrf_token %}
+                            <div class="col-10 pt-2">
+                               {{ fileform.as_p }}
                             </div>
-                        </div>
-                        <div class="row mt-0">
-                            <!-- Add Comment Form -->
-                            <div class="col-lg-12">
-                                <form method="post" action="{% url 'client:add_comment' client.id %}">
-                                    {% csrf_token %}
-                                        <div class="col-lg-12">
-                                            <div class="row comment-row justify-content-center">
-                                                <div class="col-lg-12">
-                                                   <textarea name="content" class="form-control w-100 comment-form" rows="15" autofocus
-                                                             placeholder="Enter your comment here"></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row justify-content-center mx-lg-5">
-                                            <div class="text-center">
-                                                <button class="comment-btn my-3">Submit</button>
-                                            </div>
-                                        </div>
-                                </form>
+                            <div class="col-2">
+                                <button class="btn fs-6 fw-bolder py-1" style="background-color: #4d5a6f; color:white;">Submit</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-12 mt-3">
-                <!-- Task section -->
-                <div class="row bg-white rounded-3 border border-2 justify-content-sm-center mt-2">
-                    <div class="col-lg-12 rounded-3" style="background-color: #697272;">
-                        <h5 class="text-center text-white pt-2 fw-bolder">
-                            <i class="fa fa-thumb-tack px-lg-2 mx-lg-2" aria-hidden="true"></i>Tasks
-                        </h5>
-                    </div>
-                    <div class="col-12">
-                        <div class="row mx-lg-2 mt-3 bg-transparent">
-                            <div class="col-12">
-                                <div class="table-responsive-custom">
-                                    <table class="table">
-                                        <thead class="th-custom">
-                                            <tr>
-                                                <th class="text-start text-nowrap" style="width: 120px; background-color: rgba(137, 168, 165, 0.68);">Created at</th>
-                                                <th class="text-start" style="width: 120px; background-color: rgba(137, 168, 165, 0.68);">Title</th>
-                                                <th class="text-center text-nowrap" style="width: 120px; background-color: rgba(137, 168, 165, 0.68);">Due date</th>
-                                                <th class="text-center text-nowrap" style="width: 120px; background-color: rgba(137, 168, 165, 0.68);">Due time</th>
-                                                <th class="text-center" style="width: 80px; background-color: rgba(137, 168, 165, 0.68);">Status</th>
-                                                <th class="text-center" style="width: 80px; background-color: rgba(137, 168, 165, 0.68);">Priority</th>
-                                                <th class="text-start" style="width: auto; background-color: rgba(137, 168, 165, 0.68);">Description</th>
-                                                <th class="text-center" style="width: 120px; background-color: rgba(137, 168, 165, 0.68);">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="tbody-custom">
-                                            {% for task in tasks %}
-                                                <tr>
-                                                    <td class="text-start text-nowrap">{{ task.created_at|date:'d.m.Y' }}</td>
-                                                    <td class="text-start text-nowrap">{{ task.title }}</td>
-                                                    <td class="text-center text-nowrap">
-                                                        {% if task.due_date %}
-                                                            {{ task.due_date|date:"d.m.Y" }}
-                                                        {% else %}
-                                                            <span class="text-muted text-nowrap">No due date</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td class="text-center text-nowrap">
-                                                        {% if task.due_time %}
-                                                            {{ task.due_time|time:"H:i" }}
-                                                        {% else %}
-                                                            <span class="text-muted">--:--</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        {% if task.status == '----' %}
-                                                            <span class="badge bg-white">----</span>
-                                                        {% elif task.status == 'todo' %}
-                                                            <span class="badge bg-secondary">To Do</span>
-                                                        {% elif task.status == 'in_progress' %}
-                                                            <span class="badge bg-primary">In Progress</span>
-                                                        {% elif task.status == 'completed' %}
-                                                            <span class="badge bg-success">Completed</span>
-                                                        {% else %}
-                                                            <span class="badge bg-danger">Canceled</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        {% if task.priority == '----' %}
-                                                            <span class="badge bg-white">----</span>
-                                                        {% elif task.priority == 'low' %}
-                                                            <span class="badge bg-secondary">Low</span>
-                                                        {% elif task.priority == 'medium' %}
-                                                            <span class="badge bg-primary">Medium</span>
-                                                        {% elif task.priority == 'high' %}
-                                                            <span class="badge bg-warning">High</span>
-                                                        {% elif task.priority == 'urgent' %}
-                                                            <span class="badge bg-danger">Urgent</span>
-                                                        {% else %}
-                                                            <span>n/a</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td class="text-start text-nowrap">
-                                                        <span style="font-weight: normal; display: block;" title="{{ task.description|escape }}">
-                                                            {{ task.description|truncatewords:8 }}
-                                                        </span>
-
-                                                    </td>
-                                                    <td class="text-center justify-content-center">
-                                                        <div class="d-flex justify-content-center align-items-center">
-                                                            <a href="{% url 'task:task_detail' task.pk %}">
-                                                                <i class="fas fa-eye px-2" style="font-size: 1rem;"></i>
-                                                            </a>
-                                                            <!-- Delete Task Button -->
-                                                            <form method="post" style="display: inline;"
-                                                                  action="{% url 'task:task_delete' task.id %}?next={% url 'client:detail' client.id %}">
-                                                                {% csrf_token %}
-                                                                <button type="submit" class="btn btn-delete mx-0 px-0"
-                                                                        onclick="return confirm('Are you sure you want to delete this task?');">
-                                                                    <i class="fas fa-trash" style="font-size: 1rem;"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            {% empty %}
-                                                <p class="text-center fw-bolder fs-5">No tasks found for this client.</p>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="row justify-content-center">
-                                    <div class="col-2 text-center">
-                                        <nav class="mt-lg-3">
-                                            <ul class="pagination">
-                                                {% if tasks.has_previous %}
-                                                    <li class="px-lg-4"><a href="?task_page={{ tasks.previous_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">&laquo; Prev</a></li>
-                                                {% endif %}
-                                                <li class="px-lg-3">Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}</li>
-                                                {% if tasks.has_next %}
-                                                    <li class="px-lg-3"><a href="?task_page={{ tasks.next_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">Next &raquo;</a></li>
-                                                {% endif %}
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
-                            </div>
+                {% for file in client.files.all %}
+                    <div class="row justify-content-sm-start border-top">
+                        <div class="col-12 mt-2 mb-1">
+                            <strong>@{{ file.created_by }}</strong>
+                            {{ file.created_at|date:"d.m.Y H:i" }}
                         </div>
                     </div>
-                    <div class="col-12 px-4 py-2" >
-                        <!-- The task creation form: -->
-                        <div class="row mx-2" style="background-color: #c5cbcb; border: 1px solid black;">
-                            <form method="post" action="{% url 'task:task_add_client' client.id %}">
-                                {% csrf_token %}
-                                <div class="col-lg-12 py-1">
-                                    <div class="row">
-                                        <!-- Add any other task fields as needed -->
-                                        <div class="col-lg-12 text-center pb-lg-2">
-                                            <h5 class="pt-2 fw-bolder">Add Task</h5>
-                                        </div>
-                                        <div class="col-lg-12 py-lg-1">
-                                            <div class="row justify-content-center">
-                                                <div class="col-lg-12 py-lg-1">
-                                                    <label for="title" class="form-label">Title</label>
-                                                    <input type="text" name="title" class="form-control w-100"
-                                                           placeholder="Task title" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12 py-lg-1">
-                                            <div class="row justify-content-center">
-                                                <div class="col-lg-3 py-lg-1">
-                                                    <label for="id_status" class="form-label">Status</label>
-                                                     <div class="dropdown bg-white">
-                                                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-                                                                type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            ---------
-                                                        </button>
-                                                        <ul class="dropdown-menu w-100" aria-labelledby="statusDropdown">
-                                                            <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
-                                                            <li><a class="dropdown-item" href="#" data-value="todo">To Do</a></li>
-                                                            <li><a class="dropdown-item" href="#" data-value="in_progress">In Progress</a></li>
-                                                            <li><a class="dropdown-item" href="#" data-value="completed">Completed</a></li>
-                                                            <li><a class="dropdown-item" href="#" data-value="canceled">Canceled</a></li>
-                                                        </ul>
-                                                        <!-- hidden input to hold the actual value for form submission -->
-                                                        <input type="hidden" name="status" id="id_status" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-3 py-lg-1">
-                                                    <label class="form-label">Priority</label>
-                                                        <div class="dropdown bg-white">
-                                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-                                                                    type="button" id="priorityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                ---------
-                                                            </button>
-                                                            <ul class="dropdown-menu w-100" aria-labelledby="priorityDropdown">
-                                                                <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
-                                                                <li><a class="dropdown-item" href="#" data-value="low">Low</a></li>
-                                                                <li><a class="dropdown-item" href="#" data-value="medium">Medium</a></li>
-                                                                <li><a class="dropdown-item" href="#" data-value="high">High</a></li>
-                                                                <li><a class="dropdown-item" href="#" data-value="urgent">Urgent</a></li>
-                                                            </ul>
-                                                            <!-- hidden input to hold the actual value for form submission -->
-                                                            <input type="hidden" name="priority" id="id_priority" required>
-                                                        </div>
-                                                </div>
-                                                <div class="col-lg-2 py-lg-1">
-                                                    <div class="col-12"><label for="id_due_date" class="form-label w-100">Due Date</label></div>
-                                                    <div class="col-12"><input type="text" class="form-control w-100" id="id_due_date" name="due_date" placeholder="dd.mm.yyyy" autocomplete="off"></div>
-                                                </div>
-                                                <div class="col-lg-2 py-lg-1">
-                                                    <div class="col-12"><label for="id_due_time" class="form-label w-100">Due Time</label></div>
-                                                    <div class="col-12"><input type="text" class="form-control w-100" id="id_due_time" name="due_time" placeholder="HH:MM (24-hour format)" pattern="[0-9]{2}:[0-9]{2}" autocomplete="off"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 py-lg-1">
-                                    <textarea name="description" class="form-control w-100" rows="4"
-                                              placeholder="Description" autofocus></textarea>
-                                </div>
-                                <div class="col-lg-12 pt-2 text-center">
-                                    <button type="submit" class="btn add-button py-sm-1 mb-2">
-                                            Submit
-                                    </button>
-                                </div>
+                    <div class="row mx-4 pt-1 justify-content-sm-start justify-content-md-start">
+                        <div class="files-p col-sm-12 col-md-6 col-lg-9 pt-3  text-nowrap">
+                            {{ file.file.name|basename }}
+                        </div>
+
+                        <!--Delete, Download-->
+                        <div class="col-sm-12 col-md-6 col-lg-3 pt-2 d-flex align-items-sm-center align-items-md-start gap-3">
+                            <a href="{{ file.file.url }}" class="download-a fs-6 mb-0 px-1 py-1">
+                                <i class="bi bi-download px-2"></i>Download files
+                            </a>
+
+                            <form action="{% url 'client:delete_client_file' client.id file.id %}" method="post" class="d-inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-sm fs-6 fw-bolder"
+                                      onclick="return confirm('Are you sure you want to delete this file?');">
+                                    <i class="bi bi-trash3"></i>
+                              </button>
                             </form>
                         </div>
                     </div>
+                {% endfor %}
+                <!-- Pagination -->
+                <div class="row border-top mt-3 pt-3 justify-content-center">
+                    <div class="col-2 text-center">
+                        <nav>
+                           <ul class="pagination">
+                                {% if tasks.has_previous %}
+                                    <li class="px-lg-4"><a href="?task_page={{ tasks.previous_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">&laquo; Prev</a></li>
+                                {% endif %}
+                                <li class="px-lg-3">Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}</li>
+                                {% if tasks.has_next %}
+                                    <li class="px-lg-3"><a href="?task_page={{ tasks.next_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">Next &raquo;</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
+
+        </div>
+
+        <!-- Task section -->
+        <div class="row bg-white rounded-3 border border-2 justify-content-sm-center mt-2 mx-lg-2">
+            <div class="col-lg-12 rounded-3" style="background-color: #4c6c8ad9;">
+                <h5 class="text-center text-white pt-2 fw-bolder">
+                    <i class="fa fa-thumb-tack px-1 mx-1" aria-hidden="true"></i>Tasks
+                </h5>
+            </div>
             <div class="col-12">
+                <div class="row mx-lg-2 mt-3 bg-transparent">
+                    <div class="col-12">
+                        <div class="table-responsive-custom">
+                            <table class="table">
+                                <thead class="th-custom">
+                                    <tr>
+                                        <th class="text-start text-nowrap">Created at</th>
+                                        <th class="text-start">Title</th>
+                                        <th class="text-center text-nowrap">Due date</th>
+                                        <th class="text-center text-nowrap">Due time</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Priority</th>
+                                        <th class="text-start">Description</th>
+                                        <th class="text-center" >Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbody-custom">
+                                    {% for task in tasks %}
+                                        <tr>
+                                            <td class="text-start text-nowrap">{{ task.created_at|date:'d.m.Y' }}</td>
+                                            <td class="text-start text-nowrap">{{ task.title }}</td>
+                                            <td class="text-center text-nowrap">
+                                                {% if task.due_date %}
+                                                    {{ task.due_date|date:"d.m.Y" }}
+                                                {% else %}
+                                                    <span class="text-muted text-nowrap">No due date</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center text-nowrap">
+                                                {% if task.due_time %}
+                                                    {{ task.due_time|time:"H:i" }}
+                                                {% else %}
+                                                    <span class="text-muted">--:--</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                {% if task.status == '----' %}
+                                                    <span class="badge bg-white">----</span>
+                                                {% elif task.status == 'todo' %}
+                                                    <span class="badge bg-secondary">To Do</span>
+                                                {% elif task.status == 'in_progress' %}
+                                                    <span class="badge bg-primary">In Progress</span>
+                                                {% elif task.status == 'completed' %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Canceled</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                {% if task.priority == '----' %}
+                                                    <span class="badge bg-white">----</span>
+                                                {% elif task.priority == 'low' %}
+                                                    <span class="badge bg-secondary">Low</span>
+                                                {% elif task.priority == 'medium' %}
+                                                    <span class="badge bg-primary">Medium</span>
+                                                {% elif task.priority == 'high' %}
+                                                    <span class="badge bg-warning">High</span>
+                                                {% elif task.priority == 'urgent' %}
+                                                    <span class="badge bg-danger">Urgent</span>
+                                                {% else %}
+                                                    <span>n/a</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start text-nowrap">
+                                                <span style="font-weight: normal; display: block;" title="{{ task.description|escape }}">
+                                                    {{ task.description|truncatewords:8 }}
+                                                </span>
+
+                                            </td>
+                                            <td class="text-center justify-content-center">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <a href="{% url 'task:task_detail' task.pk %}" class="fs-6 fw-bolder px-1 py-1">
+                                                        <i class="fas fa-eye px-1"></i>
+                                                    </a>
+                                                    <!-- Delete Task Button -->
+                                                    <form method="post" style="display: inline;"
+                                                          action="{% url 'task:task_delete' task.id %}?next={% url 'client:detail' client.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-delete mx-0 px-0 fs-6"
+                                                                onclick="return confirm('Are you sure you want to delete this task?');">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <p class="text-center fw-bolder fs-5">No tasks found for this client.</p>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <nav class="mt-lg-3">
+                                    <ul class="pagination">
+                                        {% if tasks.has_previous %}
+                                            <li class="px-lg-4"><a href="?task_page={{ tasks.previous_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">&laquo; Prev</a></li>
+                                        {% endif %}
+                                        <li class="px-lg-3">Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}</li>
+                                        {% if tasks.has_next %}
+                                            <li class="px-lg-3"><a href="?task_page={{ tasks.next_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">Next &raquo;</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 px-4 py-2" >
+                <!-- The task creation form: -->
+                <div class="row mx-2" style="background-color: #c5cbcb;">
+                    <form method="post" action="{% url 'task:task_add_client' client.id %}">
+                        {% csrf_token %}
+                        <div class="col-lg-12 py-1">
+                            <div class="row">
+                                <!-- Add any other task fields as needed -->
+                                <div class="col-lg-12 text-center pb-lg-2">
+                                    <h5 class="pt-2 fw-bolder">Add Task</h5>
+                                </div>
+                                <div class="col-lg-12 py-lg-1">
+                                    <div class="row justify-content-center">
+                                        <div class="col-lg-12 py-lg-1">
+                                            <label for="title" class="form-label fs-6">Title</label>
+                                            <input type="text" name="title" class="form-control w-100"
+                                                   placeholder="Task title" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 py-lg-1">
+                                    <div class="row justify-content-center">
+                                        <div class="col-lg-3 py-lg-1">
+                                            <label for="id_status" class="form-label fs-6">Status</label>
+                                             <div class="dropdown bg-white rounded-2">
+                                                <button class="btn dropdown-toggle w-100 text-start"
+                                                        type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    ---------
+                                                </button>
+                                                <ul class="dropdown-menu w-100" aria-labelledby="statusDropdown">
+                                                    <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="todo">To Do</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="in_progress">In Progress</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="completed">Completed</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="canceled">Canceled</a></li>
+                                                </ul>
+                                                <!-- hidden input to hold the actual value for form submission -->
+                                                <input type="hidden" name="status" id="id_status" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 py-lg-1">
+                                            <label class="form-label fs-6">Priority</label>
+                                                <div class="dropdown bg-white rounded-2">
+                                                    <button class="btn dropdown-toggle w-100 text-start"
+                                                            type="button" id="priorityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        ---------
+                                                    </button>
+                                                    <ul class="dropdown-menu w-100" aria-labelledby="priorityDropdown">
+                                                        <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
+                                                        <li><a class="dropdown-item" href="#" data-value="low">Low</a></li>
+                                                        <li><a class="dropdown-item" href="#" data-value="medium">Medium</a></li>
+                                                        <li><a class="dropdown-item" href="#" data-value="high">High</a></li>
+                                                        <li><a class="dropdown-item" href="#" data-value="urgent">Urgent</a></li>
+                                                    </ul>
+                                                    <!-- hidden input to hold the actual value for form submission -->
+                                                    <input type="hidden" name="priority" id="id_priority" required>
+                                                </div>
+                                        </div>
+                                        <div class="col-lg-2 py-lg-1">
+                                            <div class="col-12"><label for="id_due_date" class="form-label w-100 fs-6">Due Date</label></div>
+                                            <div class="col-12"><input type="text" class="form-control w-100" id="id_due_date" name="due_date" placeholder="dd.mm.yyyy" autocomplete="off"></div>
+                                        </div>
+                                        <div class="col-lg-2 py-lg-1">
+                                            <div class="col-12"><label for="id_due_time" class="form-label w-100 fs-6">Due Time</label></div>
+                                            <div class="col-12"><input type="text" class="form-control w-100" id="id_due_time" name="due_time" placeholder="HH:MM (24-hour format)" pattern="[0-9]{2}:[0-9]{2}" autocomplete="off"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 py-lg-1">
+                            <textarea name="description" class="form-control w-100" rows="4"
+                                      placeholder="Description" autofocus style="border: 1px solid #ced4da;"></textarea>
+                        </div>
+                        <div class="col-lg-12 pt-2 text-center">
+                            <button type="submit" class="btn py-sm-1 mb-2" style="background-color: #4d5a6f; color:white;">
+                                    Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-2 mx-lg-2">
+            <div class="col-12 rounded-3">
                 <!-- Product section -->
                 <div class="row bg-white rounded-3 border border-2 justify-content-sm-center mt-2">
-                    <div class="col-lg-12 rounded-3" style="background-color: #697272;">
+                    <div class="col-lg-12 rounded-3" style="background-color: #4c6c8ad9;">
                         <h5 class="text-center text-white pt-2 fw-bolder">
                             Sales History
                         </h5>
@@ -546,11 +506,11 @@
                                 <input type="text" name="purchase_date_to" id="purchase_date_to" value="{{ purchase_filter.date_to }}"
                                        class="form-control form-control-sm" placeholder="dd.mm.yyyy" autocomplete="off">
                             </div>
-                            <div class="col-6 col-md-3 d-flex gap-2">
-                                <button type="submit" class="btn btn-sm fw-bolder" style="background-color: #517e7e; color: white;">
+                            <div class="col-6 col-md-3">
+                                <button type="submit" class="btn btn-sm fw-bolder" style="background-color: #4d5a6f; color: white;">
                                     <i class="fas fa-filter"></i> Filter
                                 </button>
-                                <a href="?purchase_page=1" class="btn btn-sm btn-outline-secondary">Clear</a>
+                                <a href="?purchase_page=1" class="btn btn-sm btn-secondary">Clear</a>
                             </div>
                         </form>
                     </div>
@@ -623,89 +583,132 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-12">
-                <!-- File section -->
-                <div class="row bg-white border border-2 rounded-3 mt-lg-4">
-                    <div class="col-lg-12" style="background-color: #697272;">
-                        <h5 class="pt-2 text-center text-white fw-bolder">
-                            <i class="fa-solid fa-file-pen mx-1 px-1"></i>Files
+        <div class="row mx-lg-2 bg-white border border-2 rounded-3 mt-lg-4">
+            <div class="col-12 rounded-3">
+                <!-- Comment section -->
+                <div class="row bg-white border rounded-3 border-2 justify-content-sm-center">
+                    <div class="col-lg-12 rounded-3" style="background-color: #4c6c8ad9;">
+                        <h5 class="text-white text-center pt-1 fw-bolder">
+                            <i class="fa-solid fa-commentüx1"></i>Comments
                         </h5>
                     </div>
-                    {% for file in client.files.all %}
-                        <div class="col-12">
-                            <div class="row justify-content-sm-start">
-                                <div class="col-12 mt-2">
-                                    <strong class="px-2">@{{ file.created_by }}</strong>
-                                    {{ file.created_at|date:"d.m.Y H:i" }}
+                    <div class="col-lg-12 mt-2 pt-2">
+                        <div class="row mx-2 bg-transparent">
+                            {% for comment in comments %}
+                                <div class="col-lg-12 mb-0">
+                                    <div class="fw-bolder fs-6 my-1 px-2 rounded-3" style="color: white; background-color: #3F5A73D9;">
+                                        @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row mx-4 pt-1 justify-content-sm-start justify-content-md-start">
-                                <div class="files-p col-sm-12 col-md-6 text-nowrap">
-                                    {{ file.file.name|basename }}
+                                <div class="col-lg-12 my-0 py-0 comment-content">
+                                    <div class="my-0" style="max-height: 25rem; overflow-y: auto; border-left: 3px solid #dee2e6; border-radius: 4px; padding: 0.5rem;">
+                                        {{ comment.content|linebreaks }}
+                                    </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 pt-2 d-flex align-items-center gap-3 flex-wrap">
-                                    <a href="{{ file.file.url }}" class="download-a mb-0">
-                                        <i class="bi bi-download px-2 icon-bold fs-6"></i>Download files
-                                    </a>
+                                <div class="col-lg-12">
+                                    <div class="row justify-content-center justify-content-sm-start">
+                                        <div class="col-12 mt-1 pt-1 mb-4">
+                                            <!-- Delete Button -->
+                                            <form method="post" action="{% url 'client:delete_comment' client.id comment.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                    <button type="submit" class="btn-sm fs-6 btn-delete pt-0 mt-0"
+                                                            onclick="return confirm('Are you sure you want to delete this comment?');"
+                                                            style="border: none; background-color: transparent">
+                                                        Delete
+                                                    </button>
+                                            </form>
 
-                                    <!-- Delete Button -->
-                                    <form action="{% url 'client:delete_client_file' client.id file.id %}" method="post">
-                                      {% csrf_token %}
-                                      <button type="submit" class="btn btn-delete"
-                                              onclick="return confirm('Are you sure you want to delete this file?');">
-                                            <i class="bi bi-trash3 px-lg-2 icon-bold"></i>Delete
-                                      </button>
-                                    </form>
+                                            <!-- Edit Button -->
+                                           <a href="#" data-bs-toggle="modal"
+                                              data-bs-target="#editCommentModal-{{ comment.id }}" class="btn-sm fs-6 btn-edit px-3"
+                                              style="text-decoration: none;">Edit
+                                           </a>
+                                           <!-- Edit Comment Modal -->
+                                           <div class="modal fade" id="editCommentModal-{{ comment.id }}" tabindex="-1"
+                                                aria-labelledby="editCommentLabel-{{ comment.id }}" aria-hidden="true">
+                                               <div class="modal-dialog">
+                                                   <div class="modal-content">
+                                                       <div class="modal-header">
+                                                           <h5 class="modal-title"
+                                                               id="editCommentLabel-{{ comment.id }}">Edit Comment
+                                                           </h5>
+                                                           <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                   aria-label="Close">
+                                                           </button>
+                                                       </div>
+                                                       <div class="modal-body">
+                                                           <form method="post"
+                                                                 action="{% url 'client:edit-client-comment' client.id comment.id %}">
+                                                               {% csrf_token %}
+                                                               <textarea name="content" class="form-control" rows="4" autofocus>{{ comment.content }}</textarea>
+                                                               <button type="submit" class="btn mt-2 save-btn">Save</button>
+                                                           </form>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="not-found-message">No comments found for this client.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="row  justify-content-center mt-2">
+                            <!-- Pagination -->
+                            <div class="col-lg-12">
+                                <div class="row justify-content-center">
+                                    <div class="col-2 text-center">
+                                        <nav>
+                                            <ul class="pagination">
+                                                {% if comments.has_previous %}
+                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.previous_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">&laquo; Prev</a></li>
+                                                {% endif %}
+                                                <li class="px-lg-4">Page {{ comments.number }} of {{ comments.paginator.num_pages }}</li>
+                                                {% if comments.has_next %}
+                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.next_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">Next &raquo;</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                    <div class="row border-top mt-3 pt-3 justify-content-center">
-                        <!-- Pagination -->
-                        <div class="col-lg-12 text-center">
-                            <div class="row justify-content-center">
-                                <div class="col-2 text-center">
-                                    <nav>
-                                       <ul class="pagination">
-                                            {% if tasks.has_previous %}
-                                                <li class="px-lg-4"><a href="?task_page={{ tasks.previous_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">&laquo; Prev</a></li>
-                                            {% endif %}
-                                            <li class="px-lg-3">Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}</li>
-                                            {% if tasks.has_next %}
-                                                <li class="px-lg-3"><a href="?task_page={{ tasks.next_page_number }}{% if comments.number %}&comment_page={{ comments.number }}{% endif %}">Next &raquo;</a></li>
-                                            {% endif %}
-                                        </ul>
-                                    </nav>
-                                </div>
+                        <div class="row mt-0">
+                            <!-- Add Comment Form -->
+                            <div class="col-lg-12">
+                                <form method="post" action="{% url 'client:add_comment' client.id %}">
+                                    {% csrf_token %}
+                                        <div class="col-lg-12">
+                                            <div class="row mx-2 comment-row justify-content-center">
+                                                <div class="col-lg-12">
+                                                   <textarea name="content" class="form-control w-100 comment-form" rows="10" autofocus
+                                                             placeholder="Enter your comment here"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center mx-lg-5">
+                                            <div class="text-center">
+                                                <button class="btn fs-6 fw-bolder py-1 my-1" style="background-color: #4d5a6f; color:white;">Submit</button>
+                                            </div>
+                                        </div>
+                                </form>
                             </div>
-                        </div>
-                    </div>
-                    <!--Add file form -->
-                    <div class="row mt-3">
-                        <div class="col-12 pt-2">
-                            <form method="post" action="{% url 'client:add_client_file' client.pk %}" enctype="multipart/form-data"
-                            class="row g-2 align-items-center">
-                                {% csrf_token %}
-                                <div class="col-8 pt-2">
-                                   {{ fileform.as_p }}
-                                </div>
-                                <div class="col-4">
-                                    <button class="form-submit-btn">Submit</button>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-12 mb-3 pb-4">
+        <div class="col-12 mb-3 pb-4">
                 <!-- Back to Clients -->
                 <a class="back-to-dashboard" href="{% url 'client:list' %}">
                     <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Clients
                 </a>
             </div>
-        </div>
+
     </div>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

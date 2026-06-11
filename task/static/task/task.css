@@ -61,3 +61,24 @@
     color: black;
     text-decoration: none;
 }
+
+.bi-pencil {
+    color: #364a69;
+    font-size: 1.3rem;
+}
+.bi-pencil:hover {
+    color: #3ba48c;
+}
+
+.bi-trash {
+    color: #c0392b;
+    font-size: 1.3rem;
+}
+.bi-trash:hover {
+    background-color: #c0392b;
+    color: white;
+}
+
+.save-comment-btn {
+    background-color: #c0c6c6;
+}

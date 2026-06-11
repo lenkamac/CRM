@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="row bg-transparent mt-3 pt-3">
+        <div class="row bg-transparent mx-lg-2 mt-3 pt-3">
             <!-- Lead Detail -->
              <div class="col-12 col-lg-4">
                  <div class="card card-detail">
@@ -256,6 +256,7 @@
                         <div class="files-p col-sm-12 col-md-6 col-lg-9 pt-3 text-nowrap">
                             {{ file.file.name|basename }}
                         </div>
+
                         <!-- Download Button, Delete Button -->
                         <div class="col-sm-12 col-md-6 col-lg-3 pt-2 d-flex align-items-sm-center align-items-md-start gap-3 flex-wrap">
                             <a href="{{ file.file.url }}" class="download-a fs-6 mb-0 px-1 py-1">
@@ -290,6 +291,7 @@
                 </div>
             </div>
         </div>
+
 
 
         <!--Task section-->
@@ -412,7 +414,7 @@
             </div>
             <div class="col-12 px-4 py-2" >
                 <!-- The task creation form: -->
-                <div class="row mx-2" style="background-color: #c5cbcb; border: 1px solid black;">
+                <div class="row mx-2" style="background-color: #c5cbcb;">
                     <form method="post" action="{% url 'task:task_add_lead' lead.id %}">
                         {% csrf_token %}
                         <div class="col-lg-12 py-1">
@@ -494,13 +496,12 @@
             </div>
         </div>
 
-
         <div class="row mx-lg-2 bg-white border border-2 rounded-3 mt-lg-4">
             <div class="col-12">
                 <!-- Comment section -->
                 <div class="row bg-white border rounded-3 border-2  justify-content-sm-center">
                     <div class="col-lg-12 rounded-3" style="background-color: #6d8d8d;">
-                        <h5 class="text-white text-center pt-1 fw-bolder">
+                        <h5 class="text-white text-center pt-1 fw-bolder rounded-3">
                             <i class="fa-solid fa-comment px-1"></i>Comments
                         </h5>
                     </div>
@@ -508,12 +509,12 @@
                         <div class="row mx-2 bg-transparent">
                             {% for comment in comments %}
                                 <div class="col-lg-12 mb-0">
-                                    <div class="fw-bolder fs-6 my-1 px-2" style="color: white; background-color: #405454;">
+                                    <div class="fw-bolder fs-6 my-1 px-2 rounded-3" style="color: white; background-color: #405454;">
                                         @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
                                     </div>
                                 </div>
                                 <div class="col-lg-12 my-0 pb-0 comment-content">
-                                    <div class="files-p my-0" style="max-height: 25rem; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.5rem;">
+                                    <div class="files-p my-0" style="max-height: 25rem; overflow-y: auto; border-left: 2px solid #dee2e6; border-radius: 4px; padding: 0.5rem;">
                                         {{ comment.content|linebreaks }}
                                     </div>
                                 </div>

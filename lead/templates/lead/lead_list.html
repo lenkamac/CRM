@@ -210,10 +210,10 @@
                                                                 </label>
                                                             </td>
                                                             <td class="text-start text-nowrap">{{ lead.created_at|date:"d.m.Y H:i" }}</td>
-                                                            <td class="text-start text-nowrap"><a href="{% url 'lead:detail' lead.pk %}" class="lead-company">{{ lead.company }}</a></td>
-                                                            <td class="text-start text-nowrap"><a href="{% url 'lead:detail' lead.pk  %}" class="lead-name">{{ lead.first_name }} {{ lead.last_name }}</a></td>
+                                                            <td class="text-start text-nowrap"><a href="{% url 'lead:detail' lead.pk %}" class="lead-company"> {% if lead.company %} {{ lead.company }} {% else %}{% endif %}</a></td>
+                                                            <td class="text-start text-nowrap"><a href="{% url 'lead:detail' lead.pk  %}" class="lead-name">{% if lead.last_name %} {{ lead.first_name }} {{ lead.last_name }} {% else %}{% endif %}</a></td>
                                                             <td class="text-start text-nowrap">{{ lead.email }}</td>
-                                                            <td class="text-start text-nowrap">{{ lead.title }}</td>
+                                                            <td class="text-start text-nowrap">{%  if lead.title %} {{ lead.title }} {% else %}{% endif %}</td>
                                                             <td class="text-center text-nowrap"><span class="{% if lead.priority == 'low' %}text-dark-bg-subtle fw-bolder
                                                                     {% elif lead.priority == 'medium' %}text-info fw-bolder{% elif lead.priority == 'high' %}text-warning fw-bolder
                                                                     {% elif lead.priority == 'urgent' %}text-danger fw-bolder{% endif %}">
