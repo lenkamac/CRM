@@ -50,6 +50,14 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         # Get all purchases for this product
         context['purchases'] = self.object.purchases.all().select_related('client', 'created_by')
+
+        context['sort'] = self.request.GET.get('sort','')
+        sort = context['sort']
+        if sort == 'date_asc':
+            context['purchases'] = context['purchases'].order_by('created_at')
+        elif sort == 'date_desc':
+            context['purchases'] = context['purchases'].order_by('-created_at')
+
         return context
 
 

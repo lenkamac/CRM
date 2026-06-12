@@ -86,7 +86,12 @@
                                 <table class="table table-hover table-striped align-middle">
                                     <thead class="th-custom">
                                         <tr>
-                                            <th class="text-start text-nowrap">Purchase Date</th>
+                                            <th class="text-start text-nowrap">
+                                                <a href="?sort={% if sort == 'date_desc' %}date_asc{% else %}date_desc{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" style="text-decoration: none; color: black;">
+                                                    Date
+                                                    {% if sort == 'date_asc' %}▲{% elif sort == 'date_desc' %}▼{% else %}⇅{% endif %}
+                                                </a>
+                                            </th>
                                             <th class="text-start">Client</th>
                                             <th class="text-center">Quantity</th>
                                             <th class="text-center text-nowrap">Unit Price</th>
