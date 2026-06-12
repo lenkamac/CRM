@@ -11,18 +11,32 @@
     {% endblock %}
 
     <div class="container-fluid mx-auto" id="product-detail">
-        <div class="row mt-0 pt-5 justify-content-center">
-            <div class="col-12 text-center">
-                <h4 class="mb-sm-2 fw-bolder">{{ product.name }}</h4>
+        <div class="row mt-0 mb-3 mx-2 pt-5 justify-content-center" >
+            <div class="col-2 py-1  text-start  rounded-start-2" style="background-color: #364a69;">
+                <a href="{% url 'product:product_list' %}" class="btn btn-sm tex fs-6 text-dark fw-bolder" style="background-color: #c0c6c6;">
+                    <i class="bi bi-arrow-left"></i> Back to Products
+                </a>
+            </div>
+
+            <div class="col-8 text-center" style="background-color: #364a69; color: white;">
+                <h4 class="mb-sm-2 py-1 fw-bolder">{{ product.name }}</h4>
+            </div>
+            <div class="col text-end py-1" style="background-color: #364a69; color: white;">
+                <a href="{% url 'product:edit_product' product.id %}" class="btn  btn-sm btn-edit-product fs-6 text-nowrap">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'product:delete_product' product.id %}" class="btn btn-sm btn-delete-product fs-6 text-nowrap">
+                    <i class="bi bi-trash-fill"></i>
+                </a>
             </div>
         </div>
 
         <!-- Product Information Card -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-12">
-                <div class="card products-card shadow-sm">
-                    <div class="card-header text-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Product Information</h4>
+        <div class="row mb-3 mx-2 justify-content-center">
+            <div class="col-6">
+                <div class="card products-card shadow-sm mx-2 h-100">
+                    <div class="card-header text-dark bg-light d-flex justify-content-between align-items-center">
+                        <div class="mb-0 text-start fs-6">Product Information</div>
                         <div class="btn-group btn-group-sm" role="group">
                             <button type="button" class="btn btn-sm btn-light currency-toggle active" data-currency="EUR">€ EUR</button>
                             <button type="button" class="btn btn-sm btn-light currency-toggle" data-currency="USD">$ USD</button>
@@ -30,44 +44,53 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-2 text-start">
-                                <table>
-                                    <tr>
-                                        <td class="fw-bolder  py-2">Product ID:</td>
-                                        <td class="fw-normal text-start py-2">{{ product.id }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bolder">Name:</td>
-                                        <td class="fw-normal text-start">{{ product.name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bolder py-2">Net Price:</td>
-                                        <td class="py-2"><span class="price-cell fw-normal text-start" data-eur="{{ product.net_price }}"><span class="currency-symbol">€</span><span class="price-value">{{ product.net_price }}</span></span></td>
-                                </table>
-                            </div>
-                            <div class="col-2 bg-white">
-                                <table>
-                                    <tr>
-                                        <td class="fw-bolder py-1">Total Sold Quantity: </td>
-                                        <td class="fw-normal py-2">{{ product.sold_quantity }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bolder py-1">Total Revenue:</td>
-                                        <td class="fw-normal text-start">€{{ product.get_total_price }}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 py-2">
-                                <p class="fw-bolder mb-0 pb-1">Description:</p>
-                                {% if product.description %}
-                                    <textarea style="width: 25%; height: 100px; padding-left: 5px;">{{ product.description }}</textarea>
-                                {% else %}
-                                    <textarea style="width: 25%; height: 100px; padding-left: 5px;">No description available</textarea>
-                                {% endif %}
+                            <div class="col-6 text-start">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless">
+                                        <tr >
+                                            <td class="fw-bolder  text-nowrap">Product ID:</td>
+                                            <td class="fw-normal text-start py-2">{{ product.id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bolder">Name:</td>
+                                            <td class="fw-normal text-start">{{ product.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bolder py-2">Net Price:</td>
+                                            <td class="py-2"><span class="price-cell fw-normal text-start" data-eur="{{ product.net_price }}">
+                                                    <span class="currency-symbol">€</span>
+                                                    <span class="price-value">{{ product.net_price }}</span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                         <tr>
+                                            <td class="fw-bolder py-1">Total Sold Quantity: </td>
+                                            <td class="fw-normal py-2">{{ product.sold_quantity }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bolder py-1">Total Revenue:</td>
+                                            <td class="fw-normal text-start">€{{ product.get_total_price }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="card products-card border-0 h-100">
+                    <div class="card-header text-dark bg-light d-flex justify-content-between align-items-center mx-0 mt-0">
+                         <div class="mb-0 text-start fs-6">Product Description</div>
+                    </div>
+                    <div class="card-body">
+                         {% if product.description %}
+                            <p style="width: 100%;">{{ product.description }}</p>
+                        {% else %}
+                            <p style="width: 100%;">No description available</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -93,9 +116,19 @@
                                                 </a>
                                             </th>
                                             <th class="text-start">Client</th>
-                                            <th class="text-center">Quantity</th>
+                                            <th class="text-center">
+                                                <a href="?sort={% if sort == 'quantity_desc' %}quantity_asc{% else %}quantity_desc{% endif %}" style="text-decoration: none; color: black;">
+                                                    Quantity
+                                                    {% if sort == 'quantity_asc' %}▲{% elif sort == 'quantity_desc' %}▼{% else %}⇅{% endif %}
+                                                </a>
+                                            </th>
                                             <th class="text-center text-nowrap">Unit Price</th>
-                                            <th class="text-center text-nowrap">Total Price</th>
+                                            <th class="text-center text-nowrap">
+                                                <a href="?sort={% if sort == 'total_desc' %}total_asc{% else %}total_desc{% endif %}" style="text-decoration: none; color: black;">
+                                                    Total Price
+                                                    {% if sort == 'total_asc' %}▲{% elif sort == 'total_desc' %}▼{% else %}⇅{% endif %}
+                                                </a>
+                                            </th>
                                             <th class="text-start">Notes</th>
                                         </tr>
                                     </thead>
@@ -125,29 +158,26 @@
             </div>
         </div>
 
-        <!-- Back to Products and Edit/Delete Buttons -->
-        <div class="row">
-            <div class="col-8 col-sm-7 text-start pt-sm-4 pt-lg-3">
-                <a href="{% url 'product:product_list' %}" class="btn btn-sm text-dark btn-outline-dark fw-bolder">
-                    <i class="bi bi-arrow-left"></i> Back to Products
-                </a>
-            </div>
-            <div class="col-3 col-sm-5 text-center pt-sm-4 pt-lg-3">
-                <div class="row ">
-                    <div class="col text-end">
-                        <a href="{% url 'product:edit_product' product.id %}" class="btn btn-sm btn-edit-product text-nowrap">
-                            <i class="bi bi-pencil"></i> Edit Product
-                        </a>
-                    </div>
-                    <div class="col  text-start px-0">
-                        <a href="{% url 'product:delete_product' product.id %}" class="btn btn-sm btn-delete-product text-nowrap ms-2">
-                            <i class="bi bi-trash"></i> Delete Product
-                        </a>
+        <!--Pagination-->
+        <div class="row justify-content-center mt-4">
+            <div class="col-12">
+                <div class="row justify-content-center">
+                    <div class="col-2 text-center">
+                        <nav>
+                            <ul class="pagination">
+                                {% if purchases.has_previous %}
+                                    <li class="px-lg-4"><a href="?page={{ purchases.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">&laquo; Prev</a></li>
+                                {% endif %}
+                                <li class="px-lg-4">Page {{ purchases.number }} of {{ purchases.paginator.num_pages }}</li>
+                                {% if purchases.has_next %}
+                                    <li class="px-lg-4"><a href="?page={{ purchases.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">Next &raquo;</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
         </div>
-
 
     </div>
 

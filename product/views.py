@@ -5,6 +5,7 @@ from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.db.models import Q, ExpressionWrapper, DecimalField, F
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -49,7 +50,12 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Get all purchases for this product
-        context['purchases'] = self.object.purchases.all().select_related('client', 'created_by')
+        context['purchases'] = self.object.purchases.all().select_related('client', 'created_by').annotate(
+            total_price=ExpressionWrapper(
+                F('quantity') * F('purchase_price'),
+                output_field=DecimalField()
+            )
+        )
 
         context['sort'] = self.request.GET.get('sort','')
         sort = context['sort']
@@ -57,6 +63,22 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
             context['purchases'] = context['purchases'].order_by('created_at')
         elif sort == 'date_desc':
             context['purchases'] = context['purchases'].order_by('-created_at')
+
+        if sort == 'quantity_asc':
+            context['purchases'] = context['purchases'].order_by('quantity')
+        elif sort == 'quantity_desc':
+            context['purchases'] = context['purchases'].order_by('-quantity')
+
+        if sort == 'total_asc':
+            context['purchases'] = context['purchases'].order_by('total_price')
+        elif sort == 'total_desc':
+            context['purchases'] = context['purchases'].order_by('-total_price')
+
+        # pagination
+        purchase_list = context['purchases']
+        paginator = Paginator(purchase_list, 25)
+        page_number = self.request.GET.get('page')
+        context['purchases'] = paginator.get_page(page_number)
 
         return context
 
