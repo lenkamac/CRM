@@ -13,7 +13,7 @@
 
         <div class="row pt-4">
             <div class="col-2">
-                <a href="{% url 'core:project_list' %}" class="btn btn-sm btn-outline-dark fs-6 fw-bolder " style="background-color: #b9c5c5;"><i class="bi bi-arrow-left px-1"></i>Back to Projects</a>
+                <a href="{% url 'core:project_list' %}" class="btn btn-secondary text-dark" style="background-color: #b9c5c5;"><i class="bi bi-arrow-left px-1"></i>Back to Projects</a>
             </div>
             <div class="col-8 text-center">
                 <h4 class="h3 mb-1">{{ project.name }}</h4>
@@ -31,51 +31,51 @@
               {% endif %}
         </div>
 
-        <div class="row">
-            <div class="col-6">
-                <div class="card mt-3">
-                    <div class="card-header text-center fw-bolder">Assigned teams</div>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Team</th>
-                                        <th>Assigned</th>
-                                        <th class="text-end">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for a in assigned_teams %}
-                                    <tr>
-                                        <td>{{ a.team.name }}</td>
-                                        <td>{{ a.assigned_at|date:"d.m.Y H:i" }}</td>
-                                        <td class="text-end">
-                                            <form method="post" action="{% url 'core:project_team_remove' project.pk a.pk %}">
-                                            {% csrf_token %}
-                                                <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                        <tr><td colspan="3" class="text-center py-4 text-muted">No teams assigned.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                  </div>
-            </div>
-
-            <div class="col-6">
-                <div class="card mt-3">
-                    <div class="card-header text-center fw-bolder">Conversations</div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="row justify-content-around">
+                    <div class="col-5 bg-white rounded-3 pt-3">
+                        <table class="table table-hover align-middle mb-0 border-0">
                             <thead>
+                                <tr colspan="3">
+                                    <h5  class="text-center">Assigned teams</h5>
+                                </tr>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Started by</th>
-                                    <th>Date</th>
-                                    <th class="text-end">Action</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Team</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Assigned</th>
+                                    <th class="border-0 text-end" style="background-color: #dcdede;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in assigned_teams %}
+                                <tr>
+                                    <td>{{ a.team.name }}</td>
+                                    <td>{{ a.assigned_at|date:"d.m.Y H:i" }}</td>
+                                    <td class="text-end">
+                                        <form method="post" action="{% url 'core:project_team_remove' project.pk a.pk %}">
+                                        {% csrf_token %}
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                    <tr><td colspan="3" class="text-center py-4 text-muted">No teams assigned.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-6 bg-white rounded-3 pt-3">
+                        <table class="table table-hover align-middle mb-0 border-0">
+                            <thead>
+                                <tr colspan="4">
+                                    <h5  class="text-center">Conversations</h5>
+                                </tr>
+                                <tr>
+                                    <th class="border-0" style="background-color: #dcdede;">Title</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Started by</th>
+                                    <th class="border-0" style="background-color: #dcdede;">Date</th>
+                                    <th class="border-0 text-end" style="background-color: #dcdede;" >Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -99,12 +99,16 @@
                                     <tr><td colspan="4" class="text-center py-4 text-muted">No conversations yet.</td></tr>
                                 {% endfor %}
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4" class="border-0 bg-white text-end">
+                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newConversationModal">
+                                            + New Conversation
+                                        </button>
+                                    </th>
+                                </tr>
+                            </tfoot>
                         </table>
-                    </div>
-                    <div class="card-footer text-end">
-                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newConversationModal">
-                            + New Conversation
-                        </button>
                     </div>
                 </div>
             </div>
@@ -153,10 +157,59 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="row justify-content-around mt-4">
+            <div class="col-5 pt-3 rounded-3 bg-white">
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label class="mb-0 fw-bolder text-center">Description</label>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button class="btn btn-sm btn-outline-primary text-end" id="descEditBtn" onclick="toggleDescEdit()">Edit</button>
+
+                        {% if project.description %}
+                            <form method="post" action="{% url 'core:project_description_update' project.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div id="descDisplay">
+                    {% if project.description %}
+                        <p class="mb-2 px-2" style="white-space: pre-wrap;">{{ project.description }}</p>
+                    {% else %}
+                        <p class="text-muted fst-italic mb-2" id="descEmpty">No description yet.</p>
+                    {% endif %}
+                </div>
+
+                <form method="post" action="{% url 'core:project_description_update' project.pk %}" id="descForm" class="d-none">
+                    {% csrf_token %}
+                    <textarea name="description" class="form-control mb-2" style="height: 150px;">{{ project.description }}</textarea>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleDescEdit()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6"></div>
         </div>
 
         <script>
+            function toggleDescEdit() {
+                const display = document.getElementById('descDisplay');
+                const form = document.getElementById('descForm');
+                const btn = document.getElementById('descEditBtn');
+                const isEditing = !form.classList.contains('d-none');
+                display.classList.toggle('d-none', !isEditing);
+                form.classList.toggle('d-none', isEditing);
+                btn.textContent = isEditing ? 'Edit' : 'Cancel';
+            }
+
             const deleteConvModal = document.getElementById('deleteConvModal');
             deleteConvModal.addEventListener('show.bs.modal', function (event) {
                 const btn = event.relatedTarget;
@@ -165,16 +218,8 @@
                 document.getElementById('deleteConvTitle').textContent = convTitle;
                 document.getElementById('deleteConvForm').action = "{% url 'core:project_conversation_delete' project.pk 0 %}".replace('/0/', '/' + convPk + '/');
             });
-        </script>
 
-        <div class="row">
-            <div class="col-6 mt-4">
-                <label>Description</label>
-                {% if project.description %}
-                    <textarea class="mt-2 mb-0 w-100" style="height: 150px">{{ project.description }}</textarea>
-                {% endif %}
-            </div>
-        </div>
+        </script>
 
     </div>
 {% endblock %}

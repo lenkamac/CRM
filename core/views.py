@@ -55,6 +55,11 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["team"].queryset = Team.objects.filter(created_by=self.request.user, is_active=True)
+        assignment = ProjectTeamAssignment.objects.filter(
+            project=self.object, is_active=True
+        ).select_related("team").first()
+        if assignment:
+            form.fields["team"].initial = assignment.team
         return form
 
     def form_valid(self, form):
@@ -412,6 +417,20 @@ def project_team_remove(request, project_pk: int, assignment_pk: int):
     assignment.is_active = False
     assignment.save(update_fields=["is_active"])
     messages.success(request, "Team unassigned (deactivated).")
+    return redirect("core:project_detail", pk=project.pk)
+
+
+@login_required
+def project_description_update(request, pk: int):
+    if request.method != "POST":
+        raise Http404()
+    project = get_object_or_404(Project, pk=pk, created_by=request.user)
+    action = request.POST.get("action")
+    if action == "delete":
+        project.description = ""
+    else:
+        project.description = request.POST.get("description", "").strip()
+    project.save(update_fields=["description"])
     return redirect("core:project_detail", pk=project.pk)
 
 
