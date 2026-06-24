@@ -218,75 +218,113 @@
                  </div>
              </div>
 
-            <!-- file section -->
-            <div class="col-12 col-lg-8 bg-white rounded-3 border border-2">
-                <h5 class="text-center text-white fw-bolder py-1 rounded-top-3"
-                    style="background-color: #6d8d8d; margin: 0 calc(var(--bs-gutter-x) * -.5);">
-                    <i class="fa-solid fa-file-pen"></i>Files
-                </h5>
-
-
-                <!-- Add file form -->
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6 class="text-start fs-6 fw-bolder">Upload file:</h6>
+            <div class="col-12 col-lg-8">
+                <!-- Comment section -->
+                <div class="row bg-white border rounded-3 border-2  justify-content-sm-center">
+                    <div class="col-lg-12 rounded-3" style="background-color: #6d8d8d;">
+                        <h5 class="text-white text-center pt-1 fw-bolder rounded-3">
+                            <i class="fa-solid fa-comment px-1"></i>Comments
+                        </h5>
                     </div>
-                    <div class="col-12 pt-2">
-                        <form method="post" action="{% url 'lead:add_file' lead.id %}" enctype="multipart/form-data"
-                         class="row g-2 align-items-center">
-                        {% csrf_token %}
-                            <div class="col-10 pt-2">
-                                {{ fileform.as_p }}
+                    <div class="col-lg-12 mt-2 pt-2">
+                        <div class="row mx-2 bg-transparent">
+                            {% for comment in comments %}
+                                <div class="col-lg-12 mb-0">
+                                    <div class="fw-bolder fs-6 my-1 px-2 rounded-3" style="color: white; background-color: #405454;">
+                                        @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 my-0 pb-0 comment-content">
+                                    <div class="files-p my-0" style="max-height: 25rem; overflow-y: auto; border-left: 2px solid #dee2e6; border-radius: 4px; padding: 0.5rem;">
+                                        {{ comment.content|linebreaks }}
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="row justify-content-center justify-content-sm-start">
+                                        <div class="col-12 mt-1 pt-1 mb-4">
+                                            <!-- Delete Button -->
+                                            <form method="post" action="{% url 'lead:delete_comment' lead.id comment.id %}"
+                                                  style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-sm fs-6 btn-delete pt-0 mt-0"
+                                                        onclick="return confirm('Are you sure you want to delete this comment?');"
+                                                        style="border: none; background-color: transparent">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                            <!-- Edit Button -->
+                                           <a href="#" data-bs-toggle="modal" data-bs-target="#editCommentModal-{{ comment.id }}"
+                                              class="btn-sm fs-6 btn-edit px-3"
+                                              style="text-decoration: none;">Edit
+                                           </a>
+                                            <!-- Edit Comment Modal -->
+                                           <div class="modal fade" id="editCommentModal-{{ comment.id }}" tabindex="-1"
+                                                aria-labelledby="editCommentLabel-{{ comment.id }}" aria-hidden="true">
+                                               <div class="modal-dialog">
+                                                   <div class="modal-content">
+                                                       <div class="modal-header">
+                                                           <h5 class="modal-title" id="editCommentLabel-{{ comment.id }}">Edit Comment</h5>
+                                                           <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                   aria-label="Close"></button>
+                                                       </div>
+                                                       <div class="modal-body">
+                                                           <form method="post" action="{% url 'lead:edit-comment' lead.id comment.id %}">
+                                                               {% csrf_token %}
+                                                               <textarea name="content" class="form-control" rows="4" autofocus>{{ comment.content }}</textarea>
+                                                               <button type="submit" class="btn mt-2 save-btn">Save</button>
+                                                           </form>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="not-found-message">No comments found for this lead.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="row justify-content-center mt-2">
+                            <!-- Pagination -->
+                            <div class="col-lg-12">
+                                <div class="row justify-content-center">
+                                    <div class="col-4 col-lg-2 text-center">
+                                        <nav>
+                                            <ul class="pagination">
+                                                {% if comments.has_previous %}
+                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.previous_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">&laquo; Prev</a></li>
+                                                {% endif %}
+                                                <li class="px-lg-4">Page {{ comments.number }} of {{ comments.paginator.num_pages }}</li>
+                                                {% if comments.has_next %}
+                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.next_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">Next &raquo;</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-2">
-                                <button class="btn fs-6 fw-bolder py-1 form-submit-btn">Submit</button>
+                        </div>
+                        <div class="row mt-0">
+                            <!-- Add Comment Form -->
+                            <div class="col-lg-12">
+                                <form method="post" action="{% url 'lead:add_comment' lead.id %}">
+                                    {% csrf_token %}
+                                        <div class="col-lg-12">
+                                            <div class="row mx-2 comment-row justify-content-center">
+                                                <div class="col-lg-12"> <!-- Make the text area full width -->
+                                                    <textarea name="content" class="form-control w-100 comment-form" rows="10"
+                                                              placeholder="Enter your comment here" autofocus></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center mx-lg-5">
+                                            <div class="text-center">
+                                                <button class="btn form-submit-btn fs-6 fw-bolder py-1 my-2">Submit</button>
+                                            </div>
+                                        </div>
+                                </form>
                             </div>
-                        </form>
-                    </div>
-                </div>
-
-                {% for file in lead.files.all %}
-                    <div class="row justify-content-sm-start border-top">
-                        <div class="col-12 mt-2 mb-1">
-                            <strong>@{{ file.created_by }}</strong>
-                            {{ file.created_at|date:"d.m.Y H:i" }}
                         </div>
-                    </div>
-                    <div class="row mx-4 justify-content-sm-start justify-content-md-start">
-                        <div class="files-p col-sm-12 col-md-6 col-lg-9 pt-3 text-nowrap">
-                            {{ file.file.name|basename }}
-                        </div>
-
-                        <!-- Download Button, Delete Button -->
-                        <div class="col-sm-12 col-md-6 col-lg-3 pt-2 d-flex align-items-sm-center align-items-md-start gap-3 flex-wrap">
-                            <a href="{{ file.file.url }}" class="download-a fs-6 mb-0 px-1 py-1">
-                                <i class="bi bi-download px-2"></i>Download files
-                            </a>
-                            <!-- Delete Button -->
-                            <form action="{% url 'lead:delete_file' lead.id file.id %}" method="post">
-                              {% csrf_token %}
-                                  <button type="submit" class="btn btn-sm fs-6 fw-bolder"
-                                          onclick="return confirm('Are you sure you want to delete this file?');">
-                                        <i class="bi bi-trash3"></i>
-                                  </button>
-                            </form>
-                        </div>
-                    </div>
-                {% endfor %}
-                <!-- Pagination -->
-                <div class="row border-top mt-3 pt-3 justify-content-center">
-                    <div class="col-2 text-center">
-                        <nav>
-                            <ul class="pagination">
-                                {% if files.has_previous %}
-                                    <li class="px-lg-4"><a href="?file_page={{ files.previous_page_number }}{% if files.number %}&file_page={{ files.number }}{% endif %}">&laquo; Prev</a></li>
-                                {% endif %}
-                                <li class="px-lg-4">Page {{ files.number }} of {{ files.paginator.num_pages }}</li>
-                                {% if files.has_next %}
-                                    <li class="px-lg-4"><a href="?file_page={{ files.next_page_number }}{% if files.number %}&file_page={{ files.number }}{% endif %}">Next &raquo;</a></li>
-                                {% endif %}
-                            </ul>
-                        </nav>
                     </div>
                 </div>
             </div>
@@ -496,126 +534,87 @@
             </div>
         </div>
 
+        <!-- file section -->
         <div class="row mx-lg-2 bg-white border border-2 rounded-3 mt-lg-4">
-            <div class="col-12">
-                <!-- Comment section -->
-                <div class="row bg-white border rounded-3 border-2  justify-content-sm-center">
-                    <div class="col-lg-12 rounded-3" style="background-color: #6d8d8d;">
-                        <h5 class="text-white text-center pt-1 fw-bolder rounded-3">
-                            <i class="fa-solid fa-comment px-1"></i>Comments
-                        </h5>
+
+            <div class="col-12 bg-white rounded-3 border border-2">
+                <h5 class="text-center text-white fw-bolder py-1 rounded-top-3"
+                    style="background-color: #6d8d8d; margin: 0 calc(var(--bs-gutter-x) * -.5);">
+                    <i class="fa-solid fa-file-pen"></i>Files
+                </h5>
+
+                <!-- Add file form -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-start fs-6 fw-bolder">Upload file:</h6>
                     </div>
-                    <div class="col-lg-12 mt-2 pt-2">
-                        <div class="row mx-2 bg-transparent">
-                            {% for comment in comments %}
-                                <div class="col-lg-12 mb-0">
-                                    <div class="fw-bolder fs-6 my-1 px-2 rounded-3" style="color: white; background-color: #405454;">
-                                        @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
-                                    </div>
-                                </div>
-                                <div class="col-lg-12 my-0 pb-0 comment-content">
-                                    <div class="files-p my-0" style="max-height: 25rem; overflow-y: auto; border-left: 2px solid #dee2e6; border-radius: 4px; padding: 0.5rem;">
-                                        {{ comment.content|linebreaks }}
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="row justify-content-center justify-content-sm-start">
-                                        <div class="col-12 mt-1 pt-1 mb-4">
-                                            <!-- Delete Button -->
-                                            <form method="post" action="{% url 'lead:delete_comment' lead.id comment.id %}"
-                                                  style="display: inline;">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-sm fs-6 btn-delete pt-0 mt-0"
-                                                        onclick="return confirm('Are you sure you want to delete this comment?');"
-                                                        style="border: none; background-color: transparent">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                            <!-- Edit Button -->
-                                           <a href="#" data-bs-toggle="modal" data-bs-target="#editCommentModal-{{ comment.id }}"
-                                              class="btn-sm fs-6 btn-edit px-3"
-                                              style="text-decoration: none;">Edit
-                                           </a>
-                                            <!-- Edit Comment Modal -->
-                                           <div class="modal fade" id="editCommentModal-{{ comment.id }}" tabindex="-1"
-                                                aria-labelledby="editCommentLabel-{{ comment.id }}" aria-hidden="true">
-                                               <div class="modal-dialog">
-                                                   <div class="modal-content">
-                                                       <div class="modal-header">
-                                                           <h5 class="modal-title" id="editCommentLabel-{{ comment.id }}">Edit Comment</h5>
-                                                           <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                   aria-label="Close"></button>
-                                                       </div>
-                                                       <div class="modal-body">
-                                                           <form method="post" action="{% url 'lead:edit-comment' lead.id comment.id %}">
-                                                               {% csrf_token %}
-                                                               <textarea name="content" class="form-control" rows="4" autofocus>{{ comment.content }}</textarea>
-                                                               <button type="submit" class="btn mt-2 save-btn">Save</button>
-                                                           </form>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% empty %}
-                                <p class="not-found-message">No comments found for this lead.</p>
-                            {% endfor %}
-                        </div>
-                        <div class="row justify-content-center mt-2">
-                            <!-- Pagination -->
-                            <div class="col-lg-12">
-                                <div class="row justify-content-center">
-                                    <div class="col-4 col-lg-2 text-center">
-                                        <nav>
-                                            <ul class="pagination">
-                                                {% if comments.has_previous %}
-                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.previous_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">&laquo; Prev</a></li>
-                                                {% endif %}
-                                                <li class="px-lg-4">Page {{ comments.number }} of {{ comments.paginator.num_pages }}</li>
-                                                {% if comments.has_next %}
-                                                    <li class="px-lg-4"><a href="?comment_page={{ comments.next_page_number }}{% if tasks.number %}&task_page={{ tasks.number }}{% endif %}">Next &raquo;</a></li>
-                                                {% endif %}
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
+                    <div class="col-12 pt-2">
+                        <form method="post" action="{% url 'lead:add_file' lead.id %}" enctype="multipart/form-data"
+                         class="row g-2 align-items-center">
+                        {% csrf_token %}
+                            <div class="col-10 pt-2">
+                                {{ fileform.as_p }}
                             </div>
-                        </div>
-                        <div class="row mt-0">
-                            <!-- Add Comment Form -->
-                            <div class="col-lg-12">
-                                <form method="post" action="{% url 'lead:add_comment' lead.id %}">
-                                    {% csrf_token %}
-                                        <div class="col-lg-12">
-                                            <div class="row mx-2 comment-row justify-content-center">
-                                                <div class="col-lg-12"> <!-- Make the text area full width -->
-                                                    <textarea name="content" class="form-control w-100 comment-form" rows="10"
-                                                              placeholder="Enter your comment here" autofocus></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row justify-content-center mx-lg-5">
-                                            <div class="text-center">
-                                                <button class="btn form-submit-btn fs-6 fw-bolder py-1 my-2">Submit</button>
-                                            </div>
-                                        </div>
-                                </form>
+                            <div class="col-2">
+                                <button class="btn fs-6 fw-bolder py-1 form-submit-btn">Submit</button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+
+                {% for file in lead.files.all %}
+                    <div class="row justify-content-sm-start border-top">
+                        <div class="col-12 mt-2 mb-1">
+                            <strong>@{{ file.created_by }}</strong>
+                            {{ file.created_at|date:"d.m.Y H:i" }}
                         </div>
+                    </div>
+                    <div class="row mx-4 justify-content-sm-start justify-content-md-start">
+                        <div class="files-p col-sm-12 col-md-6 col-lg-9 pt-3 text-nowrap">
+                            {{ file.file.name|basename }}
+                        </div>
+
+                        <!-- Download Button, Delete Button -->
+                        <div class="col-sm-12 col-md-6 col-lg-3 pt-2 d-flex align-items-sm-center align-items-md-start gap-3 flex-wrap">
+                            <a href="{{ file.file.url }}" class="download-a fs-6 mb-0 px-1 py-1">
+                                <i class="bi bi-download px-2"></i>Download files
+                            </a>
+                            <!-- Delete Button -->
+                            <form action="{% url 'lead:delete_file' lead.id file.id %}" method="post">
+                              {% csrf_token %}
+                                  <button type="submit" class="btn btn-sm fs-6 fw-bolder"
+                                          onclick="return confirm('Are you sure you want to delete this file?');">
+                                        <i class="bi bi-trash3"></i>
+                                  </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- Pagination -->
+                <div class="row border-top mt-3 pt-3 justify-content-center">
+                    <div class="col-2 text-center">
+                        <nav>
+                            <ul class="pagination">
+                                {% if files.has_previous %}
+                                    <li class="px-lg-4"><a href="?file_page={{ files.previous_page_number }}{% if files.number %}&file_page={{ files.number }}{% endif %}">&laquo; Prev</a></li>
+                                {% endif %}
+                                <li class="px-lg-4">Page {{ files.number }} of {{ files.paginator.num_pages }}</li>
+                                {% if files.has_next %}
+                                    <li class="px-lg-4"><a href="?file_page={{ files.next_page_number }}{% if files.number %}&file_page={{ files.number }}{% endif %}">Next &raquo;</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12 mb-3 pb-4">
+            <div class="col-12 mb-3 pb-4">
                 <!-- Section for back to leads, delete, edit and convert lead -->
                 <a class="back-to-dashboard" href="{% url 'lead:list' %}">
                     <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Leads
                 </a>
             </div>
-
+        </div>
     </div>
 
 
