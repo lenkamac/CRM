@@ -64,27 +64,29 @@
 
                             <!-- Phone / Email -->
                             <div class="row mb-3">
+                                <div class="col-6">
+                                   <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}: {% if form.email.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                    {{ form.email|add_class:"form-control" }}
+                                    {% for error in form.email.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                               </div>
                                  <div class="col-6">
                                     <label for="{{ form.phone_number.id_for_label }}" class="form-label">Tel: {% if form.phone_number.field.required %}<span class="text-danger">*</span>{% endif %}</label>
                                     {{ form.phone_number|add_class:"form-control" }}
                                     {% for error in form.phone_number.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                                 </div>
-                            </div>
-
-                            <div class="row mb-3 justify-content-start">
-                               <div class="col-12">
-                                   <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}: {% if form.email.field.required %}<span class="text-danger">*</span>{% endif %}</label>
-                                    {{ form.email|add_class:"form-control" }}
-                                    {% for error in form.email.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                               </div>
                            </div>
 
                             <div class="row mb-3">
-                                <div class="col-12">
+                                <div class="col-6">
                                     <label for="{{ form.method.id_for_label }}" class="form-label">{{ form.method.label }}: {% if form.method.field.required %}<span class="text-danger">*</span>{% endif %}</label>
                                     {{ form.method|add_class:"form-control" }}
                                     {% for error in form.method.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                                 </div>
+                                <div class="col-6">
+                                        <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}: {% if form.notes.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                                        {{ form.notes|add_class:"form-control" }}
+                                        {% for error in form.notes.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                                    </div>
                             </div>
 
                             <!-- Submit Button -->

@@ -8,6 +8,7 @@ from .models import (
     ProjectTeamAssignment,
     Conversation,
     Message,
+    Contacts
 )
 
 
@@ -53,3 +54,9 @@ class ConversationAdmin(admin.ModelAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display = ("conversation", "sender", "created_at")
     search_fields = ("sender__username", "body")
+
+@admin.register(Contacts)
+class ContactsAdmin(admin.ModelAdmin):
+    list_display = ( "company","last_name", "first_name", "email", "phone_number", "job_title")
+    list_filter = ("created_by",)
+    search_fields = ("last_name", "email")

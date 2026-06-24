@@ -86,7 +86,7 @@ class MessageForm(forms.ModelForm):
 class ContactAddForm(forms.ModelForm):
     class Meta:
         model = Contacts
-        fields = ["first_name", "last_name", "email", "phone_number", "method", "company", "job_title"]
+        fields = ["first_name", "last_name", "email", "phone_number", "method", "company", "job_title", "notes"]
 
         def  clean(self):
             cleaned_data = super().clean()

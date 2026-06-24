@@ -44,6 +44,7 @@
                                 <th class="bg-light">Job title</th>
                                 <th class="bg-light">Email</th>
                                 <th class="bg-light">Phone</th>
+                                <th class="bg-light">Notes</th>
                                 <th class="bg-light">Method</th>
                                 <th class="text-center bg-light">Action</th>
                             </tr>
@@ -56,6 +57,7 @@
                                 <td>{{ contact.job_title|default:"—" }}</td>
                                 <td>{{ contact.email|default:"—" }}</td>
                                 <td>{{ contact.phone_number|default:"—" }}</td>
+                                <td>{{ contact.notes|default:"—" }}</td>
                                 <td>{{ contact.get_method_display|default:"—" }}</td>
                                 <td class="text-center">
                                     <a href="{% url 'core:contact_edit' contact.pk %}" class="px-2 fs-6 fw-bolder"><i class="bi bi-pencil-square"></i></a>

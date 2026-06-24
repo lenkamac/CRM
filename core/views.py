@@ -202,8 +202,15 @@ class TeamDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "team"
 
     def get_queryset(self):
-        queryset = super(TeamDetailView,self).get_queryset()
-        return queryset.filter(created_by=self.request.user, pk=self.kwargs.get("pk"))
+        member_pks = TeamMembership.objects.filter(
+            user=self.request.user,
+            is_active=True,
+        ).values_list("team_id", flat=True)
+
+        return Team.objects.filter(
+            Q(created_by=self.request.user) | Q(pk__in=member_pks),
+            pk=self.kwargs.get("pk"),
+        ).distinct()
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

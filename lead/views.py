@@ -310,10 +310,6 @@ def convert_lead_to_client(request, lead_id):
 
     lead.tasks_lead.all().update(client=client, lead=None)
 
-    # Transfer all projects from lead to client
-
-    lead.projects.all().update(client=client, lead=None)
-
     lead.converted_to_client = True
     lead.save(update_fields=["converted_to_client"])
 

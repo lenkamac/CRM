@@ -192,6 +192,7 @@ class Contacts(models.Model):
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     company = models.CharField(max_length=255, blank=True, null=True)
     job_title = models.CharField(max_length=255, blank=True, null=True)
+    notes = models.CharField( max_length=400, blank=True, null=True)
     created_by = models.ForeignKey(
         User,
         related_name="contacts_created",

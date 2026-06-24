@@ -57,7 +57,7 @@ def register(request):
         user = authenticate(request, username=username, password=password1)
         if user:
             login(request, user)
-            return redirect(reverse("dashboard:dashboard") if "dashboard" in reverse.__code__.co_names else "/")
+            return redirect("dashboard:dashboard")
 
         messages.success(request, "Account created. Please sign in.")
         return redirect("login" if "login" in reverse.__code__.co_names else "/")
@@ -90,9 +90,11 @@ def edit_profile(request):
 # Account
 @login_required
 def user_account(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     # Renders the current user's account page
     context = {
         "user": request.user,
+        "user_profile": user_profile,
     }
     return render(request, "userprofile/account.html", context)
 
@@ -113,3 +115,15 @@ class CustomPasswordChangeView(PasswordChangeView):
 def my_logout(request):
     logout(request)
     return redirect('index')
+
+# Delete account
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        messages.success(request, 'Your account has been deleted.')
+        return redirect('index')
+
+    return render(request, 'userprofile/delete_account.html')
