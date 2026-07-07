@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'product',
     'task',
     'widget_tweaks',
+    'opportunity',
 ]
 
 MIDDLEWARE = [
