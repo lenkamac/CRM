@@ -98,16 +98,17 @@ body {
 
 /* Offcanvas style*/
 .offcanvas-custom {
-    position: fixed !important; /* Fix it on the left side */
-    top: 50px; /* Set the top offset */
+    position: fixed !important;
+    top: 50px;
     left: 0;
-    bottom: 60px;
-    width: 200px; /* Set your desired width */
-    z-index: 1045; /* Set appropriate z-index */
-    background-color: #fafcfc; /* Optional: Customize the background color */
-    border-right: 1px solid #b9b9bb; /* Optional: Add a border */
-    transition: transform 0.3s ease-in-out; /* Add transition for smooth sliding */
-     }
+    bottom: 58px; /* match footer height */
+    width: 200px;
+    z-index: 1045;
+    background-color: #fafcfc;
+    border-right: 1px solid #b9b9bb;
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;  /* enable scrolling when content overflows */
+}
 .offcanvas-a {
     text-decoration: none;
     color: black;
@@ -135,12 +136,10 @@ body {
 }
 
 /* main header */
-h1 {
+h1, h2, h3, h4, h5 {
     color: #353E46;
 }
-h2 {
-    color: #3D4851;
-}
+
 
 /* Button */
 .back-to-dashboard {
@@ -357,7 +356,6 @@ table {
     margin: 5px;
     padding: 5px;
 }
-
 .comment-btn:hover {
     background-color: #353E46;
     color: white;
@@ -421,7 +419,7 @@ table {
 
 /* main content*/
 main {
-    margin: 0 auto;
+    margin-top: 50px; /* below fixed navbar */
     padding: 30px 20px;
 }
 .main-container {
@@ -469,4 +467,45 @@ main {
 .contact-autocomplete-list .list-group-item-action:hover {
     background-color: #e9f0f8;
     cursor: pointer;
+}
+
+/* Desktop: sidebar always visible, push main content right */
+@media (min-width: 768px) {
+    .offcanvas-custom {
+        transform: translateX(0) !important;
+    }
+    main {
+        margin-left: 200px;
+    }
+}
+
+/* Mobile: sidebar hidden, main uses full width */
+@media (max-width: 767.98px) {
+    .footer {
+        height: 28px;
+        font-size: 0.6rem;
+        padding: 10px;
+    }
+    .offcanvas-custom {
+        transform: translateX(-100%);
+        bottom: 28px; /* match mobile footer height */
+        width: 120px;
+    }
+    .offcanvas-custom.show {
+        transform: translateX(0);
+        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.2);
+    }
+    .offcanvas-a {
+        font-size: 0.5rem;
+    }
+    .offcanvas-custom ul li a {
+        font-size: 0.5rem;
+        padding: 5px;
+    }
+    .h1, h2, h3, h4, h5, h6 {
+        font-size: 0.8rem;
+    }
+    .th-custom {
+        font-size: 0.6rem;
+    }
 }

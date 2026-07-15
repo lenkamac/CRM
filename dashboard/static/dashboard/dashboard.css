@@ -1,9 +1,5 @@
-#dashboard-container {
-    padding-left: 220px;
-}
-#dashboard-charts {
-    padding-left: 220px;
-}
+
+
 .dashboard-p {
     font-size: 1rem;
 }
@@ -33,6 +29,23 @@
 
 /* Responsive design*/
 
+@media (max-width: 576px) {
+    .purchase-filters label {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.25rem;
+    }
+
+    .purchase-filters .form-select {
+        font-size: 0.75rem;
+        padding-top: 0.2rem;
+        padding-bottom: 0.2rem;
+    }
+
+    .purchase-filters .col {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+}
 
 
 
