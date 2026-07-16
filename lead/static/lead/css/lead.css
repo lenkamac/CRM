@@ -1,12 +1,4 @@
-/* lead container*/
-#lead-container {
-   padding-left: 225px;
-    padding-right: 105px;
-}
-#add-lead-container {
-   padding-left: 225px;
-    padding-right: 75px;
-}
+
 /* lead delete form*/
 #lead_delete_form {
     display: inline;

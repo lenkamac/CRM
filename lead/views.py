@@ -185,22 +185,25 @@ class LeadUpdateView(LoginRequiredMixin, UpdateView):
 
 # Edit Comment View
 class EditCommentView(LoginRequiredMixin, View):
+    def get_comment (self, lead_id, comment_id):
+        return get_object_or_404(Comment, id=comment_id, lead_id=lead_id)
+
+    def can_edit_comment(self, request, comment):
+        return request.user == comment.created_by or request.user.is_staff
+
     def post(self, request, lead_id, comment_id):
-        lead = get_object_or_404(Lead, id=lead_id)
-        comment = get_object_or_404(Comment, id=comment_id, lead=lead)
+        comment = self.get_comment(lead_id, comment_id)
 
         # Restrict to the owner or an admin
-        if request.user != comment.created_by and not request.user.is_staff:
-            return HttpResponseForbidden("You are not authorized to edit this comment.")
+        if not self.can_edit_comment(request, comment):
+            return HttpResponseForbidden()
 
         # Update the comment
-        content = request.POST.get("content")
+        content = request.POST.get("content", "").strip()
         if content:
             comment.content = content
-            comment.save()
-            messages.success(request, "Comment updated successfully.")
-        else:
-            messages.error(request, "Content cannot be empty.")
+            comment.save(update_fields=["content"])
+
 
         return redirect('lead:detail', pk=lead_id)
 
@@ -313,10 +316,9 @@ def convert_lead_to_client(request, lead_id):
     lead.converted_to_client = True
     lead.save(update_fields=["converted_to_client"])
 
-
-
     # Set success message and redirect (adjust URL as needed)
     messages.success(request, f"Lead {lead.last_name} {lead.first_name} has been converted to a client.")
+
     return redirect("client:list")
 
 

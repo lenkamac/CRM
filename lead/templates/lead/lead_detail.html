@@ -22,7 +22,7 @@
     </style>
 
     <!-- Content -->
-	<div class="container-fluid my-3" id="lead-container">
+	<div class="container-fluid mx-auto my-3">
 
         <div class="row mx-lg-2 pt-2">
             <div class="col-lg-12">
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="row bg-transparent mx-lg-2 mt-3 pt-3">
+        <div class="row bg-transparent mx-lg-2 mt-sm-0 mt-md-3 pt-sm-2 pt-md-1">
             <!-- Lead Detail -->
              <div class="col-12 col-lg-4">
                  <div class="card card-detail">
@@ -230,7 +230,7 @@
                         <div class="row mx-2 bg-transparent">
                             {% for comment in comments %}
                                 <div class="col-lg-12 mb-0">
-                                    <div class="fw-bolder fs-6 my-1 px-2 rounded-3" style="color: white; background-color: #405454;">
+                                    <div class="fw-bolder fs-6 my-1 px-2 rounded-3 comment-label" style="color: white; background-color: #405454;">
                                         @{{ comment.created_by }} {{ comment.created_at|date:"d.m.Y H:i" }}
                                     </div>
                                 </div>
@@ -617,34 +617,9 @@
         </div>
     </div>
 
-
-    <!-- Flatpickr CSS and JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
+    <!--JS files-->
     <script src="{% static 'js/project.js' %}"></script>
-
     <script>
-        // Initialize Flatpickr for due date
-        flatpickr("#id_due_date", {
-            dateFormat: "d.m.Y",
-            allowInput: true,
-            static: true,
-            autocomplete: false,
-            locale: { firstDayOfWeek: 1 }
-        });
-
-        // Initialize Flatpickr for due time
-        flatpickr("#id_due_time", {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "H:i",
-            time_24hr: true,
-            allowInput: true,
-            static: true,
-            autocomplete: false
-        });
-
         // Priority dropdown
         document.querySelectorAll('#priorityDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
             item.addEventListener('click', function(e) {

@@ -51,22 +51,22 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-start">{{ lead.created_at|date:"d.m.Y H:i" }}</td>
-                                            <td class="text-start lead-company-a">
+                                            <td class="text-start company-a">
                                                 {% if lead.company %}
                                                     <a href="{% url 'lead:detail' lead.pk %}">{{ lead.company }}</a>
                                                 {% else %}
-                                                    <span class="text-muted">n/a</span>
+                                                    <span class="text-muted"></span>
                                                 {% endif %}
                                             </td>
-                                            <td class="text-start lead-name-a text-nowrap">
+                                            <td class="text-start name-a text-nowrap">
                                                 {% if lead.last_name %}
                                                     <a href="{% url 'lead:detail' lead.pk %}">{{ lead.first_name }} {{ lead.last_name }}</a>
                                                 {% else %}
-                                                    <span class="text-muted">n/a</span>
+                                                    <span class="text-muted"></span>
                                                 {% endif %}</td> <!-- or use the field(s) you prefer -->
                                             <td class="text-start">{{ lead.email }}</td>
-                                            <td class="text-center">{% if lead.phone %}{{ lead.phone }}{% else %}<span class="text-muted">n/a</span>{% endif %}</td>
-                                            <td class="text-center">{% if lead.status_sale %}{{ lead.status_sale }}{% else %}<span class="text-muted">n/a</span>{% endif %}</td>
+                                            <td class="text-center">{% if lead.phone %}{{ lead.phone }}{% else %}<span class="text-muted"></span>{% endif %}</td>
+                                            <td class="text-center">{% if lead.status_sale %}{{ lead.status_sale }}{% else %}<span class="text-muted"></span>{% endif %}</td>
                                             <td class="text-center">
                                                 <span class="priority-{{ lead.priority }}">{{ lead.get_priority_display }}</span>
                                             </td>
@@ -104,22 +104,22 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-start">{{ client.created_at|date:"d.m.Y H:i" }}</td>
-                                            <td class="text-start lead-company-a">
+                                            <td class="text-start company-a">
                                                 {% if client.company %}
                                                     <a href="{% url 'client:detail' client.pk %}">{{ client.company }}</a>
                                                 {% else %}
-                                                    <span class="text-muted">n/a</span>
+                                                    <span class="text-muted"></span>
                                                 {% endif %}
                                             </td>
-                                            <td class="text-start lead-name-a">
+                                            <td class="text-start name-a">
                                                 {% if client.last_name %}
                                                 <a href="{% url 'client:detail' client.pk %}">{{ client.first_name }} {{ client.last_name }}</a>
                                                 {% else %}
-                                                <span class="text-muted">n/a</span>
+                                                <span class="text-muted"></span>
                                                 {% endif %}
                                             </td> <!-- or use the field(s) you prefer -->
                                             <td class="text-start">{{ client.email }}</td>
-                                            <td class="text-start">{% if client.phone %}{{ client.phone }}{% else %}<span class="text-muted">n/a</span>{% endif %}</td>
+                                            <td class="text-start">{% if client.phone %}{{ client.phone }}{% else %}<span class="text-muted"></span>{% endif %}</td>
                                         </tr>
                                     </tbody>
                                 {% empty %}
@@ -148,7 +148,7 @@
                         <div class="card text-white" style="background-color: #8b7d6b;">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Total Products Sold(all currency)</h6>
-                                <p class="fs-4 mb-0">{{ total_items }}</p>
+                                <p class="fs-5 mb-0">{{ total_items }}</p>
                             </div>
                         </div>
                     </div>
@@ -156,7 +156,7 @@
                         <div class="card text-white" style="background-color: #5d6d7e;">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Total Revenue all currency in EUR</h6>
-                                <p class="fs-4 mb-0">€{{ total_revenue_all_in_eur|floatformat:2 }}</p>
+                                <p class="fs-5 mb-0">€{{ total_revenue_all_in_eur|floatformat:2 }}</p>
                             </div>
                         </div>
                     </div>

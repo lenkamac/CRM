@@ -505,7 +505,15 @@ main {
     .h1, h2, h3, h4, h5, h6 {
         font-size: 0.8rem;
     }
-    .th-custom {
+    .th-custom{
         font-size: 0.6rem;
+    }
+    .form-label {
+        font-size: 0.6rem;
+    }
+    .comment-label {
+        font-size: 0.6rem;
+        margin: 1px;
+        padding: 1px;
     }
 }

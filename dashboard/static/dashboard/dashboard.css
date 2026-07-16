@@ -1,5 +1,4 @@
 
-
 .dashboard-p {
     font-size: 1rem;
 }
@@ -9,20 +8,20 @@
     width: 50%;
     margin: 15px auto;
 }
-.lead-company-a a {
+.company-a a {
     font-weight: bold;
     color: #146c43;
 }
-.lead-company-a a:hover {
+.company-a a:hover {
     color: #06120d;
     text-decoration: none;
 }
-.lead-name-a a {
+.name-a a {
     font-weight: bold;
     color: rgba(104, 142, 180, 0.95);
     text-decoration: none;
 }
-.lead-name-a a:hover {
+.name-a a:hover {
     color: rgba(29, 57, 85, 0.85);
     text-decoration: underline;
 }
