@@ -54,114 +54,136 @@
                         <div class="row justify-content-center my-3">
                             <div class="col-12">
                                 <form method="get">
-                                    <div class="row justify-content-sm-center">
-                                        <div class="col-sm-12 col-md-12 pt-md-2">
-                                            <div class="row py-2 justify-content-center align-items-start">
-                                                <div class="col-sm-12 col-md-1 text-start pt-4">
-                                                    <a class="btn btn-sm add-button  justify-content-center align-items-center fs-6 fw-bolder" href="{% url 'lead:add' %}"><i class="fas fa-plus px-2"></i>Add lead</a>
-                                                </div>
-                                                <div class="col-sm-12 col-md-1 text-start px-0 pt-4">
-                                                    <!-- Dropdown for actions -->
-                                                    <div class="dropdown d-inline-block">
-                                                        <button class="btn btn-sm fs-6 btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
+
+                                    <div class="row g-2 g-lg-3 align-items-end justify-content-center">
+
+                                        <div class="col-12 col-sm-6 col-md-auto">
+                                            <a class="btn btn-sm add-button  w-100 justify-content-center align-items-center fs-6 fw-bolder" href="{% url 'lead:add' %}">
+                                                <i class="fas fa-plus px-2"></i>Add lead
+                                            </a>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-auto">
+                                            <!-- Dropdown for actions -->
+                                            <div class="dropdown w-100">
+                                                <button class="btn btn-sm fs-6 btn-secondary dropdown-toggle w-100"
+                                                        type="button"
+                                                        id="actionsDropdown"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
+                                                    <li>
+                                                        <button type="submit"
+                                                                form="bulk-delete-form"
+                                                                class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to delete selected leads?');">
+                                                            <i class="bi bi-trash3 me-2"></i>Delete Selected
                                                         </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
-                                                            <li>
-                                                                <button type="submit"
-                                                                        form="bulk-delete-form"
-                                                                        class="dropdown-item text-danger"
-                                                                        onclick="return confirm('Are you sure you want to delete selected leads?');">
-                                                                    <i class="bi bi-trash3 me-2"></i>Delete Selected
-                                                                </button>
-                                                            </li>
-                                                            <li><hr class="dropdown-divider"></li>
-                                                            <li>
-                                                                <a class="dropdown-item" href="{% url 'lead:export' %}">
-                                                                    <i class="bi bi-download me-2"></i>Export to CSV
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-sm- 12 col-md-6 justify-content-end">
-                                                     <form method="get" class="row">
-                                                        <div class="row justify-content-end align-items-end">
-                                                            <div class="col-sm- 6 col-md-4 text-start">
-                                                                <label class="form-label fs-6">Priority</label>
-                                                                <div class="dropdown bg-white">
-                                                                    <button class="btn btn-sm fs-6 btn-outline-secondary dropdown-toggle w-100 text-start"
-                                                                            type="button" id="priorityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        ---------
-                                                                    </button>
-                                                                    <ul class="dropdown-menu w-100" aria-labelledby="priorityDropdown">
-                                                                        <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="low">Low</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="medium">Medium</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="high">High</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="urgent">Urgent</a></li>
-                                                                    </ul>
-                                                                    <!-- hidden input to hold the actual value for form submission -->
-                                                                    <input type="hidden" name="priority" id="id_priority" required>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-sm-6 col-md-4 text-start">
-                                                                <label class="form-label fs-6">Created at</label>
-                                                                <div class="dropdown bg-white">
-                                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100 text-start"
-                                                                            type="button" id="createdAtDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        {% if request.GET.created_at == 'today' %}Today
-                                                                        {% elif request.GET.created_at == 'this_week' %}Last 7 days
-                                                                        {% elif request.GET.created_at == 'this_month' %}This Month
-                                                                        {% else %}All{% endif %}
-                                                                    </button>
-                                                                    <ul class="dropdown-menu w-100" aria-labelledby="createdAtDropdown">
-                                                                        <li><a class="dropdown-item" href="#" data-value="">All</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="today">Today</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="this_week">Last 7 days</a></li>
-                                                                        <li><a class="dropdown-item" href="#" data-value="this_month">This Month</a></li>
-                                                                    </ul>
-                                                                    <input type="hidden" name="created_at" id="id_created_at" value="{{ request.GET.created_at }}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-auto justify-content-center align-items-end">
-                                                                <button type="submit" class="btn btn-sm fs-6 btn-secondary fw-bolder">Apply Filters</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-
-                                                <div class="col-auto ms-auto d-flex align-items-center gap-2 pe-0 pt-4" >
-                                                    <div style="position: relative; width: 340px;">
-                                                        <input type="text" id="lead-search" name="q" class="form-control" placeholder="Find lead by name, email, or company" value="{{ request.GET.q|default:'' }}"
-                                                       autocomplete="off"
-                                                       data-autocomplete-url="{% url 'lead:autocomplete' %}"
-                                                       data-list-url="{% url 'lead:list' %}">
-                                                        <ul id="lead-autocomplete-list" class="list-group position-absolute w-100" style="
-                                                            display: none;
-                                                            z-index: 1000;
-                                                            max-height: 260px;
-                                                            overflow-y: auto;
-                                                            box-shadow: 0 4px 12px rgba(0,0,0,.15);
-                                                            left: 0;
-                                                            text-align: left;
-                                                        "></ul>
-                                                    </div>
-                                                    <button type="submit"
-                                                            class="btn btn-sm fs-6 btn-search justify-content-center align-items-center">Search
-                                                    </button>
-                                                </div>
-
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'lead:export' %}">
+                                                            <i class="bi bi-download me-2"></i>Export to CSV
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
+
+                                        <div class="col-12 col-sm-6 col-md-3 col-xl-2">
+
+                                            <label class="form-label fs-6">Priority</label>
+                                            <div class="dropdown bg-white">
+                                                <button class="btn btn-sm fs-6 btn-outline-secondary dropdown-toggle w-100 text-start"
+                                                        type="button"
+                                                        id="priorityDropdown"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    ---------
+                                                </button>
+                                                <ul class="dropdown-menu w-100" aria-labelledby="priorityDropdown">
+                                                    <li><a class="dropdown-item" href="#" data-value="">---------</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="low">Low</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="medium">Medium</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="high">High</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="urgent">Urgent</a></li>
+                                                </ul>
+                                                <!-- hidden input to hold the actual value for form submission -->
+                                                <input type="hidden" name="priority" id="id_priority" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-3 col-xl-2">
+                                            <label class="form-label fs-6">Created at</label>
+                                            <div class="dropdown bg-white">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100 text-start"
+                                                        type="button"
+                                                        id="createdAtDropdown"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    {% if request.GET.created_at == 'today' %}Today
+                                                    {% elif request.GET.created_at == 'this_week' %}Last 7 days
+                                                    {% elif request.GET.created_at == 'this_month' %}This Month
+                                                    {% else %}All{% endif %}
+                                                </button>
+                                                <ul class="dropdown-menu w-100" aria-labelledby="createdAtDropdown">
+                                                    <li><a class="dropdown-item" href="#" data-value="">All</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="today">Today</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="this_week">Last 7 days</a></li>
+                                                    <li><a class="dropdown-item" href="#" data-value="this_month">This Month</a></li>
+                                                </ul>
+                                                <input type="hidden"
+                                                       name="created_at"
+                                                       id="id_created_at"
+                                                       value="{{ request.GET.created_at }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-auto">
+                                            <button type="submit"
+                                                    class="btn btn-sm fs-6 btn-secondary fw-bolder">
+                                                Apply Filters
+                                            </button>
+                                        </div>
+
+                                        <div class="col-12 col-md-6 col-lg-4 col-xl-3" >
+                                            <div style="position: relative;">
+                                                <input type="text"
+                                                       id="lead-search"
+                                                       name="q"
+                                                       class="form-control"
+                                                       placeholder="Find lead by name, email, or company"
+                                                       value="{{ request.GET.q|default:'' }}"
+                                               autocomplete="off"
+                                               data-autocomplete-url="{% url 'lead:autocomplete' %}"
+                                               data-list-url="{% url 'lead:list' %}">
+                                                <ul id="lead-autocomplete-list"
+                                                    class="list-group position-absolute w-100"
+                                                    style="
+                                                    display: none;
+                                                    z-index: 1000;
+                                                    max-height: 260px;
+                                                    overflow-y: auto;
+                                                    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                                    left: 0;
+                                                    text-align: left;
+                                                "></ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-auto">
+                                            <button type="submit"
+                                                    class="btn btn-sm fs-6 btn-search w-100 justify-content-center align-items-center">Search
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-
 
                     <div class="col-sm-12">
                         <form id="bulk-delete-form" method="post" action="{% url 'lead:delete_bulk' %}">
@@ -293,7 +315,6 @@
                     </div>
                 </div>
 
-
             </div>
         </div>
 
@@ -312,23 +333,5 @@
     <!-- Include your JS file -->
     <script src="{% static 'lead/js/lead.js' %}"></script>
     <script src="{% static 'js/project.js' %}"></script>
-    <script>
-     // Priority dropdown
-    document.querySelectorAll('#priorityDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('priorityDropdown').textContent = this.textContent;
-            document.getElementById('id_priority').value = this.dataset.value;
-        });
-    });
-
-    document.querySelectorAll('#createdAtDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('createdAtDropdown').textContent = this.textContent;
-            document.getElementById('id_created_at').value = this.dataset.value;
-        });
-    });
-    </script>
 
 {% endblock %}

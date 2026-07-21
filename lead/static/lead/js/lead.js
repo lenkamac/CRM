@@ -2,40 +2,78 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectAllCheckbox = document.getElementById('select-all'); // Master checkbox
     const rowCheckboxes = document.querySelectorAll('.row-checkbox'); // All row checkboxes
 
-    // Toggle all row checkboxes when the master checkbox is clicked
-    selectAllCheckbox.addEventListener('change', function () {
-        const isChecked = selectAllCheckbox.checked;
-        rowCheckboxes.forEach((checkbox) => {
-            checkbox.checked = isChecked;
-        });
-    });
-
-    // Uncheck the master checkbox if any row checkbox is unchecked
-    rowCheckboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', function () {
-            if (!checkbox.checked) {
-                selectAllCheckbox.checked = false;
-            }
-        });
-    });
-
-    // Check the master checkbox if all row checkboxes are checked
-    rowCheckboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', function () {
-            const allChecked = Array.from(rowCheckboxes).every((cb) => cb.checked);
-            if (allChecked) {
-                selectAllCheckbox.checked = true;
-            }
-        });
-    });
-});
-
-document.getElementById('select-all').addEventListener('change', function(e) {
-            const checkboxes = document.querySelectorAll('.lead-checkbox');
-            checkboxes.forEach(function(checkbox) {
-                checkbox.checked = e.target.checked;
+    if(selectAllCheckbox) {
+        // Toggle all row checkboxes when the master checkbox is clicked
+        selectAllCheckbox.addEventListener('change', function () {
+            const isChecked = selectAllCheckbox.checked;
+            rowCheckboxes.forEach((checkbox) => {
+                checkbox.checked = isChecked;
             });
         });
+
+        // Uncheck the master checkbox if any row checkbox is unchecked
+        rowCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', function () {
+                if (!checkbox.checked) {
+                    selectAllCheckbox.checked = false;
+                }
+            });
+        });
+
+        // Check the master checkbox if all row checkboxes are checked
+        rowCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', function () {
+                const allChecked = Array.from(rowCheckboxes).every((cb) => cb.checked);
+                if (allChecked) {
+                    selectAllCheckbox.checked = true;
+                }
+            });
+        });
+    }
+
+
+    // Priority dropdown
+    const priorityDropdown = document.getElementById('priorityDropdown');
+    const priorityInput = document.getElementById('id_priority');
+
+    if (priorityDropdown && priorityInput) {
+        document.querySelectorAll('#priorityDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                priorityDropdown.textContent = this.textContent;
+                priorityInput.value = this.dataset.value;
+            });
+        });
+    }
+
+   // Status dropdown
+    const statusDropdown = document.getElementById('statusDropdown');
+    const statusInput = document.getElementById('id_status');
+
+    if (statusDropdown && statusInput) {
+        document.querySelectorAll('#statusDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                statusDropdown.textContent = this.textContent;
+                statusInput.value = this.dataset.value;
+            });
+        });
+    }
+
+    const createdAtDropdown = document.getElementById('createdAtDropdown');
+    const createdAtInput = document.getElementById('id_created_at');
+
+    if (createdAtDropdown && createdAtInput) {
+        document.querySelectorAll('#createdAtDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                createdAtDropdown.textContent = this.textContent;
+                createdAtInput.value = this.dataset.value;
+            });
+        });
+    }
+
+});
 
 (function () {
     const input = document.getElementById('lead-search');

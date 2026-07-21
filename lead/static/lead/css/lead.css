@@ -4,6 +4,7 @@
     display: inline;
 }
 
+
 /* Convert button */
 #convert {
     text-decoration: underline;
@@ -62,3 +63,14 @@
 }
 
 /* Responsive design*/
+@media (max-width: 767.98px) {
+    #lead-container .btn,
+    #lead-container .form-control,
+    #lead-container .dropdown-toggle {
+        width: 100%;
+    }
+
+    #lead-container .form-label {
+        margin-bottom: 0.25rem;
+    }
+}

@@ -43,10 +43,10 @@
             </div>
         </div>
 
-        <div class="row bg-transparent mx-lg-2 mt-sm-0 mt-md-3 pt-sm-2 pt-md-1">
+        <div class="row bg-transparent mt-sm-0 mt-md-3 pt-sm-2 pt-md-1">
             <!-- Lead Detail -->
              <div class="col-12 col-lg-4">
-                 <div class="card card-detail">
+                 <div class="card card-detail h-100 w-100 d-flex flex-column">
                      <div class="card-detail-header position-relative">
                          <h5 class="card-title text-center py-1">
                              <i class="fa-solid fa-id-card"></i> Lead info
@@ -82,7 +82,7 @@
                             </div>
                          </div>
                      </div>
-                     <div class="card-body my-0 py-0">
+                     <div class="card-body my-0 py-0 flex-grow-1">
                         <table class="table table-sm mb-0 align-middle lead-detail-table">
                             <tbody>
                                 <tr class="pb-1">
@@ -221,7 +221,7 @@
             <div class="col-12 col-lg-8">
                 <!-- Comment section -->
                 <div class="row bg-white border rounded-3 border-2  justify-content-sm-center">
-                    <div class="col-lg-12 rounded-3" style="background-color: #6d8d8d;">
+                    <div class="col-lg-12 rounded-top-3" style="background-color: #6d8d8d;">
                         <h5 class="text-white text-center pt-1 fw-bolder rounded-3">
                             <i class="fa-solid fa-comment px-1"></i>Comments
                         </h5>
@@ -334,7 +334,7 @@
 
         <!--Task section-->
         <div class="row bg-white rounded-3 border border-2 justify-content-sm-center mt-2">
-            <div class="col-lg-12 rounded-3" style="background-color: #6d8d8d;">
+            <div class="col-lg-12 rounded-top-3" style="background-color: #6d8d8d;">
                 <h5 class="text-white text-center pt-2 fw-bolder">
                     <i class="fa fa-thumb-tack mx-1 px-1" aria-hidden="true"></i>Tasks</h5>
             </div>
@@ -535,9 +535,10 @@
         </div>
 
         <!-- file section -->
-        <div class="row mx-lg-2 bg-white border border-2 rounded-3 mt-lg-4">
+        <div class="row bg-white border border-2 rounded-3 mt-lg-4">
 
             <div class="col-12 bg-white rounded-3 border border-2">
+
                 <h5 class="text-center text-white fw-bolder py-1 rounded-top-3"
                     style="background-color: #6d8d8d; margin: 0 calc(var(--bs-gutter-x) * -.5);">
                     <i class="fa-solid fa-file-pen"></i>Files
@@ -607,38 +608,21 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-12 mb-3 pb-4">
-                <!-- Section for back to leads, delete, edit and convert lead -->
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <!-- Section for back to leads-->
                 <a class="back-to-dashboard" href="{% url 'lead:list' %}">
                     <i class="fa-solid fa-arrow-left px-sm-4 pb-4"></i>Back to Leads
                 </a>
             </div>
         </div>
+
     </div>
 
     <!--JS files-->
     <script src="{% static 'js/project.js' %}"></script>
-    <script>
-        // Priority dropdown
-        document.querySelectorAll('#priorityDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('priorityDropdown').textContent = this.textContent;
-                document.getElementById('id_priority').value = this.dataset.value;
-            });
-        });
-
-         // Status dropdown
-        document.querySelectorAll('#statusDropdown ~ .dropdown-menu .dropdown-item').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('statusDropdown').textContent = this.textContent;
-                document.getElementById('id_status').value = this.dataset.value;
-            });
-        });
-
-
-    </script>
+    <script src="{% static 'lead/js/lead.js' %}"></script>
 
 {% endblock %}
