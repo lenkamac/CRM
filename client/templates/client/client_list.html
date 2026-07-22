@@ -20,10 +20,10 @@
          }
     </style>
 
-    <div class="container-fluid mx-auto pt-3" id="client-container">
+    <div class="container-fluid mx-auto" id="client-container">
 
-        <div class="row pt-md-3 justify-content-center">
-            <div class="col-sm-12">
+        <div class="row justify-content-center">
+            <div class="col-12">
                 <div class="text-center pt-md-3">
                     <h4 class="fw-bolder">Clients</h4>
                 </div>
@@ -51,67 +51,83 @@
                 <div class="row justify-content-center">
                     <div class="col-12 justify-content-center">
                         <!-- Filters --><!-- Add this above your table -->
-                        <div class="row my-3">
+                        <div class="row justify-content-center my-3">
                             <div class="col-12">
                                 <form method="get">
-                                    <div class="row justify-content-sm-center">
 
-                                        <div class="col-sm-12 col-md-12 pt-md-2">
-                                            <div class="row py-2 align-items-center">
-                                                <div class="col-1 text-start">
-                                                    <a class="btn btn-sm justify-content-center align-items-end fs-6 fw-bolder" href="{% url 'client:add' %}" style="background-color: #4c6c8ad9; color: white;"><i class="fas fa-plus px-1"></i>Add client</a>
-                                                </div>
-                                                <div class="col-1 px-0 text-start">
-                                                    <!-- Dropdown for actions -->
-                                                    <div class="dropdown d-inline-block">
-                                                        <button class="btn btn-sm fs-6 btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
+                                    <div class="row g-2 g-lg-3 align-items-stretch align-items-lg-end">
+
+                                        <div class="col-12 col-sm-6 col-lg-auto order-1 d-flex">
+                                            <a class="btn btn-sm add-button  w-100 d-flex justify-content-center align-items-center fs-6 fw-bolder h-100"
+                                               href="{% url 'client:add' %}"
+                                               style="background-color: #4c6c8ad9; color: white;">
+                                                <i class="fas fa-plus"></i>Add client
+                                            </a>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-auto order-2 d-flex">
+                                            <!-- Dropdown for actions -->
+                                            <div class="dropdown w-100">
+                                                <button class="btn  btn-sm fs-6 btn-secondary dropdown-toggle w-100"
+                                                        type="button"
+                                                        id="actionsDropdown"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
+                                                    <li>
+                                                        <button type="submit"
+                                                                form="bulk-client-delete-form"
+                                                                class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to delete selected clients?');">
+                                                            <i class="bi bi-trash3 me-2"></i>Delete Selected
                                                         </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown">
-                                                            <li>
-                                                                <button type="submit"
-                                                                        form="bulk-client-delete-form"
-                                                                        class="dropdown-item text-danger"
-                                                                        onclick="return confirm('Are you sure you want to delete selected clients?');">
-                                                                    <i class="bi bi-trash3 me-2"></i>Delete Selected
-                                                                </button>
-                                                            </li>
-                                                            <li><hr class="dropdown-divider"></li>
-                                                            <li>
-                                                                <a class="dropdown-item" href="{% url 'client:export' %}">
-                                                                    <i class="bi bi-download me-2"></i>Export to CSV
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <div class="col-auto ms-auto d-flex align-items-center gap-2 pe-0">
-                                                    <div style="position: relative; width: 340px;">
-                                                        <input type="text" id="client-search" name="q" class="form-control"
-                                                           placeholder="Find client by name, email, or company"
-                                                           value="{{ request.GET.q|default:'' }}"
-                                                           autocomplete="off">
-                                                        <ul id="client-autocomplete-list" class="list-group" style="
-                                                            display: none;
-                                                            position: absolute;
-                                                            z-index: 1000;
-                                                            width: 100%;
-                                                            max-height: 260px;
-                                                            overflow-y: auto;
-                                                            box-shadow: 0 4px 12px rgba(0,0,0,.15);
-                                                            left: 0;
-                                                            text-align: left;
-                                                        "></ul>
-                                                    </div>
-                                                    <button type="submit"
-                                                            class="btn btn-sm fs-6 btn-secondary justify-content-center align-items-center">Search
-                                                    </button>
-                                                </div>
-
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'client:export' %}">
+                                                            <i class="bi bi-download me-2"></i>Export to CSV
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
 
+                                        <div class="col-12 col-lg order-3">
+                                            <div class="row g-2">
+                                                <div class="col-12 col-md">
+                                                    <div class="position-relative">
+                                                        <input type="text"
+                                                           id="client-search"
+                                                           name="q"
+                                                           class="form-control form-control-sm fs-6"
+                                                           placeholder="Find client by name, email, or company"
+                                                           value="{{ request.GET.q|default:'' }}"
+                                                           autocomplete="off"
+                                                           data-autocomplete-url="{% url 'client:autocomplete' %}"
+                                                           data-detail-base="{% url 'client:list' %}">
+                                                        <ul id="client-autocomplete-list" class="list-group position-absolute w-100 text-start"
+                                                            style="
+                                                                display: none;
+                                                                z-index: 1000;
+                                                                max-height: 260px;
+                                                                overflow-y: auto;
+                                                                box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                                                left: 0;
+                                                            "></ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-auto">
+                                                    <button type="submit"
+                                                        class="btn btn-sm fs-6 w-100 h-100 d-flex justify-content-center align-items-center" style="background-color: #4c6c8ad9; color: white;">Search
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </form>
                             </div>
                         </div>
@@ -131,7 +147,7 @@
                                                         <label for="select-all"></label>
                                                         <input type="checkbox" id="select-all" />
                                                     </th>
-                                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">
+                                                    <th class="text-start text-nowrap" style="background-color: #4c6c8ad9; color: white;">
                                                         <a href="?sort={% if request.GET.sort == 'created_at' %}-created_at{% else %}created_at{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="text-decoration-none text-black">
                                                             <span style="background-color: #4c6c8ad9; color: white;">Created at</span>
                                                             {% if request.GET.sort == 'created_at' %}
@@ -245,82 +261,5 @@
 
     <script src="{% static 'client/js/client_js.js' %}"></script>
 
-    <script>
-    (function () {
-        const input = document.getElementById('client-search');
-        const list  = document.getElementById('client-autocomplete-list');
-        const autocompleteUrl = "{% url 'client:autocomplete' %}";
-        const detailBase = "{% url 'client:list' %}".replace(/\/$/, '');
-        let activeIndex = -1;
-        let suggestions = [];
-
-        function closeList() {
-            list.innerHTML = '';
-            list.style.display = 'none';
-            activeIndex = -1;
-        }
-
-        function goToClient(item) {
-            window.location.href = detailBase + '/' + item.id + '/';
-        }
-
-        function setActive(items) {
-            items.forEach((el, i) => {
-                el.classList.toggle('active', i === activeIndex);
-            });
-        }
-
-        input.addEventListener('input', function () {
-            const q = this.value.trim();
-            closeList();
-            suggestions = [];
-            if (!q) return;
-
-            fetch(`${autocompleteUrl}?q=${encodeURIComponent(q)}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.length) return;
-                    suggestions = data;
-                    data.forEach((item, idx) => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item list-group-item-action';
-                        li.style.cursor = 'pointer';
-                        li.textContent = item.label;
-                        li.dataset.index = idx;
-                        li.addEventListener('mousedown', function (e) {
-                            e.preventDefault();
-                            goToClient(item);
-                        });
-                        list.appendChild(li);
-                    });
-                    list.style.display = 'block';
-                    activeIndex = -1;
-                });
-        });
-
-        input.addEventListener('keydown', function (e) {
-            const items = [...list.querySelectorAll('li')];
-            if (!items.length) return;
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                activeIndex = Math.min(activeIndex + 1, items.length - 1);
-                setActive(items);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                activeIndex = Math.max(activeIndex - 1, 0);
-                setActive(items);
-            } else if (e.key === 'Enter' && activeIndex >= 0) {
-                e.preventDefault();
-                goToClient(suggestions[activeIndex]);
-            } else if (e.key === 'Escape') {
-                closeList();
-            }
-        });
-
-        document.addEventListener('click', function (e) {
-            if (!list.contains(e.target) && e.target !== input) closeList();
-        });
-    })();
-    </script>
 
 {% endblock %}
