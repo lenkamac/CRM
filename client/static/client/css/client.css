@@ -4,11 +4,6 @@
     padding-right: 155px;
 }
 
-#add-client-container {
-   padding-left: 225px;
-    padding-right: 75px;
-}
-
 /*Client detail page */
 .card-title {
     background-color: #4c6c8ad9;
@@ -51,4 +46,40 @@
     color: #364a69;
     text-decoration: underline;
 }
+
+.client-detail-label {
+    width: 160px;
+}
+
+@media (max-width: 575.98px) {
+    .client-detail-table tr {
+        display: grid;
+        grid-template-columns: 1fr;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .client-detail-table td {
+        display: block;
+        width: 100% !important;
+        border-bottom: 0;
+        padding: 0.15rem 0.25rem;
+    }
+
+    .client-detail-label {
+        width: auto;
+        color: #4d5a6f;
+    }
+
+    .comment-form {
+        min-height: 9rem;
+    }
+}
+
+@media (min-width: 576px) {
+    .w-sm-auto {
+        width: auto !important;
+    }
+}
+
 
