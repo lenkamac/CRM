@@ -9,9 +9,9 @@
     	<link rel="stylesheet" href="{% static 'task/task.css' %}">
     {% endblock %}
 
-    <div class="container-fluid mx-auto" id="task-list">
-        <div class="row justify-content-center pt-lg-4">
-            <div class="col-12 py-3">
+    <div class="container-fluid mx-auto">
+        <div class="row justify-content-center pt-0">
+            <div class="col-12 py-1">
                 <div class="text-center">
                     <h4 class="mt-sm-0 fw-bolder">Tasks</h4>
                 </div>
@@ -38,31 +38,29 @@
             <div class="col-12 py-2">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <a href="{% url 'task:task_add' %}" class="btn btn-sm fs-6 justify-content-center align-items-center" id="btn-add-task">
+                        <a href="{% url 'task:task_add' %}" class="btn btn-sm fs-6 justify-content-center align-items-center w-100 w-sm-auto mb-sm-1" id="btn-add-task">
                             <i class="fas fa-plus"></i> New Task
                         </a>
                     </div>
                     <!-- Search -->
-                    <div class="col d-flex justify-content-end">
-                        <form method="get" action="{% url 'task:task_list' %}" class="d-flex gap-2 w-50" id="task-search-form">
-                            <div style="position: relative; width: 100%;">
+                    <div class="col-12 col-sm d-flex justify-content-sm-end">
+                        <form method="get" action="{% url 'task:task_list' %}" class="d-flex flex-column flex-sm-row gap-2 w-100 w-lg-50" id="task-search-form">
+                            <div class="position-relative flex-grow-1">
                                 <input type="text" name="search" id="task-search" class="form-control"
                                        placeholder="Search by company or last name..."
                                        value="{{ search_query }}"
                                        autocomplete="off"
                                        data-autocomplete-url="{% url 'task:task_autocomplete' %}" />
-                                <ul id="task-autocomplete-list" class="list-group" style="
+                                <ul id="task-autocomplete-list" class="list-group position-absolute w-100" style="
                                     display: none;
-                                    position: absolute;
                                     z-index: 1000;
-                                    width: 100%;
                                     max-height: 260px;
                                     overflow-y: auto;
                                     box-shadow: 0 4px 12px rgba(0,0,0,.15);
                                     left: 0;
                                 "></ul>
                             </div>
-                            <button type="submit" class="btn btn-sm fs-6 btn-search text-nowrap">Search</button>
+                            <button type="submit" class="btn btn-sm fs-6 btn-search text-nowrap w-100 w-sm-auto">Search</button>
                         </form>
                     </div>
                 </div>
@@ -165,7 +163,7 @@
             <div class="col-12">
                 <div class="card tasks-card shadow-sm">
                     <div class="card-header text-white">
-                        <h5>All Tasks</h5>
+                        <h5 class="text-white">All Tasks</h5>
                     </div>
                     <!-- Tasks List -->
                     <div class="card-body">
@@ -202,7 +200,7 @@
                                                     {% elif task.lead.company %}
                                                         <a href="{% url 'lead:detail' task.lead.id %}">{{ task.lead.company }}</a>
                                                     {% else %}
-                                                        <span class="text-muted">-----</span>
+
                                                     {% endif %}
                                                 </td>
                                                 <td class="text-center text-nowrap">
@@ -256,7 +254,7 @@
                                                         {% elif task.client %}
                                                            {{ task.client.first_name }} {{ task.client.last_name }}
                                                         {% else %}
-                                                            <span class="text-muted">-----</span>
+
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center text-nowrap">
@@ -265,14 +263,14 @@
                                                         {% elif task.client %}
                                                            Client
                                                         {% else %}
-                                                            <span class="text-muted">-----</span>
+
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center text-nowrap">
                                                         {% if task.assigned_to %}
                                                             {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
                                                         {% else %}
-                                                            <span class="text-muted">Unassigned</span>
+
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center">
@@ -337,110 +335,19 @@
             </div>
         </div>
 
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="text-start">
+                    <a href="{% url 'dashboard:dashboard' %}" class="back-to-dashboard">
+                        <i class="fa-solid fa-arrow-left px-1"></i>Back to the dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="{% static 'js/project.js' %}"></script>
-    <script>
-        // Task search autocomplete
-        (function () {
-            const input = document.getElementById('task-search');
-            if (!input) return;
-            const list = document.getElementById('task-autocomplete-list');
-            const form = document.getElementById('task-search-form');
-            const autocompleteUrl = input.dataset.autocompleteUrl;
-            let activeIndex = -1;
-            let suggestions = [];
+    <script src="{% static 'task/js/tasks.js' %}"></script>
 
-            function closeList() {
-                list.innerHTML = '';
-                list.style.display = 'none';
-                activeIndex = -1;
-            }
-
-            function selectSuggestion(label) {
-                input.value = label;
-                closeList();
-                form.submit();
-            }
-
-            function setActive(items) {
-                items.forEach(function (el, i) {
-                    el.classList.toggle('active', i === activeIndex);
-                });
-            }
-
-            function fetchSuggestions(q) {
-                closeList();
-                suggestions = [];
-                if (!q) return;
-                fetch(autocompleteUrl + '?q=' + encodeURIComponent(q))
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        if (!data.length) return;
-                        suggestions = data;
-                        data.forEach(function (item) {
-                            const li = document.createElement('li');
-                            li.className = 'list-group-item list-group-item-action';
-                            li.style.cursor = 'pointer';
-                            li.textContent = item.label;
-                            li.addEventListener('mousedown', function (e) {
-                                e.preventDefault();
-                                selectSuggestion(item.label);
-                            });
-                            list.appendChild(li);
-                        });
-                        list.style.display = 'block';
-                        activeIndex = -1;
-                    });
-            }
-
-            input.addEventListener('input', function () {
-                fetchSuggestions(this.value.trim());
-            });
-
-            input.addEventListener('keydown', function (e) {
-                const items = [...list.querySelectorAll('li')];
-                if (e.key === 'Enter') {
-                    if (activeIndex >= 0 && suggestions[activeIndex]) {
-                        e.preventDefault();
-                        selectSuggestion(suggestions[activeIndex].label);
-                    }
-                    return;
-                }
-                if (!items.length) return;
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
-                    setActive(items);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    activeIndex = Math.max(activeIndex - 1, 0);
-                    setActive(items);
-                } else if (e.key === 'Escape') {
-                    closeList();
-                }
-            });
-
-            document.addEventListener('click', function (e) {
-                if (!list.contains(e.target) && e.target !== input) {
-                    closeList();
-                }
-            });
-        })();
-
-        function updateStatusText() {
-            const checkboxes = document.querySelectorAll('input[name=status]:checked');
-            const allCheckbox = document.getElementById('status-all');
-            const statusText = document.getElementById('statusFilterText');
-
-            if (checkboxes.length === 0 || allCheckbox.checked) {
-                statusText.textContent = 'All';
-            } else {
-                const labels = Array.from(checkboxes).map(cb => {
-                    return document.querySelector(`label[for="${cb.id}"]`).textContent;
-                });
-                statusText.textContent = labels.join(', ');
-            }
-        }
-    </script>
 {% endblock %}

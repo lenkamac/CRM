@@ -1,9 +1,3 @@
-#task-list {
-    padding-left: 220px;
-}
-#task-detail {
-    padding-left: 220px;
-}
 
 .card-header {
     background-color: #364a69;
@@ -81,4 +75,16 @@
 
 .save-comment-btn {
     background-color: #c0c6c6;
+}
+
+@media (min-width: 576px) {
+    .w-sm-auto {
+        width: auto !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .w-lg-50 {
+        width: 50% !important;
+    }
 }

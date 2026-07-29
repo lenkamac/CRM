@@ -230,7 +230,7 @@ def add_task_comment(request, pk):
 
 
 # Edit task comment view function, with confirmation page.
-@csrf_exempt
+@login_required
 def edit_tasks_comment(request, comment_id):
     if request.method == "POST":
         comment = get_object_or_404(TaskComment, id=comment_id)
