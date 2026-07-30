@@ -1,9 +1,4 @@
 /* Product list*/
-#product-list {
-    padding-left: 245px;
-    padding-right: 155px;
-}
-
 #sales-list {
     padding-left: 245px;
     padding-right: 155px;
@@ -14,7 +9,7 @@
 }
 
 .card-header {
-    background-color: #364a69;
+    background-color: #4a4e53;
 }
 
 .form-label {
@@ -24,7 +19,7 @@
 #btn-add-product {
     color: white;
     font-weight: bold;
-    background-color: #5d718d;
+    background-color: #60646a;
 }
 #add-product-btn {
     background-color: #364a69;

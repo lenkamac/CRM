@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product
+from .models import Product, ProductFile
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'net_price', 'description', 'sold_quantity', 'total_price_display')
@@ -14,6 +14,10 @@ class ProductAdmin(admin.ModelAdmin):
     total_price_display.short_description = 'Total Price'
     total_price_display.admin_order_field = 'net_price'  # Allow sorting by net_price
 
-
+class ProductFileAdmin(admin.ModelAdmin):
+    list_display = ('product', 'file', 'created_at', 'created_by')
+    list_filter = ('product',)
+    search_fields = ('product__name',)
 
 admin.site.register(Product, ProductAdmin)
+admin.site.register(ProductFile, ProductFileAdmin)

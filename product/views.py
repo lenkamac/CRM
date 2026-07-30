@@ -15,7 +15,8 @@ from django.views import View
 from client.forms import PurchaseForm
 from client.models import Purchase, Client
 from core.currency_service import CurrencyConverter
-from product.models import Product
+from product.forms import ProductFileForm
+from product.models import Product, ProductFile
 from django.views.generic import ListView, DetailView
 
 
@@ -38,8 +39,44 @@ class ProductListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['fileform'] = ProductFileForm()
+        context['product_files'] = ProductFile.objects.filter(
+            created_by=self.request.user
+        ).order_by('-id')
         context['sort'] = self.request.GET.get('sort', '')
+        context['last_sale'] = (
+            Purchase.objects
+            .filter(created_by=self.request.user)
+            .select_related('product')
+            .order_by('-created_at')[:10]
+        )
         return context
+
+class AddFileView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        form = ProductFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            product_file = form.save(commit=False)
+            product_file.created_by = request.user
+            product_file.save()
+            messages.success(request, "File uploaded successfully.")
+            return redirect('product:product_list')
+
+        messages.error(request, "Failed to upload file.")
+        return redirect('product:product_list')
+
+@login_required
+def delete_product_file(request, file_id):
+    if request.method == "POST":
+        product_file = get_object_or_404(
+            ProductFile,
+            id=file_id,
+            created_by=request.user
+        )
+        product_file.delete()
+        messages.success(request, "File deleted successfully.")
+
+    return redirect('product:product_list')
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):

@@ -6,6 +6,8 @@ app_name = 'product'
 
 urlpatterns = [
     path('', ProductListView.as_view(), name='product_list'),
+    path('files/add/', AddFileView.as_view(), name='add_file'),
+    path('files/delete/<int:file_id>/', views.delete_product_file, name='delete_file'),
     path('<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
     path('add/', views.add_product, name='add_product'),
     path('edit/<int:product_id>/', views.edit_product, name='edit_product'),

@@ -29,3 +29,14 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class ProductFile(models.Model):
+    product = models.ForeignKey(Product, related_name="files",on_delete=models.CASCADE, null=True, blank=True)
+    file = models.FileField(upload_to='product_files/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='product_files')
+
+    def __str__(self):
+        if self.product:
+            return f"{self.product.name} - {self.file.name}"
+        return self.file.name
