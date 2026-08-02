@@ -1,5 +1,4 @@
 import json
-from multiprocessing import context
 from datetime import date as date_type
 from datetime import datetime
 
@@ -40,9 +39,15 @@ class ProductListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['fileform'] = ProductFileForm()
-        context['product_files'] = ProductFile.objects.filter(
+
+        product_files = ProductFile.objects.filter(
             created_by=self.request.user
         ).order_by('-id')
+
+        file_paginator = Paginator(product_files, 10)
+        file_page_number = self.request.GET.get('file_page')
+        context['product_files'] = file_paginator.get_page(file_page_number)
+
         context['sort'] = self.request.GET.get('sort', '')
         context['last_sale'] = (
             Purchase.objects
