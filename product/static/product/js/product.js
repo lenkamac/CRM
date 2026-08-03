@@ -1,38 +1,86 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Auto-dismiss alerts after 3 seconds
-    setTimeout(function () {
-        document.querySelectorAll('.alert').forEach(function (alert) {
-            alert.style.transition = 'opacity 0.5s linear';
-            alert.style.opacity = 0;
-            setTimeout(function () { alert.remove(); }, 500);
-        });
-    }, 3000);
-
     // Currency conversion
-    const EUR_TO_USD = 1.08;
+    let eurToUsdRate = null;
+
+    function getExchangeRateUrl() {
+        const rateContainer = document.querySelector('[data-exchange-rate-url]');
+        return rateContainer ? rateContainer.dataset.exchangeRateUrl : null;
+    }
+
+    function fetchExchangeRate() {
+        const exchangeRateUrl = getExchangeRateUrl();
+
+        if (!exchangeRateUrl) {
+            return Promise.resolve(1.10);
+        }
+
+        if (eurToUsdRate !== null) {
+            return Promise.resolve(eurToUsdRate);
+        }
+
+        return fetch(exchangeRateUrl)
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Exchange rate request failed');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                eurToUsdRate = parseFloat(data.rate);
+                return eurToUsdRate;
+            })
+            .catch(function () {
+                eurToUsdRate = 1.10;
+                return eurToUsdRate;
+            });
+    }
+
+    function updatePriceCells(currency, exchangeRate) {
+        document.querySelectorAll('.price-cell').forEach(function (cell) {
+            const symbol = cell.querySelector('.currency-symbol');
+            const priceValue = cell.querySelector('.price-value');
+            const eurPrice = parseFloat(cell.dataset.eur);
+
+            if (!symbol || !priceValue || Number.isNaN(eurPrice)) {
+                return;
+            }
+
+            if (currency === 'USD') {
+                const usdPrice = eurPrice * exchangeRate;
+
+                symbol.textContent = '$';
+
+                if (cell.classList.contains('total-cell')) {
+                    const quantity = parseInt(cell.dataset.quantity, 10) || 1;
+                    priceValue.textContent = (usdPrice * quantity).toFixed(2);
+                } else {
+                    priceValue.textContent = usdPrice.toFixed(2);
+                }
+            } else {
+                symbol.textContent = '€';
+
+                if (cell.classList.contains('total-cell')) {
+                    const quantity = parseInt(cell.dataset.quantity, 10) || 1;
+                    priceValue.textContent = (eurPrice * quantity).toFixed(2);
+                } else {
+                    priceValue.textContent = eurPrice.toFixed(2);
+                }
+            }
+        });
+    }
 
     document.querySelectorAll('.currency-toggle').forEach(function (button) {
         button.addEventListener('click', function () {
             const currency = this.dataset.currency;
 
-            document.querySelectorAll('.currency-toggle').forEach(function (btn) {
+            document.querySelectorAll('.currency-toggle').forEach(function (btn){
                 btn.classList.remove('active');
-            });
+            })
             this.classList.add('active');
 
-            document.querySelectorAll('.price-cell').forEach(function (cell) {
-                const eurPrice = parseFloat(cell.dataset.eur);
-                const symbol = cell.querySelector('.currency-symbol');
-                const valueSpan = cell.querySelector('.price-value');
-
-                if (currency === 'USD') {
-                    symbol.textContent = '$';
-                    valueSpan.textContent = (eurPrice * EUR_TO_USD).toFixed(2);
-                } else {
-                    symbol.textContent = '€';
-                    valueSpan.textContent = eurPrice.toFixed(2);
-                }
+            fetchExchangeRate().then(function (ExchangeRate){
+                updatePriceCells(currency, ExchangeRate);
             });
         });
     });

@@ -296,7 +296,9 @@ def dashboard(request):
             purchase_products_total[product_name]['amounts_usd_total'].append(total_in_usd)
 
     # Get all products for filter dropdown
-    all_products = Product.objects.all().order_by('name')
+    all_products = Product.objects.filter(
+        created_by=request.user
+    ).distinct().order_by('name')
 
     # Calculate summary statistics by currency
     # EUR revenue (base currency)

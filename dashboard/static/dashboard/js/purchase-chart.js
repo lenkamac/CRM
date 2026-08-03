@@ -19,16 +19,20 @@
      * Initialize the purchase chart
      */
     function initPurchaseChart(data) {
-        purchaseChartData = data;
+        purchaseChartData = data || {};
+
+        attachEventListeners();
 
         // Check if there's any data in either currency
         const hasEurData = purchaseChartData.products_eur && Object.keys(purchaseChartData.products_eur).length > 0;
         const hasUsdData = purchaseChartData.products_usd && Object.keys(purchaseChartData.products_usd).length > 0;
+        const hasTotalData = purchaseChartData.products_total && Object.keys(purchaseChartData.products_total).length > 0;
 
-        if (!purchaseChartData || (!hasEurData && !hasUsdData)) {
-            showNoDataMessage();
-            return;
-        }
+        if (!hasEurData && !hasUsdData && !hasTotalData) {
+        showNoDataMessage();
+        renderEmptyPieMessages();
+        return;
+    }
 
         // Initialize displays with current filter values
         const currencySelect = document.getElementById('purchaseCurrency');
@@ -39,10 +43,21 @@
         updateRevenueDisplay(currentCurrency, currentDataType);
         renderPurchaseChart();
         renderStatsPies();
-        attachEventListeners();
     }
 
-    /**
+    function renderEmptyPieMessages() {
+        ['purchasePieQuantity', 'purchasePieRevenue'].forEach(function(id) {
+            const div = document.getElementById(id);
+            if (div) {
+                div.innerHTML =
+                    '<div class="alert alert-info text-center my-5" role="alert">' +
+                    'No purchase data available.' +
+                    '</div>';
+            }
+        });
+    }
+
+        /**
      * Render two fixed pie charts: total products sold and total revenue in EUR
      */
     function renderStatsPies() {
@@ -101,9 +116,18 @@
      * Render the purchase chart
      */
     function renderPurchaseChart() {
-        const chartType = document.getElementById('purchaseChartType').value;
-        const dataType = document.getElementById('purchaseDataType').value;
-        const currency = document.getElementById('purchaseCurrency').value;
+        const chartDiv = document.getElementById('purchaseChart');
+        const chartTypeSelect = document.getElementById('purchaseChartType');
+        const dataTypeSelect = document.getElementById('purchaseDataType');
+        const currencySelect = document.getElementById('purchaseCurrency');
+
+         if (!chartDiv || !chartTypeSelect || !dataTypeSelect || !currencySelect) {
+            return;
+        }
+
+         const chartType = chartTypeSelect.value;
+        const dataType = dataTypeSelect.value;
+        const currency = currencySelect.value;
 
         const traces = createTraces(chartType, dataType, currency);
         const layout = createLayout(dataType, currency, chartType);
@@ -117,11 +141,21 @@
      */
     function createTraces(chartType, dataType, currency) {
         // Select the correct product data based on data type and currency
-        let products;
+        let products = {};
         if (dataType === 'total_products' || dataType === 'total_revenue') {
-            products = purchaseChartData.products_total;
+            products = purchaseChartData.products_total || {};
         } else {
-            products = currency === 'EUR' ? purchaseChartData.products_eur : purchaseChartData.products_usd;
+            products = currency === 'EUR' ? (purchaseChartData.products_eur || {})  :( purchaseChartData.products_usd || {});
+        }
+
+        if (Object.keys(products).length === 0) {
+            return [{
+                x: [],
+                y: [],
+                name: 'No data',
+                type: chartType === 'scatter' ? 'scatter' : 'bar',
+                mode: chartType === 'scatter' ? 'markers' : undefined
+            }];
         }
 
         const numProducts = Object.keys(products || {}).length || 1;
@@ -134,12 +168,12 @@
                 const productData = products[productName];
                 let total;
                 if (dataType === 'quantity' || dataType === 'total_products') {
-                    total = productData.quantities.reduce((a, b) => a + b, 0);
+                    total = (productData.quantities || []).reduce(function (a,b){return a + b;}, 0);
                 } else if (dataType === 'total_revenue') {
-                    const arr = currency === 'EUR' ? productData.amounts_eur_total : productData.amounts_usd_total;
-                    total = arr.reduce((a, b) => a + b, 0);
+                    const arr = currency === 'EUR' ? (productData.amounts_eur_total || []) : (productData.amounts_usd_total || []);
+                    total = arr.reduce(function (a, b) {return a + b;}, 0);
                 } else {
-                    total = productData.amounts.reduce((a, b) => a + b, 0);
+                    total = (productData.amounts || []).reduce(function (a, b){return a + b;}, 0);
                 }
                 labels.push(productName);
                 values.push(total);
@@ -170,18 +204,25 @@
             Object.keys(products).forEach(productName => {
                 const productData = products[productName];
 
-                const amounts = currency === 'EUR'
-                    ? (productData.amounts_eur_total || productData.amounts)
-                    : (productData.amounts_usd_total || productData.amounts);
+                let amounts;
+                if (dataType === 'total_revenue') {
+                    amounts = currency === 'EUR'
+                        ? (productData.amounts_eur_total || [])
+                        : (productData.amounts_usd_total || []);
+                } else if (dataType === 'amount') {
+                    amounts = productData.amounts || [];
+                } else {
+                    amounts = productData.quantities || [];
+                }
 
                 traces.push({
-                    x: productData.quantities,
+                    x: productData.quantities || [],
                     y: amounts,
                     name: productName,
                     type: 'scatter',
                     mode: 'markers',
                     marker: {
-                        color: colorIndex,
+                        color: colors[colorIndex % colors.length],
                         colorscale: 'Viridis',
                         cmin: 0,
                         cmax: numProducts - 1,
@@ -205,22 +246,25 @@
         Object.keys(products).forEach(productName => {
             const productData = products[productName];
 
-            let yData;
+            let yData = [];
+
             if (dataType === 'quantity' || dataType === 'total_products') {
-                yData = productData.quantities;
+                yData = productData.quantities || [];
             } else if (dataType === 'total_revenue') {
-                yData = currency === 'EUR' ? productData.amounts_eur_total : productData.amounts_usd_total;
+                yData = currency === 'EUR'
+                    ? (productData.amounts_eur_total || [])
+                    : (productData.amounts_usd_total || []);
             } else {
-                yData = productData.amounts;
+                yData = productData.amounts || [];
             }
 
             traces.push({
-                x: productData.dates,
+                x: productData.dates || [],
                 y: yData,
                 name: productName,
                 type: 'bar',
                 marker: {
-                    color: colorIndex,
+                    color: colors[colorIndex % colors.length],
                     colorscale: 'Viridis',
                     cmin: 0,
                     cmax: numProducts - 1,

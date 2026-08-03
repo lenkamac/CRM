@@ -13,6 +13,7 @@ urlpatterns = [
     path('edit/<int:product_id>/', views.edit_product, name='edit_product'),
     path('delete/<int:product_id>/', views.delete_product, name='delete_product'),
     path('autocomplete/', views.product_autocomplete, name='autocomplete'),
+    path('exchange-rate/', views.exchange_rate, name='exchange_rate'),
     path('sales/', views.SalesListView.as_view(), name='sales_list'),
     path('sales/add-purchase/', AddPurchaseGenericView.as_view(), name='add_purchase_generic'),
 ]

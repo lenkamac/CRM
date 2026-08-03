@@ -10,7 +10,8 @@
     	<link rel="stylesheet" href="{% static 'product/product.css' %}">
     {% endblock %}
 
-    <div class="container-fluid product-detail-page px-2 px-sm-3 px-lg-4">
+    <div class="container-fluid product-detail-page px-2 px-sm-3 px-lg-4"
+    data-exchange-rate-url="{% url 'product:exchange_rate' %}">
         <div class="row mt-0 mb-3 mx-2 pt-2 justify-content-center rounded-2 position-relative product-detail-header">
 
             <div class="col-12 text-center bg-transparent">
@@ -212,47 +213,7 @@
 
     </div>
 
-    <script>
-        const exchangeRate = 1.10;
+    <script src="{% static 'product/js/product.js' %}"></script>
+    <script src="{% static 'js/project.js' %}"></script>
 
-        document.querySelectorAll('.currency-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                const currency = this.dataset.currency;
-
-                // Update active state
-                document.querySelectorAll('.currency-toggle').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-
-                // Update all price cells
-                document.querySelectorAll('.price-cell').forEach(cell => {
-                    const symbol = cell.querySelector('.currency-symbol');
-                    const priceValue = cell.querySelector('.price-value');
-                    const eurPrice = parseFloat(cell.dataset.eur);
-
-                    if (currency === 'USD') {
-                        const usdPrice = (eurPrice * exchangeRate).toFixed(2);
-                        symbol.textContent = '$';
-
-                        // For total cells, calculate from unit price * quantity
-                        if (cell.classList.contains('total-cell')) {
-                            const quantity = parseInt(cell.dataset.quantity);
-                            priceValue.textContent = (usdPrice * quantity).toFixed(2);
-                        } else {
-                            priceValue.textContent = usdPrice;
-                        }
-                    } else {
-                        symbol.textContent = '€';
-
-                        // For total cells, calculate from unit price * quantity
-                        if (cell.classList.contains('total-cell')) {
-                            const quantity = parseInt(cell.dataset.quantity);
-                            priceValue.textContent = (eurPrice * quantity).toFixed(2);
-                        } else {
-                            priceValue.textContent = eurPrice.toFixed(2);
-                        }
-                    }
-                });
-            });
-        });
-    </script>
 {% endblock %}

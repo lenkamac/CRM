@@ -12,7 +12,7 @@
     	<link rel="stylesheet" href="{% static 'product/product.css' %}">
     {% endblock %}
 
-        <div class="container-fluid mx-auto" id="product-list">
+        <div class="container-fluid mx-auto" id="product-list" data-exchange-rate-url="{% url 'product:exchange_rate' %}">
 
             <div class="row justify-content-center">
                 <div class="col-12 py-3 text-center">

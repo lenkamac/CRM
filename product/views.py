@@ -191,6 +191,11 @@ def product_autocomplete(request):
     results = [{'id': p['id'], 'label': p['name']} for p in products]
     return JsonResponse(results, safe=False)
 
+@login_required
+def exchange_rate(request):
+    rate = CurrencyConverter.get_exchange_rate('EUR', 'USD')
+    return JsonResponse({'from': 'EUR', 'to': 'USD','rate':float(rate)})
+
 
 class AddPurchaseGenericView(LoginRequiredMixin, View):
     """Add purchase from the sales list — client is selected via autocomplete."""
