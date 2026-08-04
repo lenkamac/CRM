@@ -8,11 +8,14 @@
     	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     {% endblock %}
 
-    <div class="container-fluid mx-auto pt-3" id="calendar-container">
+    <div class="container-fluid mx-auto" id="calendar-container">
 
         <div class="row justify-content-lg-center mt-3">
             <div class="col-sm-12 col-md-12 col-lg-7 py-3 px-4">
-                <h4 class="text-center fw-bolder">Calendar</h4>
+                <div class="position-relative mt-3 pt-xxl-3">
+                    <h4 class="text-center fw-bolder mb-0">Calendar</h4>
+                    <div id="calendar-datetime" class="position-absolute top-50 end-0 translate-middle-y fs-6 fw-bolder"></div>
+                </div>
                 <div id="calendar"></div>
             </div>
 
@@ -292,6 +295,22 @@
         // Pass event URL from Django to JS file
         var calendarEventsUrl = "{% url 'calendarapp:events_json' %}";
         var clientsLeadsUrl = "{% url 'calendarapp:clients_leads_json' %}";
+
+
+        function updateDateTime() {
+            const now = new Date();
+            // Format: e.g. Monday, 9.3.2026 14:05:03
+            const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const datePart = `${weekday}, ${day}.${month}.${year}`;
+            const timePart = now.toLocaleTimeString(undefined, { hour12: false });
+            document.getElementById('calendar-datetime').textContent = datePart + ' ' + timePart;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
     </script>
     <script src="{% static 'calendarapp/calendarapp.js' %}"></script>
 

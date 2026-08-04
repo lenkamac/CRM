@@ -3,12 +3,7 @@
     color: #fff !important;
 }
 
- #calendar-container {
-     padding-left: 115px;
-    padding-right: 25px;
-     margin-right: 0;
- }
- 
+
   #calendar {
     width: 100%;
     min-height: 80vh;   /* Adjust as needed (e.g., 60vh, 80vh) */
