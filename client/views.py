@@ -273,7 +273,8 @@ class EditCommentView(LoginRequiredMixin, View):
 
         return redirect('client:detail', pk=client_id)
 
-# Delete client file
+# Delete client
+# file
 def delete_client_file(request, client_id, file_id):
     if request.method == "POST":
         client = get_object_or_404(Client, id=client_id)

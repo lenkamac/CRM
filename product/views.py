@@ -300,27 +300,38 @@ class SalesListView(LoginRequiredMixin, ListView):
                 output_field=DecimalField()
             )
         )
-        date_from = self.request.GET.get('date_from', '').strip()
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            qs = qs.filter(
+                Q(client__first_name__icontains=query) |
+                Q(client__last_name__icontains=query) |
+                Q(client__company__icontains=query) |
+                Q(client__email__icontains=query) |
+                Q(product__name__icontains=query)
+            )
 
-        date_to = self.request.GET.get('date_to', '').strip()
+        date_from = self.request.GET.get('purchase_date_from', '').strip()
+
+        date_to = self.request.GET.get('purchase_date_to', '').strip()
 
         if date_from:
             try:
-                qs = qs.filter(created_at__date__gte=date_type.fromisoformat(date_from))
+                qs = qs.filter(created_at__date__gte=datetime.strptime(date_from, '%d.%m.%Y').date())
             except ValueError:
                 pass
         if date_to:
             try:
-                qs = qs.filter(created_at__date__lte=date_type.fromisoformat(date_to))
+                qs = qs.filter(created_at__date__lte=datetime.strptime(date_to, '%d.%m.%Y').date())
             except ValueError:
                 pass
         return qs.order_by(order_by)
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sort'] = self.request.GET.get('sort', 'date_desc')
-        context['date_from'] = self.request.GET.get('date_from', '').strip()
-        context['date_to'] = self.request.GET.get('date_to', '').strip()
+        context['date_from'] = self.request.GET.get('purchase_date_from', '').strip()
+        context['date_to'] = self.request.GET.get('purchase_date_to', '').strip()
 
         for key in ('date_from', 'date_to'):
             val = context[key]
@@ -333,4 +344,38 @@ class SalesListView(LoginRequiredMixin, ListView):
                 context[f'{key}_display'] = ''
         return context
 
+def purchase_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+
+    if query:
+        purchases = Purchase.objects.filter(
+            created_by=request.user
+        ).select_related('client', 'product').filter(
+            Q(client__first_name__icontains=query) |
+            Q(client__last_name__icontains=query) |
+            Q(client__company__icontains=query) |
+            Q(client__email__icontains=query) |
+            Q(product__name__icontains=query)
+        )[:]
+
+        seen = set()
+
+        for purchase in purchases:
+            client_label = str(purchase.client)
+            product_label = purchase.product.name
+            label = f"{client_label} - {product_label}"
+
+            if label in seen:
+                continue
+
+            seen.add(label)
+
+            results.append({
+                'id': purchase.id,
+                'label': label,
+                'client': client_label,
+                'product': product_label,
+            })
+    return JsonResponse(results, safe=False)
 

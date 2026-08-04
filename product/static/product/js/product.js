@@ -85,6 +85,108 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Purchase search autocomplete
+    const purchaseInput = document.getElementById('purchase_search');
+    const purchaseList = document.getElementById('purchase_autocomplete_list');
+
+    if (purchaseInput && purchaseList) {
+        const purchaseAutocompleteUrl = purchaseInput.dataset.autocompleteUrl;
+        let purchaseActiveIndex = -1;
+        let purchaseSuggestions = [];
+
+        function closePurchaseList() {
+            purchaseList.innerHTML = '';
+            purchaseList.style.display = 'none';
+            purchaseActiveIndex = -1;
+        }
+
+        function setActivePurchaseItem(items) {
+            items.forEach(function (el, i) {
+                el.classList.toggle('active', i === purchaseActiveIndex);
+            });
+        }
+
+        function fetchPurchaseSuggestions(q) {
+            closePurchaseList();
+            purchaseSuggestions = [];
+
+            if (!q) {
+                return;
+            }
+
+            fetch(purchaseAutocompleteUrl + '?q=' + encodeURIComponent(q))
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.length) {
+                        return;
+                    }
+
+                    purchaseSuggestions = data;
+
+                    data.forEach(function (item) {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action';
+                        li.style.cursor = 'pointer';
+                        li.textContent = item.label;
+
+                        li.addEventListener('mousedown', function (event) {
+                            event.preventDefault();
+                            purchaseInput.value = item.label;
+                            closePurchaseList();
+                            purchaseInput.form.submit();
+                        });
+
+                        purchaseList.appendChild(li);
+                    });
+
+                    purchaseList.style.display = 'block';
+                    purchaseActiveIndex = -1;
+                });
+        }
+
+        purchaseInput.addEventListener('input', function () {
+            fetchPurchaseSuggestions(this.value.trim());
+        });
+
+        purchaseInput.addEventListener('keydown', function (event) {
+            const items = [...purchaseList.querySelectorAll('li')];
+
+            if (event.key === 'Enter') {
+                if (purchaseActiveIndex >= 0 && purchaseSuggestions[purchaseActiveIndex]) {
+                    event.preventDefault();
+                    purchaseInput.value = purchaseSuggestions[purchaseActiveIndex].label;
+                    closePurchaseList();
+                    purchaseInput.form.submit();
+                }
+                return;
+            }
+
+            if (!items.length) {
+                return;
+            }
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                purchaseActiveIndex = Math.min(purchaseActiveIndex + 1, items.length - 1);
+                setActivePurchaseItem(items);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                purchaseActiveIndex = Math.max(purchaseActiveIndex - 1, 0);
+                setActivePurchaseItem(items);
+            } else if (event.key === 'Escape') {
+                closePurchaseList();
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!purchaseList.contains(event.target) && event.target !== purchaseInput) {
+                closePurchaseList();
+            }
+        });
+    }
+
     // Product search autocomplete
     const input = document.getElementById('product-search');
     if (!input) return;
@@ -186,3 +288,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('#purchase_date_from', {
+                    dateFormat: 'd.m.Y',
+                    allowInput: true,
+                    static: true,
+                    locale: {
+                        firstDayOfWeek: 1
+                    }
+                });
+
+                flatpickr('#purchase_date_to', {
+                    dateFormat: 'd.m.Y',
+                    allowInput: true,
+                    static: true,
+                    locale: {
+                        firstDayOfWeek: 1
+                    }
+                });
+            }
+        });

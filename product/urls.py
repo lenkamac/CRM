@@ -16,4 +16,5 @@ urlpatterns = [
     path('exchange-rate/', views.exchange_rate, name='exchange_rate'),
     path('sales/', views.SalesListView.as_view(), name='sales_list'),
     path('sales/add-purchase/', AddPurchaseGenericView.as_view(), name='add_purchase_generic'),
+    path('sales/autocomplete/', views.purchase_autocomplete, name='purchase_autocomplete'),
 ]

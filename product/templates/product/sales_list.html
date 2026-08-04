@@ -10,49 +10,114 @@
     	<link rel="stylesheet" href="{% static 'product/product.css' %}">
     {% endblock %}
 
-    <div class="container-fluid mx-auto pt-3" id="sales-list">
+    <div class="container-fluid mx-auto">
 
         <!-- Purchase History -->
-        <div class="row pt-4 justify-content-center">
-            <div class="col-12 text-center">
-                <h4 class="text-center">Sales</h4>
+        <div class="row justify-content-center">
+            <div class="col-sm-12">
+                <div class="text-center pt-md-3">
+                    <h4 class="fw-bolder">Sales & Purchases</h4>
+                </div>
             </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="row justify-content-center">
             <div class="col-12">
-                <div class="row justify-content-start py-2">
-                    <div class="col-2  text-start pt-4 ">
-                        <a href="{% url 'product:add_purchase_generic' %}" class="btn btn-sm fs-6 justify-content-center align-items-center fw-bolder" style="background-color: #5d718d; color: white;">
-                            <i class="fas fa-cart-plus px-2"></i>Add Purchase
-                        </a>
-                    </div>
-                    <div class="col-4 text-end ms-auto">
-                        <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
-                            <input type="hidden" name="sort" value="{{ sort }}">
-                            <div class="text-start">
-                                <label class="form-label fs-6 mb-1" for="date_from">From</label>
-                                <input type="text" id="date_from" name="date_from" class="form-control form-control-sm"
-                                       value="{{ date_from }}" placeholder="dd.mm.yyyy" autocomplete="off">
+                <div class="row justify-content-center">
+
+                    <div class="col-12 justify-content-center ">
+
+                        <div class="row justify-content-center my-3">
+                            <div class="col-12">
+
+                                <form method="get" class="mx-auto">
+                                    <input type="hidden" name="sort" value="{{ sort }}">
+
+                                    <div class="row g-2 g-lg-3 align-items-end justify-content-center text-center">
+
+                                        <div class="col-12 col-sm-6 col-lg-auto">
+                                            <a href="{% url 'product:add_purchase_generic' %}" class="btn btn-sm w-100  d-flex justify-content-center align-items-center fs-6 fw-bolder text-white" style="background-color: #236355;">
+                                                <i class="fas fa-cart-plus me-2"></i>Add Purchase
+                                            </a>
+                                        </div>
+
+                                        <div class="col-12 col-sm-10 col-md-8 col-lg-4 col-xl-4">
+                                            <div style="position: relative;">
+                                                <input type="text"
+                                                id="purchase_search"
+                                                name="q"
+                                                class="form-control text-center text-md-start"
+                                                placeholder="Search purchases by client, product"
+                                                value="{{ request.GET.q|default:'' }}"
+                                                        autocomplete="off"
+                                                data-autocomplete-url="{% url 'product:purchase_autocomplete' %}"
+                                                data-list-url="#">
+                                                <ul id="purchase_autocomplete_list"
+                                                class="list-group position-absolute w-100"
+                                                style="
+                                                    display: none;
+                                                    z-index: 1000;
+                                                    max-height: 260px;
+                                                    overflow-y: auto;
+                                                    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                                                    left: 0;
+                                                    text-align: left;
+                                                "></ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-auto">
+                                            <button type="submit"
+                                                    class="btn btn-sm fs-6 btn-search w-100 d-flex justify-content-center align-items-center">Search
+                                            </button>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-auto text-start">
+                                            <label class="form-label small mb-1">Date from</label>
+                                            <input type="text"
+                                                   name="purchase_date_from"
+                                                   id="purchase_date_from"
+                                                   value="{{ purchase_filter.date_from }}"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="dd.mm.yyyy"
+                                                   autocomplete="off">
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-auto text-start">
+                                            <label class="form-label small mb-1">Date to</label>
+                                            <input type="text"
+                                                   name="purchase_date_to"
+                                                   id="purchase_date_to"
+                                                   value="{{ purchase_filter.date_to }}"
+                                                   class="form-control form-control-sm text-center"
+                                                   placeholder="dd.mm.yyyy"
+                                                   autocomplete="off">
+                                        </div>
+
+                                        <div class="col-12 col-sm-8 col-md-4 col-lg-auto">
+                                            <div class="d-grid d-sm-flex gap-2 justify-content-center">
+                                                <button type="submit"
+                                                        class="btn btn-sm fw-bolder text-white"
+                                                        style="background-color: #4d5a6f;">
+                                                    <i class="fas fa-filter me-1"></i> Filter
+                                                </button>
+
+                                                <a href="?purchase_page=1"
+                                                   class="btn btn-sm btn-secondary">
+                                                    Clear
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
                             </div>
-                            <div class="text-start">
-                                <label class="form-label fs-6 mb-1" for="date_to">To</label>
-                                <input type="text" id="date_to" name="date_to" class="form-control form-control-sm"
-                                       value="{{ date_to }}" placeholder="dd.mm.yyyy" autocomplete="off">
-                            </div>
-                            <button type="submit" class="btn btn-sm fs-6 btn-filter">Filter</button>
-                            {% if date_from or date_to %}
-                            <a href="?sort={{ sort }}" class="btn btn-sm btn-filter-clear">Clear</a>
-                            {% endif %}
-                        </form>
-                        {% if date_from or date_to %}
-                        <div class="text-muted small mt-1">
-                            Showing:
-                            {% if date_from_display %}from <strong>{{ date_from_display }}</strong>{% endif %}
-                            {% if date_to_display %}to <strong>{{ date_to_display }}</strong>{% endif %}
                         </div>
-                        {% endif %}
+
                     </div>
+
                 </div>
             </div>
         </div>
@@ -154,17 +219,19 @@
                 </nav>
             {% endif %}
         </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="text-start text-md-center">
+                    <a href="{% url 'dashboard:dashboard' %}" class="back-to-dashboard">
+                        <i class="fa-solid fa-arrow-left px-3"></i>Back to the dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-    <script>
-        const purchaseDateConfig = {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d.m.Y",
-                allowInput: true,
-                locale: { firstDayOfWeek: 1 }
-            };
-        flatpickr("#date_from", purchaseDateConfig);
-        flatpickr("#date_to", purchaseDateConfig);
-       
-    </script>
+
+    <script src="{% static 'js/project.js' %}"></script>
+    <script src="{% static 'product/js/product.js' %}"></script>
+
 {% endblock %}
