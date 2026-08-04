@@ -96,12 +96,8 @@
     text-decoration: underline;
 }
 
-.product-detail-page {
-    max-width: 1440px;
-}
 .product-detail-header {
     background-color: #13407a;
-    z-index: 1055;
 }
 
 .product-detail-header h4 {

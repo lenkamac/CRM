@@ -146,7 +146,7 @@ def add_product(request):
         messages.success(request, 'Product added successfully!')
         return redirect('product:product_list')
 
-    return render(request, 'product/add-product.html')
+    return redirect('product:product_list')
 
 
 def delete_product(request, product_id):
