@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="{% static 'styles.css' %}">
     {% endblock %}
 
-<div class="container mx-auto pt-5">
+<div class="container-fluid mx-auto">
     <div class="row">
         <div class="col-12">
             <h4 class="text-center mb-2">Contacts</h4>
@@ -22,7 +22,9 @@
         <div class="col-auto ms-auto d-flex align-items-center gap-2 pe-0">
             <!-- Search -->
             <div class="input-group" style="position: relative; width: 400px;">
-                <input type="text" id="contact-search-input" name="q" class="form-control" placeholder="Search by name, email or company" value="{{ request.GET.q|default:'' }}" autocomplete="off">
+                <input type="text" id="contact-search-input" name="q" class="form-control" placeholder="Search by name, email or company" value="{{ request.GET.q|default:'' }}" autocomplete="off"
+                       data-autocomplete-url="{% url 'core:contact_autocomplete' %}"
+                       data-list-url="{% url 'core:contact_list' %}">
                 <button class="btn btn-search fs-6 btn-outline-secondary" type="submit">Search</button>
                 {% if request.GET.q or request.GET.id %}
                     <a href="{% url 'core:contact_list' %}" class="btn btn-outline-danger">Clear</a>
@@ -114,87 +116,7 @@
   </div>
 </div>
 
-<script>
-(function () {
-    const input = document.getElementById('contact-search-input');
-    const list  = document.getElementById('contact-autocomplete-list');
-    const autocompleteUrl = "{% url 'core:contact_autocomplete' %}";
-    const listBase = "{% url 'core:contact_list' %}";
-    let activeIndex = -1;
-    let suggestions = [];
-
-    function closeList() {
-        list.innerHTML = '';
-        list.style.display = 'none';
-        activeIndex = -1;
-    }
-
-    function goToContact(item) {
-        window.location.href = listBase + '?id=' + item.id;
-    }
-
-    function setActive(items) {
-        items.forEach((el, i) => {
-            el.classList.toggle('active', i === activeIndex);
-        });
-    }
-
-
-    input.addEventListener('input', function () {
-        const q = this.value.trim();
-        closeList();
-        suggestions = [];
-
-    if (!q) return;
-    fetch(`${autocompleteUrl}?q=${encodeURIComponent(q)}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.length) return;
-                    suggestions = data;
-                    data.forEach((item, idx) => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item list-group-item-action';
-                        li.style.cursor = 'pointer';
-                        li.textContent = item.label;
-                        li.dataset.index = idx;
-                        li.addEventListener('mousedown', function (e) {
-                            e.preventDefault();
-                            goToContact(item);
-                        });
-                        list.appendChild(li);
-                    });
-                    list.style.display = 'block';
-                    activeIndex = -1;
-                });
-        });
-
-        input.addEventListener('keydown', function (e) {
-            const items = [...list.querySelectorAll('li')];
-            if (!items.length) return;
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                activeIndex = Math.min(activeIndex + 1, items.length - 1);
-                setActive(items);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                activeIndex = Math.max(activeIndex - 1, 0);
-                setActive(items);
-            } else if (e.key === 'Enter' && activeIndex >= 0) {
-                e.preventDefault();
-                goToContact(suggestions[activeIndex]);
-            } else if (e.key === 'Escape') {
-                closeList();
-            }
-        });
-
-        document.addEventListener('click', function (e) {
-            if (!list.contains(e.target) && e.target !== input) closeList();
-        });
-
-
-
-
-})();
-</script>
+<script src="{% static 'contacts/contacts.js' %}"></script>
+<script src="{% static 'js/project.js' %}"></script>
 
 {% endblock %}
