@@ -75,24 +75,30 @@ document.addEventListener('DOMContentLoaded', function() {
             const isTask = info.event.extendedProps.type === 'task';
 
             if (isTask) {
-                // For tasks, show task details directly
-                let taskDetails = `<strong>${info.event.title}</strong><br>`;
-                taskDetails += `<small>Due: ${formatDateDisplay(info.event.start)}</small><br>`;
-                if (info.event.extendedProps.priority) {
-                    taskDetails += `<small>Priority: ${info.event.extendedProps.priority}</small><br>`;
-                }
-                if (info.event.extendedProps.status) {
-                    taskDetails += `<small>Status: ${info.event.extendedProps.status}</small><br>`;
-                }
-                if (info.event.extendedProps.assigned_to) {
-                    taskDetails += `<small>Assigned to: ${info.event.extendedProps.assigned_to}</small><br>`;
-                }
-                if (info.event.extendedProps.description) {
-                    taskDetails += `<br><small class="text-muted">${info.event.extendedProps.description}</small>`;
-                }
+                const actualTaskId = info.event.id.replace('task-', '');
 
-                alert(taskDetails.replace(/<br>/g, '\n').replace(/<\/?[^>]+(>|$)/g, ""));
-                return;
+                    document.getElementById('taskActionTaskId').value = actualTaskId;
+                    document.getElementById('taskActionModalTitle').textContent = info.event.title;
+
+                    var taskActionModal = new bootstrap.Modal(document.getElementById('taskActionModal'));
+
+                    document.getElementById('detailTaskBtn').onclick = function() {
+                        taskActionModal.hide();
+                        showTaskDetail(actualTaskId);
+                    };
+
+                    document.getElementById('editTaskBtn').onclick = function() {
+                        taskActionModal.hide();
+                        editTask(actualTaskId);
+                    };
+
+                    document.getElementById('deleteTaskBtn').onclick = function() {
+                        taskActionModal.hide();
+                        deleteTask(actualTaskId);
+                    };
+
+                    taskActionModal.show();
+                    return;
             }
 
             // Store event id and title in the modal for easy access
@@ -793,24 +799,27 @@ function showTaskDetail(taskId) {
 
             if (task) {
                 // Fill in the task details modal
-                let detailsHtml = `<p><strong>Title:</strong> ${task.title}</p>`;
-                detailsHtml += `<p><strong>Due:</strong> ${formatDateDisplay(task.start)}</p>`;
+                let detailsHtml = `<p><strong>Title:</strong> ${task.title || ''}</p>`;
+                detailsHtml += `<p><strong>Due:</strong> ${task.start ? formatDateDisplay(task.start) : 'No due date'}</p>`;
 
                 if (task.priority) {
-                    detailsHtml += `<p><strong>Priority:</strong> <span class="badge bg-${getPriorityColor(task.priority)}">${task.priority}</span></p>`;
+                    detailsHtml += `<p><strong>Priority:</strong> <span class="badge bg-${getPriorityColor(task.priority)}">${task.priority_display || task.priority}</span></p>`;
                 }
 
                 if (task.status) {
-                    detailsHtml += `<p><strong>Status:</strong> <span class="badge bg-${getStatusColor(task.status)}">${task.status}</span></p>`;
+                    detailsHtml += `<p><strong>Status:</strong> <span class="badge bg-${getStatusColor(task.status)}">${task.status_display || task.status}</span></p>`;
                 }
 
                 if (task.assigned_to) {
                     detailsHtml += `<p><strong>Assigned to:</strong> ${task.assigned_to}</p>`;
                 }
 
-                if (task.description) {
-                    detailsHtml += `<p><strong>Description:</strong> ${task.description}</p>`;
+                if (task.client_or_lead) {
+                    const relatedText = task.client_or_lead_type === 'client' ? 'Client' : 'Lead';
+                    detailsHtml += `<p><strong>${relatedText}:</strong> ${task.client_or_lead}</p>`;
                 }
+
+                detailsHtml += `<p><strong>Description:</strong> ${task.description || 'No description'}</p>`;
 
                 // Show the details in a modal
                 document.getElementById('taskDetailModalBody').innerHTML = detailsHtml;
@@ -862,7 +871,7 @@ function deleteTask(taskId) {
 // Helper functions for badge colors
 function getPriorityColor(priority) {
     if (priority === 'urgent') return 'danger';
-    if (priority === 'high') return 'orange';
+    if (priority === 'high') return 'warning';
     if (priority === 'medium') return 'success';
     if (priority === 'low') return 'primary';
     return 'secondary';

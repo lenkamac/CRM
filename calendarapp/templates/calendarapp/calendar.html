@@ -164,6 +164,25 @@
                 </div>
             </div>
 
+            <!-- Task Action Modal -->
+            <div class="modal fade" id="taskActionModal" tabindex="-1" aria-labelledby="taskActionModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="taskActionModalLabel">Task Actions</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="taskActionModalTitle"><!-- Task title here --></p>
+                            <input type="hidden" id="taskActionTaskId">
+                            <button id="editTaskBtn" type="button" class="btn btn-primary me-2">Edit</button>
+                            <button id="deleteTaskBtn" type="button" class="btn btn-danger">Delete</button>
+                            <button id="detailTaskBtn" type="button" class="btn btn-info">Show Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Add Event Modal -->
             <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -313,6 +332,7 @@
 
     </script>
     <script src="{% static 'calendarapp/calendarapp.js' %}"></script>
+    <script src="{% static 'js/project.js' %}"></script>
 
 
 {% endblock %}
