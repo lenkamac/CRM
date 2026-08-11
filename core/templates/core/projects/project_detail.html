@@ -6,10 +6,92 @@
 
     {% block css %}
     	<link rel="stylesheet" href="{% static 'styles.css' %}">
+
+        <style>
+            .conversation-popup {
+                position: fixed;
+                right: 24px;
+                bottom: 24px;
+                width: 420px;
+                height: 620px;
+                background: #ffffff;
+                border: 1px solid #dcdede;
+                border-radius: 12px;
+                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
+                z-index: 1060;
+                display: none;
+                overflow: hidden;
+            }
+
+            .conversation-popup.show {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .conversation-popup.minimized {
+                height: 48px;
+            }
+
+            .conversation-popup-header {
+                height: 48px;
+                background: #dcdede;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 12px;
+                flex-shrink: 0;
+            }
+
+            .conversation-popup-title {
+                font-weight: 600;
+                font-size: 0.95rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                padding-right: 8px;
+            }
+
+            .conversation-popup-actions {
+                display: flex;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+
+            .conversation-popup-body {
+                flex: 1;
+                min-height: 0;
+            }
+
+            .conversation-popup.minimized .conversation-popup-body {
+                display: none;
+            }
+
+            .conversation-popup iframe {
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+
+            @media (max-width: 576px) {
+                .conversation-popup {
+                    right: 12px;
+                    left: 12px;
+                    bottom: 12px;
+                    width: auto;
+                    height: 75vh;
+                }
+
+                .conversation-popup.minimized {
+                    height: 48px;
+                }
+            }
+
+        </style>
+
     {% endblock %}
 
 
-    <div class="container mx-auto pt-4">
+    <div class="container-fluid mx-auto">
 
         <div class="row pt-4">
             <div class="col-2">
@@ -85,7 +167,14 @@
                                     <td>{{ conv.created_by.username }}</td>
                                     <td>{{ conv.created_at|date:"d.m.Y" }}</td>
                                     <td class="text-end">
-                                        <a href="{% url 'core:project_conversation_detail' project.pk conv.pk %}" class="btn btn-sm btn-outline-primary">Open</a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary"
+                                                onclick="openConversationPopup(
+                                                    '{% url 'core:project_conversation_detail' project.pk conv.pk %}',
+                                                    '{{ conv.title|default:"(no title)"|escapejs }}'
+                                                )">
+                                            Open
+                                        </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#deleteConvModal"
@@ -113,11 +202,44 @@
                 </div>
             </div>
 
+            <div id="conversationPopup" class="conversation-popup" aria-live="polite">
+                <div class="conversation-popup-header">
+                    <div id="conversationPopupTitle" class="conversation-popup-title">
+                        Conversation
+                    </div>
+
+                    <div class="conversation-popup-actions">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                onclick="toggleConversationPopupMinimize()"
+                                aria-label="Minimize conversation">
+                            —
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="closeConversationPopup()"
+                                aria-label="Close conversation">
+                            ×
+                        </button>
+                    </div>
+                </div>
+
+                <div class="conversation-popup-body">
+                    <iframe id="conversationPopupFrame"
+                            name="conversationPopupFrame"
+                            title="Conversation window"></iframe>
+                </div>
+            </div>
+
             {# Modal: start a new conversation #}
             <div class="modal fade" id="newConversationModal" tabindex="-1" aria-labelledby="newConversationModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="post" action="{% url 'core:project_conversation_create' project.pk %}">
+                        <form method="post"
+                              action="{% url 'core:project_conversation_create' project.pk %}"
+                              target="conversationPopupFrame"
+                              onsubmit="openConversationPopup('', 'New Conversation')">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title" id="newConversationModalLabel">New Conversation</h5>
@@ -201,25 +323,61 @@
 
         <script>
             function toggleDescEdit() {
-                const display = document.getElementById('descDisplay');
-                const form = document.getElementById('descForm');
-                const btn = document.getElementById('descEditBtn');
-                const isEditing = !form.classList.contains('d-none');
-                display.classList.toggle('d-none', !isEditing);
-                form.classList.toggle('d-none', isEditing);
-                btn.textContent = isEditing ? 'Edit' : 'Cancel';
-            }
+                    const display = document.getElementById('descDisplay');
+                    const form = document.getElementById('descForm');
+                    const btn = document.getElementById('descEditBtn');
+                    const isEditing = !form.classList.contains('d-none');
+                    display.classList.toggle('d-none', !isEditing);
+                    form.classList.toggle('d-none', isEditing);
+                    btn.textContent = isEditing ? 'Edit' : 'Cancel';
+                }
 
-            const deleteConvModal = document.getElementById('deleteConvModal');
-            deleteConvModal.addEventListener('show.bs.modal', function (event) {
-                const btn = event.relatedTarget;
-                const convPk = btn.getAttribute('data-conv-pk');
-                const convTitle = btn.getAttribute('data-conv-title');
-                document.getElementById('deleteConvTitle').textContent = convTitle;
-                document.getElementById('deleteConvForm').action = "{% url 'core:project_conversation_delete' project.pk 0 %}".replace('/0/', '/' + convPk + '/');
-            });
+                const deleteConvModal = document.getElementById('deleteConvModal');
+                deleteConvModal.addEventListener('show.bs.modal', function (event) {
+                    const btn = event.relatedTarget;
+                    const convPk = btn.getAttribute('data-conv-pk');
+                    const convTitle = btn.getAttribute('data-conv-title');
+                    document.getElementById('deleteConvTitle').textContent = convTitle;
+                    document.getElementById('deleteConvForm').action = "{% url 'core:project_conversation_delete' project.pk 0 %}".replace('/0/', '/' + convPk + '/');
+                });
+
+                function openConversationPopup(url, title) {
+                    const popup = document.getElementById('conversationPopup');
+                    const frame = document.getElementById('conversationPopupFrame');
+                    const titleEl = document.getElementById('conversationPopupTitle');
+
+                    titleEl.textContent = title || 'Conversation';
+                    popup.classList.add('show');
+                    popup.classList.remove('minimized');
+
+                    if (url) {
+                        frame.src = url;
+                    }
+
+                    const modalEl = document.getElementById('newConversationModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+
+                    if (modal) {
+                        modal.hide();
+                    }
+                }
+
+                function toggleConversationPopupMinimize() {
+                    const popup = document.getElementById('conversationPopup');
+                    popup.classList.toggle('minimized');
+                }
+
+                function closeConversationPopup() {
+                    const popup = document.getElementById('conversationPopup');
+                    const frame = document.getElementById('conversationPopupFrame');
+
+                    popup.classList.remove('show');
+                    popup.classList.remove('minimized');
+                    frame.src = '';
+                }
 
         </script>
+        <script src="{% static 'js/project.js' %}"></script>
 
     </div>
 {% endblock %}

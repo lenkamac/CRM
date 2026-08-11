@@ -5,6 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
@@ -528,7 +530,7 @@ def project_conversation_create(request, project_pk: int):
     messages.error(request, "Could not create conversation.")
     return redirect("core:project_detail", pk=project.pk)
 
-
+@method_decorator(xframe_options_sameorigin, name="dispatch")
 class ProjectConversationDetailView(LoginRequiredMixin, DetailView):
     model = Conversation
     template_name = "core/projects/project_conversation_detail.html"

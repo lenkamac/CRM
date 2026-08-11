@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="{% static 'teams/teams.css' %}">
     {% endblock %}
 
-    <div class="container-fluid mx-auto pt-4" id="manage-teams">
+    <div class="container-fluid mx-auto" id="manage-teams">
         <div class="d-flex align-items-center justify-content-between mb-3 mt-4">
             <h1 class="h3 mb-0">Manage Teams</h1>
             <a class="btn btn-primary" href="{% url 'core:team_add' %}">Create team</a>
@@ -39,6 +39,8 @@
                     <tbody>
                       {% for team in teams %}
                         <tr>
+
+
                           <td><a href="{% url 'core:team_detail' team.pk %}">{{ team.name }}</a></td>
                           <td>
                             {% if team.is_active %}
@@ -79,16 +81,4 @@
 
 {% endblock %}
 
-<script>
-       // Automatically hide alert messages after 3 seconds (3000 milliseconds)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                document.querySelectorAll('.alert').forEach(function(alert) {
-                    // Fade out for a smooth effect (optional)
-                    alert.style.transition = "opacity 0.5s linear";
-                    alert.style.opacity = 0;
-                    setTimeout(function() { alert.remove(); }, 500); // remove from DOM after fade out
-                });
-            }, 3000);})
-
-</script>
+<script src="{% static 'js/project.js' %}"></script>
