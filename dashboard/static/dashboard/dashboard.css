@@ -2,6 +2,11 @@
 .dashboard-p {
     font-size: 1rem;
 }
+.dashboard-panel {
+    height: 320px;          /* or min-height, if you prefer growth */
+    overflow-y: auto;
+    background-color: #fff;
+}
 .dashboard-card {
     border-radius: 5px;
     border: 2px solid gray;

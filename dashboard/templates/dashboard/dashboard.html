@@ -28,13 +28,13 @@
         </div>
 
         <div class="row mt-2 justify-content-center pt-xxl-4">
-            <div class="col-12">
-                <div class="row justify-content-sm-center">
+            <div class="col-sm-12 col-md-6 col-lg-6 d-flex flex-column">
+                <div class="row justify-content-sm-center flex-grow-1">
                     <div class="col-sm-12">
                         <h5 class="text-sm-start fw-bolder">Latest Leads</h5>
                     </div>
-                    <div class="col-sm-12">
-                        <div class="table-responsive-custom">
+                    <div class="col-sm-12 d-flex">
+                        <div class="table-responsive-custom w-100 dashboard-panel">
                             <table class="table">
                                 <thead class="th-custom">
                                     <tr>
@@ -80,16 +80,13 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row mt-2 justify-content-sm-center">
-            <div class="col-12">
-                <div class="row justify-content-sm-center">
+            <div class="col-sm-12 col-md-6 col-lg-6 d-flex flex-column">
+                <div class="row justify-content-sm-center flex-grow-1">
                     <div class="col-12">
                         <h5 class="fw-bolder text-sm-start">Latest Clients</h5>
                     </div>
-                    <div class="col-sm-12">
-                        <div class="table-responsive-custom">
+                    <div class="col-sm-12 d-flex">
+                        <div class="table-responsive-custom w-100 dashboard-panel">
                             <table class="table">
                                 <thead class="th-custom">
                                     <tr>
@@ -130,6 +127,89 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="row mt-2 justify-content-sm-center">
+            <div class="col-12">
+                <div class="row justify-content-sm-center">
+                    <div class="col-12">
+                        <h5 class="fw-bolder text-sm-start">Current Tasks</h5>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="table-responsive-custom">
+                            <table class="table">
+                                <thead class="th-custom">
+                                    <tr>
+                                        <th class="text-start text-nowrap sort-option" style="background-color: rgb(134 167 200 / 0.85);">
+                                            <a class="text-dark text-decoration-none" href="?{{ task_sort_query }}sort=due_date{% if sort_by == 'due_date' and sort_order == 'asc' %}&order=desc{% else %}&order=asc{% endif %}">
+                                                Due Date
+                                                {% if sort_by == 'due_date' %}
+                                                    {% if sort_order == 'asc' %}▲{% else %}▼{% endif %}
+                                                {% endif %}
+                                            </a>
+                                        </th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Time</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Title</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Company</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Priority</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Status</th>
+                                    </tr>
+                                </thead>
+                                {% for task in current_tasks %}
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-start">{{ task.due_date|date:"d.m.Y" }}</td>
+                                            <td class="text-start">{% if task.due_time %}
+                                                    {{ task.due_time|time:"H:i" }}
+                                                {% else %}
+                                                    <span class="text-muted">--:--</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start company-a">
+                                                {% if task.title %}
+                                                    <a href="{% url 'task:task_detail' task.pk %}">{{ task.title }}</a>
+                                                {% else %}
+                                                    <span class="text-muted"></span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start name-a">
+                                                {% if task.client.company %}
+                                                    <a href="{% url 'client:detail' task.client.id %}">{{ task.client.company }}</a>
+                                                {% elif task.lead.company %}
+                                                    <a href="{% url 'lead:detail' task.lead.id %}">{{ task.lead.company }}</a>
+                                                {% else %}
+
+                                                {% endif %}
+                                            </td> <!-- or use the field(s) you prefer -->
+                                            <td class="text-start">{% if task.priority == 'urgent'%}
+                                                <span class="badge bg-danger">Urgent</span>
+                                            {% elif task.priority == 'high'%}
+                                                <span class="badge bg-warning">High</span>
+                                            {% elif task.priority == 'medium'%}
+                                                <span class="badge bg-info">Medium</span>
+                                            {% elif task.priority == 'low'%}
+                                                <span class="badge bg-success">Low</span>
+                                            {% endif %}</td>
+                                            <td class="text-start">{% if task.status == 'todo' %}
+                                                <span class="badge bg-secondary">To Do</span>
+                                            {% elif task.status == 'in_progress' %}
+                                                <span class="badge bg-primary">In Progress</span>
+                                            {% elif task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% elif task.status == 'canceled' %}
+                                                <span class="badge bg-danger">Canceled</span>
+                                            {% endif %}</td>
+                                        </tr>
+                                    </tbody>
+                                {% empty %}
+                                    <li class="list-group-item">No tasks found.</li>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

@@ -6,12 +6,16 @@ from django.views.decorators.cache import never_cache
 from lead.models import Lead
 from client.models import Client, Purchase
 from product.models import Product
+from task.models import Task
 from datetime import timedelta
 from django.utils import timezone
 import json
 
 
 app_name = 'dashboard'
+
+# Columns of the Current Tasks table that may be used in ?sort=
+SORTABLE_TASK_FIELDS = ('due_date', 'due_time', 'title', 'priority', 'status')
 
 
 # Create your views here.
@@ -22,6 +26,28 @@ def dashboard(request):
     client_count = Client.objects.filter(created_by=request.user).count()
     latest_leads = Lead.objects.filter(created_by=request.user, converted_to_client=False).order_by('-created_at')[:15]
     latest_clients = Client.objects.filter(created_by=request.user).order_by('-created_at')[:15]
+    # Sorting of the Current Tasks table
+    sort_by = request.GET.get('sort', 'due_date')
+    sort_order = request.GET.get('order', 'desc')
+    if sort_by not in SORTABLE_TASK_FIELDS:
+        sort_by = 'due_date'
+    if sort_order not in ('asc', 'desc'):
+        sort_order = 'desc'
+
+    if sort_order == 'asc':
+        task_order = F(sort_by).asc(nulls_last=True)
+    else:
+        task_order = F(sort_by).desc(nulls_last=True)
+
+    current_tasks = Task.objects.filter(created_by=request.user).order_by(task_order)[:8]
+
+    # Keep the other dashboard filters when a sort link is clicked
+    other_params = request.GET.copy()
+    other_params.pop('sort', None)
+    other_params.pop('order', None)
+    task_sort_query = other_params.urlencode()
+    if task_sort_query:
+        task_sort_query += '&'
 
     # Get time period filter from request
     time_period = request.GET.get('period', 'all')
@@ -327,6 +353,10 @@ def dashboard(request):
         'lost_lead_count': lost_lead_count,
         'contacted_lead_count': contacted_lead_count,
         'latest_clients': latest_clients,
+        'current_tasks': current_tasks,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
+        'task_sort_query': task_sort_query,
         'chart_dates': json.dumps(all_dates),
         'lead_counts': json.dumps(lead_counts_filled),
         'client_counts': json.dumps(client_counts_filled),
