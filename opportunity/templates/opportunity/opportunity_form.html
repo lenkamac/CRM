@@ -41,11 +41,40 @@
                         </div>
                     </div>
 
+                    <!-- Expected Close Date -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6 col-lg-6">
+                            <label for="{{ form.expected_close_date.id_for_label }}" class="form-label fs-6">{{ form.expected_close_date.label }}:</label>
+                            <div class="input-icon-wrapper">
+                                {{ form.expected_close_date|add_class:"form-control flatpickr-date" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-calendar"></i>
+                                </span>
+                            </div>
+                            {% for error in form.expected_close_date.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-6">
+                            <label for="{{ form.type.id_for_label }}" class="form-label fs-6">{{ form.type.label }}:</label>
+                            <div class="input-icon-wrapper">
+                                {{ form.type|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
+                            {% for error in form.type.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
                     <!-- Currency / Amount -->
                     <div class="row mb-3">
                         <div class="col-4">
                             <label for="{{ form.currency.id_for_label }}" class="form-label fs-6">{{ form.currency.label }}:</label>
-                            {{ form.currency|add_class:"form-control" }}
+                            <div class="input-icon-wrapper">
+                                {{ form.currency|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
                             {% for error in form.currency.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-8">
@@ -59,7 +88,12 @@
                     <div class="row mb-3">
                         <div class="col-12 col-sm-8">
                             <label for="{{ form.stage.id_for_label }}" class="form-label fs-6">{{ form.stage.label }}: <span class="text-danger">*</span></label>
-                            {{ form.stage|add_class:"form-control" }}
+                            <div class="input-icon-wrapper">
+                                {{ form.stage|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
                             {% for error in form.stage.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-12 col-sm-4 mt-3 mt-sm-0">
@@ -69,26 +103,27 @@
                         </div>
                     </div>
 
-                    <!-- Expected Close Date -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <label for="{{ form.expected_close_date.id_for_label }}" class="form-label fs-6">{{ form.expected_close_date.label }}:</label>
-                            {{ form.expected_close_date|add_class:"form-control flatpickr-date" }}
-                            {% for error in form.expected_close_date.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-                    </div>
-
                     <!-- Type / Lead Source -->
                     <div class="row mb-3">
-                        <div class="col-12 col-sm-6">
-                            <label for="{{ form.type.id_for_label }}" class="form-label fs-6">{{ form.type.label }}:</label>
-                            {{ form.type|add_class:"form-control" }}
-                            {% for error in form.type.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label for="{{ form.lead_source_choices.id_for_label }}" class="form-label fs-6">{{ form.lead_source_choices.label }}:</label>
+                            <div class="input-icon-wrapper">
+                                {{ form.lead_source_choices|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
+                            {% for error in form.lead_source_choices.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-12 col-sm-6 mt-3 mt-sm-0">
-                            <label for="{{ form.lead_source.id_for_label }}" class="form-label fs-6">{{ form.lead_source.label }}:</label>
-                            {{ form.lead_source|add_class:"form-control" }}
-                            {% for error in form.lead_source.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.teams.id_for_label }}" class="form-label fs-6">{{ form.teams.label }}:</label>
+                            <div class="input-icon-wrapper">
+                                {{ form.teams|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
+                            {% for error in form.teams.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
                     </div>
 
@@ -105,12 +140,22 @@
                     <div class="row mb-3">
                         <div class="col-12 col-sm-6">
                             <label for="{{ form.assigned_to.id_for_label }}" class="form-label fs-6">{{ form.assigned_to.label }}:</label>
-                            {{ form.assigned_to|add_class:"form-control" }}
+                            <div class="input-icon-wrapper">
+                                {{ form.assigned_to|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
                             {% for error in form.assigned_to.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-12 col-sm-6 mt-3 mt-sm-0">
                             <label for="{{ form.forecast_category.id_for_label }}" class="form-label fs-6">{{ form.forecast_category.label }}:</label>
-                            {{ form.forecast_category|add_class:"form-control" }}
+                            <div class="input-icon-wrapper">
+                                {{ form.forecast_category|add_class:"form-control" }}
+                                <span class="input-icon-right">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </span>
+                            </div>
                             {% for error in form.forecast_category.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
                     </div>
@@ -135,7 +180,7 @@
 
                     <!-- Submit / Cancel -->
                     <div class="d-flex gap-2 justify-content-md-end">
-                        <button type="submit" class="btn btn-sm fs-6 fw-bolder form-submit-btn py-lg-2">Submit</button>
+                        <button type="submit" class="btn btn-sm fs-6 fw-bolder form-submit-btn py-lg-2">Save</button>
                         <button type="button" class="btn btn-sm fs-6 fw-bolder btn-cancel btn-secondary py-lg-2 d-flex align-items-center justify-content-center"
                                 onclick="window.location.href='{% url 'opportunity:list' %}'">
                             <span style="text-align: center;">Cancel</span>

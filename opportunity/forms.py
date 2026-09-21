@@ -20,7 +20,7 @@ class AddOpportunityForm(forms.ModelForm):
         model = Opportunity
         fields = (
             'name', 'account', 'currency', 'amount', 'stage', 'probability',
-            'next_step', 'expected_close_date', 'type', 'lead_source',
+            'next_step', 'expected_close_date', 'type', 'lead_source_choices', 'source_lead', 'teams',
             'campaign', 'description', 'assigned_to', 'forecast_category',
         )
         widgets = {

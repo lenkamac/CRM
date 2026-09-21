@@ -140,6 +140,25 @@ h1, h2, h3, h4, h5 {
     color: #353E46;
 }
 
+/* Icon for forms*/
+.input-icon-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon-wrapper .form-control {
+    padding-right: 2.25rem;
+}
+
+.input-icon-right {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #6c757d;
+}
+
 
 /* Button */
 .back-to-dashboard {

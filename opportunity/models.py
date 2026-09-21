@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from client.models import Client
+from core.models import Team
+from lead.models import Lead
 
 
 class Opportunity(models.Model):
@@ -81,12 +83,14 @@ class Opportunity(models.Model):
     account = models.ForeignKey(Client, related_name='opportunities', on_delete=models.SET_NULL, null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default=EUR)
     amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    teams = models.ForeignKey(Team, on_delete=models.SET_NULL , blank=True, null=True)
     stage = models.CharField(max_length=50, choices=STAGE_CHOICES, default=PROSPECTING)
     probability = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Probability in %")
-    next_step = models.TextField(blank=True, null=True)
+    next_step = models.CharField(max_length=355, blank=True, null=True)
     expected_close_date = models.DateField(blank=True, null=True)
     type = models.CharField(max_length=50, choices=TYPE_CHOICES, blank=True, null=True)
-    lead_source = models.CharField(max_length=50, choices=LEAD_SOURCE_CHOICES, blank=True, null=True)
+    lead_source_choices = models.CharField(max_length=50, choices=LEAD_SOURCE_CHOICES, blank=True, null=True)
+    source_lead = models.ForeignKey(Lead, on_delete=models.SET_NULL, null=True, blank=True)
     campaign = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     assigned_to = models.ForeignKey(User, related_name='assigned_opportunities', on_delete=models.SET_NULL, null=True, blank=True)

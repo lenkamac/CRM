@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% block content %}
-	<div class="container-fluid mx-auto pt-3" id="opportunity-list">
-         <div class="row pt-md-3 justify-content-center">
+	<div class="container-fluid mx-auto" id="opportunity-list">
+         <div class="row justify-content-center">
             <div class="col-12">
                 <div class="text-center pt-md-3">
                     <h4 class="fw-bolder">Opportunities</h4>
@@ -83,21 +83,15 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </form>
-
                             </div>
                         </div>
-
                     </div>
                 </div>
-
-
             </div>
         </div>
 
         <div class="row justify-content-center">
-
             <div class="col-12 ">
                 <div class="table-responsive-custom">
                     <table class="table table-hover">
@@ -110,13 +104,13 @@
                                         {% elif request.GET.sort == '-created_at' or not request.GET.sort %}<span style="color: white;">▼</span>{% endif %}
                                     </a>
                                 </th>
-                                <th class="text-start" style="background-color: #6d8d8d; color: white;">Opportunity Name</th>
+                                <th class="text-start" style="background-color: #6d8d8d; color: white;">Opportunity</th>
                                 <th class="text-start" style="background-color: #6d8d8d; color: white;">Account</th>
+                                <th class="text-center text-nowrap" style="background-color: #6d8d8d; color: white;">Sales Stage</th>
+                                <th class="text-center text-nowrap" style="background-color: #6d8d8d; color: white;">Prob.(%)</th>
                                 <th class="text-start" style="background-color: #6d8d8d; color: white;">Amount</th>
-                                <th class="text-center" style="background-color: #6d8d8d; color: white;">Stage</th>
-                                <th class="text-center" style="background-color: #6d8d8d; color: white;">Probability</th>
-                                <th class="text-start" style="background-color: #6d8d8d; color: white;">Close Date</th>
-                                <th class="text-start" style="background-color: #6d8d8d; color: white;">Assigned To</th>
+                                <th class="text-start text-nowrap" style="background-color: #6d8d8d; color: white;">Close Date</th>
+                                <th class="text-start" style="background-color: #6d8d8d; color: white;">User</th>
                                 <th class="text-center" style="background-color: #6d8d8d; color: white;">Action</th>
                             </tr>
                         </thead>
@@ -126,23 +120,31 @@
                                     <tr>
                                         <td class="text-start text-nowrap">{{ opportunity.created_at|date:"d.m.Y H:i" }}</td>
                                         <td class="text-start text-nowrap">
-                                            <a href="{% url 'opportunity:detail' opportunity.pk %}" class="lead-name">{{ opportunity.name }}</a>
+                                            <a href="{% url 'opportunity:detail' opportunity.pk %}" class="lead-name text-decoration-none">{{ opportunity.name }}</a>
                                         </td>
                                         <td class="text-start text-nowrap">
                                             {% if opportunity.account %}{{ opportunity.account }}{% else %}—{% endif %}
-                                        </td>
-                                        <td class="text-start text-nowrap">
-                                            {% if opportunity.amount %}
-                                                {{ opportunity.amount }} {{ opportunity.currency }}
-                                            {% else %}—{% endif %}
                                         </td>
                                         <td class="text-center text-nowrap">
                                             <span class="{% if opportunity.stage == 'closed_won' %}text-success fw-bolder{% elif opportunity.stage == 'closed_lost' %}text-danger fw-bolder{% elif opportunity.stage == 'negotiation_review' %}text-warning fw-bolder{% else %}text-secondary{% endif %}">
                                                 {{ opportunity.get_stage_display }}
                                             </span>
                                         </td>
-                                        <td class="text-center text-nowrap">
-                                            {% if opportunity.probability is not None %}{{ opportunity.probability }}%{% else %}—{% endif %}
+                                        <td class="text-center align-middle" style="min-width: 120px;">
+                                            {% if opportunity.probability is not None %}
+                                                <div class="progress" role="progressbar" aria-label="Probability" aria-valuenow="{{ opportunity.probability }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px;">
+                                                    <div class="progress-bar" style="width: {{ opportunity.probability }}%; background-color: #1b3a37;">
+                                                        {{ opportunity.probability }}%
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-start text-nowrap">
+                                            {% if opportunity.amount %}
+                                                {{ opportunity.amount }} {{ opportunity.currency }}
+                                            {% else %}—{% endif %}
                                         </td>
                                         <td class="text-start text-nowrap">
                                             {% if opportunity.expected_close_date %}{{ opportunity.expected_close_date|date:"d.m.Y" }}{% else %}—{% endif %}
@@ -201,7 +203,6 @@
                     </nav>
                 {% endif %}
             </div>
-
         </div>
 
         <div class="row justify-content-center mt-3">
