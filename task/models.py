@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from lead.models import Lead
 from client.models import Client
+from opportunity.models import Opportunity
 
 
 # Create your models here.
@@ -29,6 +30,7 @@ class Task(models.Model):
                                     null=True)
     lead = models.ForeignKey(Lead, related_name='tasks_lead', on_delete=models.CASCADE, null=True, blank=True)
     client = models.ForeignKey(Client, related_name='tasks_client', null=True, blank=True, on_delete=models.CASCADE)
+    opportunity = models.ForeignKey(Opportunity, related_name='tasks_opportunity', null=True, blank=True, on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='-', blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='', blank=True, null=True)

@@ -199,6 +199,8 @@
                                                         <a href="{% url 'client:detail' task.client.id %}">{{ task.client.company }}</a>
                                                     {% elif task.lead.company %}
                                                         <a href="{% url 'lead:detail' task.lead.id %}">{{ task.lead.company }}</a>
+                                                    {% elif task.opportunity.account %}
+                                                        <a href="{% url 'opportunity:detail' task.opportunity.id %}">{{ task.opportunity.account }}</a>
                                                     {% else %}
 
                                                     {% endif %}
@@ -262,6 +264,8 @@
                                                             Lead
                                                         {% elif task.client %}
                                                            Client
+                                                        {% elif task.opportunity %}
+                                                            Opportunity
                                                         {% else %}
 
                                                         {% endif %}

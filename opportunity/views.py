@@ -14,6 +14,7 @@ from django.db.models import Q
 
 from .models import Opportunity, Comment
 from .forms import AddOpportunityForm, AddCommentForm
+from task.models import Task
 
 
 class OpportunityListView(LoginRequiredMixin, ListView):
@@ -59,6 +60,12 @@ class OpportunityDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = AddCommentForm()
+
+        task_list = Task.objects.filter(opportunity_id=self.kwargs.get('pk')).order_by('-created_at')
+        task_paginator = Paginator(task_list, 10)
+        task_page_number = self.request.GET.get('task_page')
+        tasks_page = task_paginator.get_page(task_page_number)
+        context['tasks'] = tasks_page
 
         comment_list = Comment.objects.filter(opportunity_id=self.kwargs.get('pk')).order_by('-created_at')
         comment_paginator = Paginator(comment_list, 5)
@@ -201,3 +208,5 @@ def opportunities_bulk_delete(request):
         else:
             messages.warning(request, f"No opportunities were selected for deletion.")
     return redirect('opportunity:list')
+
+

@@ -16,6 +16,7 @@ urlpatterns = [
     path("task_comment/delete/<int:comment_id>/", delete_task_comment, name="delete_task_comment"),
     path('<int:client_id>/task/add/', views.task_add_client, name='task_add_client'),
     path('leads/<int:lead_id>/task/add/', views.task_add_lead, name='task_add_lead'),
+    path('opportunities/<int:opportunity_id>/task/add/', views.task_add_opportunity, name='task_add_opportunity'),
     path('<int:pk>/comments-partial/', views.task_comments_partial, name='task_comments_partial'),
     path('autocomplete/', views.task_autocomplete, name='task_autocomplete'),
 ]

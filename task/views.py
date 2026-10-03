@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from client.models import Client
 from lead.models import Lead
+from opportunity.models import Opportunity
 from .forms import TaskForm, TaskCommentForm
 from .models import Task, TaskComment
 
@@ -356,6 +357,49 @@ def task_add_lead(request, lead_id):
             )
         return redirect('lead:detail', lead_id)
     return redirect('lead:detail', lead_id)
+
+@login_required
+def task_add_opportunity(request, opportunity_id):
+    from datetime import datetime
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        priority = request.POST.get('priority')
+        status = request.POST.get('status')
+        due_date = request.POST.get('due_date') or None
+        due_time = request.POST.get('due_time') or None
+
+        # If due_time is an empty string, set it to None
+        if due_time == '':
+            due_time = None
+        # If due_date is an empty string, set it to None
+        if due_date == '':
+            due_date = None
+
+        # Convert date format from dd.mm.yyyy to YYYY-MM-DD
+        if due_date:
+            try:
+                due_date = datetime.strptime(due_date, '%d.%m.%Y').strftime('%Y-%m-%d')
+            except ValueError:
+                pass  # If conversion fails, keep original format
+
+        # Add other fields as needed
+        if title:
+            Task.objects.create(
+                opportunity=opportunity,
+                title=title,
+                description=description,
+                status=status,
+                priority=priority,
+                due_date=due_date,
+                due_time=due_time,
+                created_by=request.user,
+            )
+        return redirect('opportunity:detail', opportunity_id)
+
+    return redirect('opportunity:detail', opportunity_id)
 
 
 @login_required
