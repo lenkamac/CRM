@@ -1,8 +1,11 @@
+import csv
+import re
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
@@ -24,11 +27,17 @@ class OpportunityListView(LoginRequiredMixin, ListView):
 
         query = self.request.GET.get('q')
         if query:
-            queryset = queryset.filter(
-                Q(name__icontains=query) |
-                Q(account__company__icontains=query) |
-                Q(campaign__icontains=query)
-            )
+            # Match every term separately, so "acme smith" finds the opportunity
+            # whose account is "Smith John - Acme" regardless of the word order.
+            for term in re.split(r'[\s,\-/]+', query):
+                if not term:
+                    continue
+                queryset = queryset.filter(
+                    Q(name__icontains=term) |
+                    Q(account__company__icontains=term) |
+                    Q(account__first_name__icontains=term) |
+                    Q(account__last_name__icontains=term)
+                )
 
         stage = self.request.GET.get('stage')
         if stage:
@@ -154,3 +163,41 @@ def delete_comment(request, opportunity_id, comment_id):
         messages.error(request, "You do not have permission to delete this comment.")
 
     return redirect('opportunity:detail', pk=opportunity.id)
+
+
+@login_required
+def opportunity_export(request):
+    opportunities = Opportunity.objects.filter(created_by=request.user)
+
+    response = HttpResponse(content_type='text/csv',
+                            headers={'Content-Disposition': 'attachment; filename="opportunities.csv"'}
+                            )
+
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'Account', 'Stage', 'Probability', 'Amount', 'Currency', 'Close date'])
+
+    for opportunity in opportunities:
+        # expected_close_date is nullable, so guard before formatting it
+        close_date = opportunity.expected_close_date
+        writer.writerow([opportunity.name, opportunity.account or '', opportunity.get_stage_display(),
+                         opportunity.probability, opportunity.amount, opportunity.currency,
+                         close_date.strftime('%d-%m-%Y') if close_date else ''])
+    return response
+
+
+@login_required
+def opportunities_bulk_delete(request):
+    if request.method == "POST":
+        opportunity_ids = request.POST.getlist('opportunity_ids')
+        selected_opportunities = request.POST.getlist('opportunity_ids')
+
+        if opportunity_ids:
+            Opportunity.objects.filter(id__in=opportunity_ids, created_by=request.user).delete()
+
+            messages.success(request, f"Selected opportunities were deleted successfully.")
+        elif selected_opportunities:
+            Opportunity.objects.filter(id__in=selected_opportunities, created_by=request.user).delete()
+            messages.success(request, f"Selected opportunities were deleted successfully.")
+        else:
+            messages.warning(request, f"No opportunities were selected for deletion.")
+    return redirect('opportunity:list')

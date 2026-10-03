@@ -11,12 +11,12 @@
 
 {% block content %}
 
-<div class="container mx-auto pt-3" id="opportunity-detail">
+<div class="container mx-auto" id="opportunity-detail">
 
     <div class="row pt-md-3 justify-content-center">
         <div class="col-12">
             <div class="text-center pt-md-3">
-                <h4 class="fw-bolder">{{ opportunity.name }}</h4>
+                <h4 class="fw-bolder"><span class="fw-normal"><i class="bi bi-gem px-2"></i>Opportunity</span> - {{ opportunity.name }}</h4>
             </div>
         </div>
         <div class="col-12">
@@ -36,8 +36,54 @@
 
     <div class="row justify-content-center mt-3">
 
+        <div class="col-12">
+            <div class="row bg-white rounded-3">
+                <div class="col-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bolder">Name:</td>
+                                <td>{{ opportunity.name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bolder">Account</td>
+                                <td>
+                                    {% if opportunity.account %}
+                                        <a href="{% url 'client:detail' opportunity.account.pk %}">{{ opportunity.account }}</a>
+                                    {% else %}—{% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bolder">Type:</td>
+                                <td>{{ opportunity.type }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bolder">Created by:</td>
+                                <td>{{ opportunity.created_by.get_full_name|default:opportunity.created_by.username }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bolder">Created on:</td>
+                                <td>{{ opportunity.created_at|date:"d.m.Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bolder">Last updated:</td>
+                                <td>{{ opportunity.modified_at|date:"d.m.Y H:i" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
         <!-- Left: Opportunity Info Card -->
-        <div class="col-12 col-md-6 mb-4">
+        <div class="col-12 mb-4 pt-4">
             <div class="card h-100" style="border-radius: 3px;">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #2c4f4f; color: white; border-radius: 3px 3px 0 0;">
                     <span class="fw-bolder">Opportunity Details</span>
@@ -62,98 +108,93 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-sm table-borderless mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="text-muted fw-semibold" style="width: 45%;">Opportunity Name</td>
-                                <td>{{ opportunity.name }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Account</td>
-                                <td>
-                                    {% if opportunity.account %}
-                                        <a href="{% url 'client:detail' opportunity.account.pk %}">{{ opportunity.account }}</a>
-                                    {% else %}—{% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Amount</td>
-                                <td>
-                                    {% if opportunity.amount %}{{ opportunity.amount }} {{ opportunity.currency }}{% else %}—{% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Currency</td>
-                                <td>{{ opportunity.get_currency_display }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Sale Stage</td>
-                                <td>
-                                    <span class="{% if opportunity.stage == 'closed_won' %}text-success fw-bolder{% elif opportunity.stage == 'closed_lost' %}text-danger fw-bolder{% elif opportunity.stage == 'negotiation_review' %}text-warning fw-bolder{% else %}text-secondary{% endif %}">
-                                        {{ opportunity.get_stage_display }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Probability</td>
-                                <td>{% if opportunity.probability is not None %}{{ opportunity.probability }}%{% else %}—{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Expected Close Date</td>
-                                <td>{% if opportunity.expected_close_date %}{{ opportunity.expected_close_date|date:"d.m.Y" }}{% else %}—{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Type</td>
-                                <td>{% if opportunity.type %}{{ opportunity.get_type_display }}{% else %}—{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Lead Source</td>
-                                <td>{% if opportunity.lead_source %}{{ opportunity.get_lead_source_display }}{% else %}—{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Campaign</td>
-                                <td>{% if opportunity.campaign %}{{ opportunity.campaign }}{% else %}—{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Assigned To</td>
-                                <td>{% if opportunity.assigned_to %}{{ opportunity.assigned_to.get_full_name|default:opportunity.assigned_to.username }}{% else %}—{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Forecast Category</td>
-                                <td>{% if opportunity.forecast_category %}{{ opportunity.get_forecast_category_display }}{% else %}—{% endif %}</td>
-                            </tr>
-                            {% if opportunity.next_step %}
-                            <tr>
-                                <td class="text-muted fw-semibold">Next Step</td>
-                                <td>{{ opportunity.next_step }}</td>
-                            </tr>
-                            {% endif %}
-                            {% if opportunity.description %}
-                            <tr>
-                                <td class="text-muted fw-semibold">Description</td>
-                                <td>{{ opportunity.description }}</td>
-                            </tr>
-                            {% endif %}
-                            <tr>
-                                <td class="text-muted fw-semibold">Created At</td>
-                                <td>{{ opportunity.created_at|date:"d.m.Y H:i" }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Last Modified</td>
-                                <td>{{ opportunity.modified_at|date:"d.m.Y H:i" }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted fw-semibold">Created By</td>
-                                <td>{{ opportunity.created_by.get_full_name|default:opportunity.created_by.username }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Amount</td>
+                                        <td>
+                                            {% if opportunity.amount %}{{ opportunity.amount }} {{ opportunity.currency }}{% else %}—{% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Currency</td>
+                                        <td>{{ opportunity.get_currency_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Expected Close Date</td>
+                                        <td>{% if opportunity.expected_close_date %}{{ opportunity.expected_close_date|date:"d.m.Y" }}{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Sale Stage</td>
+                                        <td>
+                                            <span class="{% if opportunity.stage == 'closed_won' %}text-success fw-bolder{% elif opportunity.stage == 'closed_lost' %}text-danger fw-bolder{% elif opportunity.stage == 'negotiation_review' %}text-warning fw-bolder{% else %}text-secondary{% endif %}">
+                                                {{ opportunity.get_stage_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Probability</td>
+                                        <td>{% if opportunity.probability is not None %}
+                                                <div class="progress" role="progressbar" aria-label="Probability" aria-valuenow="{{ opportunity.probability }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px;">
+                                                    <div class="progress-bar" style="width: {{ opportunity.probability }}%; background-color: #1b3a37;">
+                                                        {{ opportunity.probability }}%
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                —
+                                            {% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Next Step</td>
+                                        <td>{{ opportunity.next_step }}</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Team</td>
+                                        <td>{% if opportunity.team %}{{ opportunity.team }}{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Lead Source</td>
+                                        <td>{% if opportunity.lead_source %}{{ opportunity.get_lead_source_display }}{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Campaign</td>
+                                        <td>{% if opportunity.campaign %}{{ opportunity.campaign }}{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Assigned To</td>
+                                        <td>{% if opportunity.assigned_to %}{{ opportunity.assigned_to.get_full_name|default:opportunity.assigned_to.username }}{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Forecast Category</td>
+                                        <td>{% if opportunity.forecast_category %}{{ opportunity.get_forecast_category_display }}{% else %}—{% endif %}</td>
+                                    </tr>
+
+
+
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Description</td>
+                                        <td>{{ opportunity.description }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
         <!-- Right: Comments -->
-        <div class="col-12 col-md-6 mb-4">
+        <div class="col-12 mb-4 pt-4">
             <div class="card h-100" style="border-radius: 3px;">
                 <div class="card-header fw-bolder" style="background-color: #2c4f4f; color: white; border-radius: 3px 3px 0 0;">
                     Comments

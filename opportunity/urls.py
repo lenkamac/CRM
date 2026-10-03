@@ -9,7 +9,9 @@ urlpatterns = [
     path('<int:pk>/', views.OpportunityDetailView.as_view(), name='detail'),
     path('<int:pk>/edit/', views.OpportunityUpdateView.as_view(), name='edit'),
     path('<int:pk>/delete/', views.OpportunityDeleteView.as_view(), name='delete'),
+    path('delete_bulk/', views.opportunities_bulk_delete, name='bulk-delete'),
     path('<int:pk>/comment/', views.AddCommentView.as_view(), name='add_comment'),
     path('<int:opportunity_id>/comment/<int:comment_id>/edit/', views.EditCommentView.as_view(), name='edit_comment'),
     path('<int:opportunity_id>/comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+    path('export/', views.opportunity_export, name='export_csv'),
 ]
