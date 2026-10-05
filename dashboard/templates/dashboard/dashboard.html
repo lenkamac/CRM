@@ -132,10 +132,9 @@
         <div class="row mt-2 justify-content-sm-center">
             <div class="col-12">
                 <div class="row justify-content-sm-center">
-                    <div class="col-12">
+                    <div class="col-sm-12 col-md-6 col-lg-6">
                         <h5 class="fw-bolder text-sm-start">Current Tasks</h5>
-                    </div>
-                    <div class="col-sm-12">
+
                         <div class="table-responsive-custom">
                             <table class="table">
                                 <thead class="th-custom">
@@ -207,8 +206,60 @@
                             </table>
                         </div>
                     </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <h5 class="fw-bolder text-sm-start">My Top Open Opportunities</h5>
+
+                        <div class="table-responsive-custom">
+                            <table class="table">
+                                <thead class="th-custom">
+                                    <tr>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Name</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Account</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Amount</th>
+                                        <th class="text-start" style="background-color: rgb(134 167 200 / 0.85);">Stage</th>
+                                        <th class="text-start text-nowrap" style="background-color: rgb(134 167 200 / 0.85);">Close Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for opportunity in top_opportunities %}
+                                        <tr>
+                                            <td class="text-start company-a">
+                                                <a href="{% url 'opportunity:detail' opportunity.pk %}">{{ opportunity.name }}</a>
+                                            </td>
+                                            <td class="text-start name-a">
+                                                {% if opportunity.account %}
+                                                    <a href="{% url 'client:detail' opportunity.account.id %}">{{ opportunity.account.company }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start text-nowrap">
+                                                {% if opportunity.amount is not None %}
+                                                    {{ opportunity.amount|floatformat:2 }} {{ opportunity.currency }}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-start">{{ opportunity.get_stage_display }}</td>
+                                            <td class="text-start">
+                                                {% if opportunity.expected_close_date %}
+                                                    {{ opportunity.expected_close_date|date:"d.m.Y" }}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-muted">No open opportunities.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+
 
         </div>
     </div>

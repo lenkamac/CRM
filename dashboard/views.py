@@ -7,6 +7,7 @@ from lead.models import Lead
 from client.models import Client, Purchase
 from product.models import Product
 from task.models import Task
+from opportunity.models import Opportunity
 from datetime import timedelta
 from django.utils import timezone
 import json
@@ -40,6 +41,15 @@ def dashboard(request):
         task_order = F(sort_by).desc(nulls_last=True)
 
     current_tasks = Task.objects.filter(created_by=request.user).order_by(task_order)[:8]
+
+    # Open = not closed won / closed lost, biggest amount first
+    top_opportunities = (
+        Opportunity.objects
+        .filter(created_by=request.user)
+        .exclude(stage__in=[Opportunity.CLOSED_WON, Opportunity.CLOSED_LOST])
+        .select_related('account')
+        .order_by(F('amount').desc(nulls_last=True), 'expected_close_date')[:8]
+    )
 
     # Keep the other dashboard filters when a sort link is clicked
     other_params = request.GET.copy()
@@ -354,6 +364,7 @@ def dashboard(request):
         'contacted_lead_count': contacted_lead_count,
         'latest_clients': latest_clients,
         'current_tasks': current_tasks,
+        'top_opportunities': top_opportunities,
         'sort_by': sort_by,
         'sort_order': sort_order,
         'task_sort_query': task_sort_query,
