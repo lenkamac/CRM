@@ -1,0 +1,100 @@
+/* Popup conversation window on project detail page (same look as team chat) */
+.conversation-popup {
+    position: fixed;
+    right: 20px;
+    bottom: 0;
+    width: 380px;
+    height: 520px;
+    z-index: 1060;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.conversation-popup.show {
+    display: flex;
+}
+
+.conversation-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #0b5ed7;
+    color: #fff;
+    flex-shrink: 0;
+    cursor: default;
+}
+
+.conversation-popup-title {
+    font-weight: 600;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.conversation-popup-actions {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* Override Bootstrap outline buttons so they blend into the blue header */
+.conversation-popup-actions .btn {
+    background: transparent;
+    border: 0;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+}
+
+.conversation-popup-actions .btn:hover,
+.conversation-popup-actions .btn:focus {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    box-shadow: none;
+}
+
+.conversation-popup-body {
+    flex: 1;
+    min-height: 0;
+    background: #f5f6f7;
+}
+
+.conversation-popup iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Minimized: only the header stays visible */
+.conversation-popup.minimized {
+    height: auto;
+}
+
+.conversation-popup.minimized .conversation-popup-body {
+    display: none;
+}
+
+.conversation-popup.minimized .conversation-popup-header {
+    cursor: pointer;
+}
+
+@media (max-width: 576px) {
+    .conversation-popup {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        height: 75vh;
+    }
+
+    .conversation-popup-title {
+        max-width: none;
+    }
+}

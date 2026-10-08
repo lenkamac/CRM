@@ -141,14 +141,16 @@
                                     <th class="border-0 text-end" style="background-color: #dcdede;">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="conversationRows">
                             {% for conv in conversations %}
                                 <tr>
                                     <td>{{ conv.title|default:"(no title)" }}</td>
                                     <td>{{ conv.created_by.username }}</td>
                                     <td>{{ conv.created_at|date:"d.m.Y H:i" }}</td>
                                     <td class="text-end">
-                                        <a href="{% url 'core:conversation_detail' team.pk conv.pk %}" class="btn btn-sm btn-outline-primary">Open</a>
+                                        <a href="{% url 'core:conversation_detail' team.pk conv.pk %}"
+                                           class="btn btn-sm btn-outline-primary js-open-chat"
+                                           data-conv-pk="{{ conv.pk }}">Open</a>
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#deleteConvModal"
@@ -159,7 +161,7 @@
                                     </td>
                                 </tr>
                             {% empty %}
-                                <tr><td colspan="4" class="text-center py-4 text-muted">No conversations yet.</td></tr>
+                                <tr id="noConversationsRow"><td colspan="4" class="text-center py-4 text-muted">No conversations yet.</td></tr>
                             {% endfor %}
                             </tbody>
                         </table>
@@ -175,7 +177,7 @@
                 <div class="modal fade" id="newConversationModal" tabindex="-1" aria-labelledby="newConversationModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form method="post" action="{% url 'core:conversation_create' team.pk %}">
+                            <form method="post" id="newConversationForm" action="{% url 'core:conversation_create' team.pk %}">
                                 {% csrf_token %}
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="newConversationModalLabel">New Conversation</h5>
@@ -184,6 +186,7 @@
                                 <div class="modal-body">
                                     <label class="form-label" for="id_title">Title <span class="text-muted">(optional)</span></label>
                                     {{ conv_form.title }}
+                                    <div class="text-danger small mt-2 d-none" id="newConversationError">Could not create conversation.</div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -220,15 +223,28 @@
         </div>
     </div>
 
-    <script>
-            const deleteConvModal = document.getElementById('deleteConvModal');
-            deleteConvModal.addEventListener('show.bs.modal', function (event) {
-                const btn = event.relatedTarget;
-                const convPk = btn.getAttribute('data-conv-pk');
-                const convTitle = btn.getAttribute('data-conv-title');
-                document.getElementById('deleteConvTitle').textContent = convTitle;
-                document.getElementById('deleteConvForm').action = "{% url 'core:conversation_delete' team.pk 0 %}".replace('/0/', '/' + convPk + '/');
-            });
-        </script>
+    {# Popup chat window (bottom right) #}
+    <div class="chat-window shadow d-none" id="chatWindow"
+         data-messages-url="{% url 'core:conversation_messages' team.pk 0 %}"
+         data-message-add-url="{% url 'core:message_create' team.pk 0 %}"
+         data-delete-url="{% url 'core:conversation_delete' team.pk 0 %}">
+        <div class="chat-window-header" id="chatWindowHeader">
+            <span class="chat-window-title text-truncate" id="chatWindowTitle">Conversation</span>
+            <div class="chat-window-actions">
+                <button type="button" id="chatMinimizeBtn" title="Minimize" aria-label="Minimize"><i class="bi bi-dash-lg"></i></button>
+                <button type="button" id="chatCloseBtn" title="Close" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            </div>
+        </div>
+        <div class="chat-window-body" id="chatWindowBody">
+            <div class="chat-window-thread" id="chatThread"></div>
+            <form class="chat-window-form" id="chatForm">
+                <textarea class="form-control form-control-sm" id="chatInput" rows="2" placeholder="Write a message…"></textarea>
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-send"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'js/project.js' %}"></script>
+    <script src="{% static 'teams/teams.js' %}"></script>
 
 {% endblock %}

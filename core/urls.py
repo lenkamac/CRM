@@ -18,6 +18,7 @@ urlpatterns = [
     path("teams/<int:pk>/delete/", views.TeamDeleteView.as_view(), name="team_delete"),
     path("teams/<int:team_pk>/conversations/add/", views.conversation_create, name="conversation_create"),
     path("teams/<int:team_pk>/conversations/<int:conv_pk>/", views.ConversationDetailView.as_view(), name="conversation_detail"),
+    path("teams/<int:team_pk>/conversations/<int:conv_pk>/messages/", views.conversation_messages, name="conversation_messages"),
     path("teams/<int:team_pk>/conversations/<int:conv_pk>/messages/add/", views.message_create,name="message_create"),
     path("teams/<int:team_pk>/conversations/<int:conv_pk>/delete/", views.conversation_delete, name="conversation_delete"),
 

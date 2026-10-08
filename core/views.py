@@ -450,6 +450,20 @@ def _is_team_member(user, team):
     return TeamMembership.objects.filter(team=team, user=user, is_active=True).exists()
 
 
+def _is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def _message_to_dict(msg, user):
+    return {
+        "id": msg.pk,
+        "body": msg.body,
+        "sender": msg.sender.username,
+        "is_mine": msg.sender_id == user.pk,
+        "created_at": msg.created_at.strftime("%d %b %Y %H:%M"),
+    }
+
+
 @login_required
 def conversation_create(request, team_pk: int):
     if request.method != "POST":
@@ -465,11 +479,36 @@ def conversation_create(request, team_pk: int):
         conv.team = team
         conv.created_by = request.user
         conv.save()
+        if _is_ajax(request):
+            return JsonResponse({
+                "id": conv.pk,
+                "title": conv.title or "(no title)",
+                "created_by": request.user.username,
+                "created_at": conv.created_at.strftime("%d.%m.%Y %H:%M"),
+            })
         messages.success(request, "Conversation started.")
         return redirect("core:conversation_detail", team_pk=team.pk, conv_pk=conv.pk)
 
+    if _is_ajax(request):
+        return JsonResponse({"errors": form.errors}, status=400)
     messages.error(request, "Could not create conversation.")
     return redirect("core:team_members", pk=team.pk)
+
+
+@login_required
+def conversation_messages(request, team_pk: int, conv_pk: int):
+    """JSON list of messages for the popup chat window on the team detail page."""
+    team = get_object_or_404(Team, pk=team_pk)
+    if not _is_team_member(request.user, team):
+        raise Http404()
+
+    conv = get_object_or_404(Conversation, pk=conv_pk, team=team, is_active=True)
+    message_list = conv.messages.select_related("sender").order_by("created_at")
+    return JsonResponse({
+        "id": conv.pk,
+        "title": conv.title or "(no title)",
+        "messages": [_message_to_dict(m, request.user) for m in message_list],
+    })
 
 
 @login_required
@@ -488,7 +527,11 @@ def message_create(request, team_pk: int, conv_pk: int):
         msg.conversation = conv
         msg.sender = request.user
         msg.save()
+        if _is_ajax(request):
+            return JsonResponse(_message_to_dict(msg, request.user))
     else:
+        if _is_ajax(request):
+            return JsonResponse({"errors": form.errors}, status=400)
         messages.error(request, "Message cannot be empty.")
 
     return redirect("core:conversation_detail", team_pk=team.pk, conv_pk=conv.pk)
