@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REPLY
+BEGIN:VEVENT
+DTSTART:20261123T144500Z
+DTEND:20261123T145000Z
+DTSTAMP:20261006T113215Z
+ORGANIZER;CN=Lenka Mackova:mailto:mackova75@gmail.com
+UID:6mpv95fs7l33l2mlbldskjtc07@google.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=Jordan
+  Popov;X-NUM-GUESTS=0:mailto:j.a.popov@gmail.com
+CREATED:20261006T113044Z
+DESCRIPTION:Zugangsinformationen:\n* In Stock Erdgeschoss\n* Ohne Aufzug\n\
+ nSonstige Informationen:\n* Praxis im EG\, aber mehrere Stufen im Zugang\nU
+ m Ihren Termin abzusagen oder zu verschieben\, klicken Sie auf den folgende
+ n Link :\nhttps://www.doctolib.de/guest_access/mQMizodG?anonymous_origin=ic
+ s_attachment\n\nÜber Doctolib
+LAST-MODIFIED:20261006T113215Z
+LOCATION:Klosterstraße 17\, 91301 Forchheim
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Termin - Herr Dr. med. Carsten Finke- kristina ohr sauber machen
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

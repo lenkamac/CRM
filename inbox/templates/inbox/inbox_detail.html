@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+	{{ mail.subject|default:"(no subject)" }}
+{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{% static 'inbox/css/inbox.css' %}">
+
+    <style>
+         body {
+             background-image: url("{% static 'images/34637.png' %}");
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-position: center;
+         }
+    </style>
+
+    <div class="container-fluid mx-auto" id="inbox-container">
+
+        <div class="row justify-content-center pt-md-3">
+            <div class="col-12 text-center">
+                {% include 'inbox/partials/messages.html' %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center my-3">
+            <!-- Email -->
+            <div class="col-12 col-lg-9 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header inbox-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <h5 class="mb-0 fw-bold">{{ mail.subject|default:"(no subject)" }}</h5>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'inbox:reply' mail.pk %}" class="btn btn-sm btn-light">
+                                <i class="bi bi-reply me-1"></i>Reply
+                            </a>
+                            <form method="post" action="{% url 'inbox:toggle_star' mail.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" class="btn btn-sm btn-light" title="Star">
+                                    <i class="bi {% if mail.is_starred %}bi-star-fill inbox-star{% else %}bi-star{% endif %}"></i>
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'inbox:toggle_read' mail.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-light" title="Mark as unread">
+                                    <i class="bi bi-envelope"></i>
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'inbox:delete' mail.pk %}"
+                                  onsubmit="return confirm('Remove this email from the CRM? It stays in Gmail.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-light text-danger" title="Delete">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-sm inbox-meta mb-3">
+                            <tr>
+                                <td class="inbox-meta-label">From</td>
+                                <td>
+                                    <strong>{{ mail.sender_name }}</strong>
+                                    {% if mail.sender_email %}&lt;{{ mail.sender_email }}&gt;{% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="inbox-meta-label">To</td>
+                                <td>{{ mail.to }}</td>
+                            </tr>
+                            {% if mail.cc %}
+                                <tr>
+                                    <td class="inbox-meta-label">Cc</td>
+                                    <td>{{ mail.cc }}</td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <td class="inbox-meta-label">Date</td>
+                                <td>{{ mail.received_at|date:"d.m.Y H:i" }}</td>
+                            </tr>
+                        </table>
+
+                        {% if mail.body_html %}
+                            {# Sandboxed iframe: email HTML is shown without running any scripts #}
+                            <iframe class="inbox-body-frame" sandbox="allow-popups allow-popups-to-escape-sandbox"
+                                    srcdoc="<base target='_blank'>{{ mail.body_html }}"></iframe>
+                        {% else %}
+                            <pre class="inbox-body-text">{{ mail.body_text }}</pre>
+                        {% endif %}
+
+                        {% if mail.attachments.all %}
+                            <hr>
+                            <h6 class="fw-bold"><i class="bi bi-paperclip me-1"></i>Attachments</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for attachment in mail.attachments.all %}
+                                    <li>
+                                        <a href="{% url 'inbox:attachment' attachment.pk %}">
+                                            <i class="bi bi-file-earmark-arrow-down me-1"></i>{{ attachment.filename }}
+                                        </a>
+                                        <small class="text-secondary">({{ attachment.size|filesizeformat }})</small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRM sidebar -->
+            <div class="col-12 col-lg-3">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header inbox-card-header fw-bold">
+                        <i class="bi bi-link-45deg me-1"></i>Linked in CRM
+                    </div>
+                    <div class="card-body">
+                        {% if mail.client %}
+                            <p class="mb-1">
+                                Client: <a href="{% url 'client:detail' mail.client.pk %}" class="fw-bold">{{ mail.client }}</a>
+                            </p>
+                        {% endif %}
+                        {% if mail.lead %}
+                            <p class="mb-1">
+                                Lead: <a href="{% url 'lead:detail' mail.lead.pk %}" class="fw-bold">{{ mail.lead }}</a>
+                            </p>
+                        {% endif %}
+                        {% if not mail.client and not mail.lead %}
+                            <p class="text-secondary small">This email is not linked to a client or lead yet.</p>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'inbox:link_contact' mail.pk %}" class="mt-2">
+                            {% csrf_token %}
+                            <label class="form-label small mb-0" for="{{ link_form.client.id_for_label }}">Client</label>
+                            {{ link_form.client }}
+                            <label class="form-label small mb-0 mt-2" for="{{ link_form.lead.id_for_label }}">Lead</label>
+                            {{ link_form.lead }}
+                            <button type="submit" class="btn btn-sm inbox-btn w-100 mt-2">Save links</button>
+                        </form>
+
+                        {% if mail.folder == 'inbox' and not mail.client and not mail.lead and mail.sender_email %}
+                            <hr>
+                            <a href="{% url 'lead:add' %}?email={{ mail.sender_email|urlencode }}&last_name={{ mail.sender_name|urlencode }}" class="btn btn-sm btn-outline-secondary w-100">
+                                <i class="fas fa-plus me-1"></i>Create lead
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if thread %}
+                    <div class="card shadow-sm">
+                        <div class="card-header inbox-card-header fw-bold">
+                            <i class="bi bi-chat-left-text me-1"></i>Conversation
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for item in thread %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'inbox:detail' item.pk %}" class="inbox-a-subject">
+                                        {% if item.folder == 'sent' %}<i class="bi bi-send me-1"></i>{% endif %}{{ item.subject|default:"(no subject)" }}
+                                    </a>
+                                    <div class="small text-secondary">{{ item.received_at|date:"d.m.Y H:i" }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="text-start">
+                    <a href="{% url 'inbox:list' %}" class="back-to-dashboard">
+                        <i class="fa-solid fa-arrow-left px-1"></i>Back to inbox
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

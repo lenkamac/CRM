@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'task',
     'widget_tweaks',
     'opportunity',
+    'inbox',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'inbox.context_processors.unread_emails',
             ],
         },
     },
@@ -169,6 +171,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ExchangeRate API Key
 EXCHANGE_RATE_API_KEY = os.getenv('EXCHANGE_RATE_API_KEY')
+
+# Inbox mailbox (IMAP for receiving, SMTP for sending) - works with any provider, defaults to Gmail
+# Old GMAIL_USER / GMAIL_APP_PASSWORD variables are still accepted as a fallback
+MAIL_USER = os.getenv('MAIL_USER') or os.getenv('GMAIL_USER')
+MAIL_PASSWORD = os.getenv('MAIL_PASSWORD') or os.getenv('GMAIL_APP_PASSWORD')
+MAIL_IMAP_HOST = os.getenv('MAIL_IMAP_HOST', 'imap.gmail.com')
+MAIL_IMAP_PORT = int(os.getenv('MAIL_IMAP_PORT', '993'))
+MAIL_SMTP_HOST = os.getenv('MAIL_SMTP_HOST', 'smtp.gmail.com')
+MAIL_SMTP_PORT = int(os.getenv('MAIL_SMTP_PORT', '587'))
+# True = SSL (usually port 465), False = STARTTLS (usually port 587)
+MAIL_SMTP_SSL = os.getenv('MAIL_SMTP_SSL', 'False').lower() in ('true', '1', 'yes')
 
 # Cache settings for currency rates
 CACHES = {

@@ -62,6 +62,12 @@
                         <i class="bi bi-person-lines-fill px-2"></i>Contacts</a>
                 </li>
                 <li class="text-start">
+                    <a href="{% url 'inbox:list' %}">
+                        <i class="bi bi-inbox px-2"></i>Inbox
+                        {% if inbox_unread_count %}<span class="badge rounded-pill bg-danger ms-1">{{ inbox_unread_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li class="text-start">
                     <a href="{% url 'userprofile:account' %}">
                         <i class="bi bi-person-circle px-2"></i>Account</a>
                 </li>

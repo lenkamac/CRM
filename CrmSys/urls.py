@@ -35,6 +35,7 @@ urlpatterns = ([
     path('dashboard/products/', include('product.urls')),
     path('dashboard/calendar/', include('calendarapp.urls')),
     path('dashboard/opportunities/', include('opportunity.urls')),
+    path('dashboard/inbox/', include('inbox.urls')),
     path('', views.LoginView.as_view(template_name='userprofile/login.html',
                                            authentication_form=LoginForm), name='login'),
     path('logout/', my_logout, name='logout'),

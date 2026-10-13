@@ -1,0 +1,9 @@
+{% if messages %}
+    <div class="row justify-content-center">
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
+                <div class="text-center">{{ message }}</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

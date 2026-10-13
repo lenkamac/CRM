@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{% static 'inbox/css/inbox.css' %}">
+
+    <style>
+         body {
+             background-image: url("{% static 'images/34637.png' %}");
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-position: center;
+         }
+    </style>
+
+    <div class="container-fluid mx-auto" id="inbox-container">
+
+        <div class="row justify-content-center pt-md-3">
+            <div class="col-12 text-center">
+                <h4 class="fw-bolder">{{ title }}</h4>
+                {% include 'inbox/partials/messages.html' %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center my-3">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        {% if original %}
+                            <p class="small text-secondary">
+                                Replying to <strong>{{ original.display_sender }}</strong> - {{ original.subject|default:"(no subject)" }}
+                            </p>
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.non_field_errors }}
+
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn inbox-btn fw-bold">
+                                    <i class="bi bi-send me-1"></i>Send
+                                </button>
+                                <a href="{% if original %}{% url 'inbox:detail' original.pk %}{% else %}{% url 'inbox:list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="text-start">
+                    <a href="{% url 'inbox:list' %}" class="back-to-dashboard">
+                        <i class="fa-solid fa-arrow-left px-1"></i>Back to inbox
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

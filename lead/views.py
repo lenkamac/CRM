@@ -141,6 +141,14 @@ class LeadCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         return context
 
+    # Prefill from query string, e.g. "Create lead" button in the inbox
+    def get_initial(self):
+        initial = super().get_initial()
+        for field in ('email', 'first_name', 'last_name'):
+            if self.request.GET.get(field):
+                initial[field] = self.request.GET[field]
+        return initial
+
     def form_invalid(self, form):
         for error in form.non_field_errors():
             messages.error(self.request, error)

@@ -1,0 +1,80 @@
+/* Inbox */
+.inbox-folders .nav-link {
+    color: #364a69;
+    font-weight: 500;
+    border-radius: 5px;
+}
+.inbox-folders .nav-link.active {
+    background-color: #4c6c8ad9;
+    color: white;
+}
+.inbox-folders .nav-link:hover:not(.active) {
+    background-color: rgba(76, 108, 138, 0.15);
+}
+
+.inbox-btn {
+    background-color: #4c6c8ad9;
+    color: white;
+}
+.inbox-btn:hover {
+    background-color: #364a69;
+    color: white;
+}
+
+.inbox-table td {
+    vertical-align: middle;
+}
+.inbox-row-unread td {
+    font-weight: 600;
+    background-color: rgba(76, 108, 138, 0.08);
+}
+.inbox-a-subject {
+    color: #1c4e6a;
+    text-decoration: none;
+}
+.inbox-a-subject:hover {
+    color: #387ea6;
+    text-decoration: underline;
+}
+.inbox-snippet {
+    color: #6c757d;
+    font-weight: 400;
+    font-size: 0.85rem;
+}
+.inbox-star {
+    color: #f0ad4e;
+}
+.inbox-star-off {
+    color: #adb5bd;
+}
+
+/* Detail */
+.inbox-card-header {
+    background-color: #4c6c8ad9;
+    color: white;
+}
+.inbox-body-frame {
+    width: 100%;
+    min-height: 450px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background: white;
+}
+.inbox-body-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+.inbox-meta td {
+    border: 0 !important;
+    padding: 0.15rem 0.5rem;
+    text-align: left;
+}
+.inbox-meta-label {
+    width: 70px;
+    color: #6c757d;
+}
+.inbox-sidebar-badge {
+    font-size: 0.7rem;
+}

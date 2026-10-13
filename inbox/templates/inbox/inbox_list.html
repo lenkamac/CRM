@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+	Inbox
+{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{% static 'inbox/css/inbox.css' %}">
+
+    <style>
+         body {
+             background-image: url("{% static 'images/34637.png' %}");
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-position: center;
+         }
+    </style>
+
+    <div class="container-fluid mx-auto" id="inbox-container">
+
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="text-center pt-md-3">
+                    <h4 class="fw-bolder">Inbox</h4>
+                </div>
+            </div>
+            <div class="col-12 text-center">
+                {% include 'inbox/partials/messages.html' %}
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <!-- Folders -->
+            <div class="col-12 col-lg-2 mb-3">
+                <a href="{% url 'inbox:compose' %}" class="btn btn-sm inbox-btn w-100 fs-6 fw-bolder mb-2">
+                    <i class="bi bi-pencil-square me-1"></i>Compose
+                </a>
+                <form method="post" action="{% url 'inbox:sync' %}" class="mb-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-secondary w-100 fs-6">
+                        <i class="bi bi-arrow-repeat me-1"></i>Sync Gmail
+                    </button>
+                </form>
+                <ul class="nav flex-column inbox-folders">
+                    <li class="nav-item">
+                        <a class="nav-link {% if folder == 'inbox' %}active{% endif %}" href="?folder=inbox">
+                            <i class="bi bi-inbox me-2"></i>Inbox
+                            {% if inbox_unread_count %}<span class="badge bg-danger float-end">{{ inbox_unread_count }}</span>{% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if folder == 'unread' %}active{% endif %}" href="?folder=unread">
+                            <i class="bi bi-envelope me-2"></i>Unread
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if folder == 'starred' %}active{% endif %}" href="?folder=starred">
+                            <i class="bi bi-star me-2"></i>Starred
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if folder == 'sent' %}active{% endif %}" href="?folder=sent">
+                            <i class="bi bi-send me-2"></i>Sent
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Emails -->
+            <div class="col-12 col-lg-10">
+                <form method="get" class="mb-3">
+                    <input type="hidden" name="folder" value="{{ folder }}">
+                    <div class="row g-2">
+                        <div class="col-12 col-md">
+                            <input type="text" name="q" class="form-control form-control-sm fs-6"
+                                   placeholder="Search by subject, sender, recipient or text"
+                                   value="{{ request.GET.q|default:'' }}" autocomplete="off">
+                        </div>
+                        <div class="col-12 col-md-auto">
+                            <button type="submit" class="btn btn-sm fs-6 w-100 inbox-btn">Search</button>
+                        </div>
+                    </div>
+                </form>
+
+                <form id="bulk-email-form" method="post" action="{% url 'inbox:bulk_action' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <div class="d-flex gap-2 mb-2">
+                        <button type="submit" name="action" value="read" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-envelope-open me-1"></i>Mark read
+                        </button>
+                        <button type="submit" name="action" value="unread" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-envelope me-1"></i>Mark unread
+                        </button>
+                        <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Remove selected emails from the CRM? They stay in Gmail.');">
+                            <i class="bi bi-trash3 me-1"></i>Delete
+                        </button>
+                    </div>
+
+                    <div class="table-responsive-custom">
+                        <table class="table table-hover inbox-table">
+                            <thead class="th-custom">
+                                <tr>
+                                    <th class="text-center" style="background-color: #4c6c8ad9; color: white; width: 40px;">
+                                        <label for="select-all"></label>
+                                        <input type="checkbox" id="select-all">
+                                    </th>
+                                    <th style="background-color: #4c6c8ad9; color: white; width: 40px;"></th>
+                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">{% if folder == 'sent' %}To{% else %}From{% endif %}</th>
+                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">Subject</th>
+                                    <th class="text-start" style="background-color: #4c6c8ad9; color: white;">Linked to</th>
+                                    <th class="text-end text-nowrap" style="background-color: #4c6c8ad9; color: white;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mail in emails %}
+                                    <tr class="{% if not mail.is_read %}inbox-row-unread{% endif %}">
+                                        <td class="text-center">
+                                            <label>
+                                                <input type="checkbox" name="email_ids" class="row-checkbox" value="{{ mail.id }}">
+                                            </label>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="submit" form="star-form-{{ mail.id }}" class="bg-transparent border-0 p-0" title="Star">
+                                                <i class="bi {% if mail.is_starred %}bi-star-fill inbox-star{% else %}bi-star inbox-star-off{% endif %}"></i>
+                                            </button>
+                                        </td>
+                                        <td class="text-start text-nowrap">
+                                            {% if mail.folder == 'sent' %}{{ mail.to|truncatechars:40 }}{% else %}{{ mail.display_sender|truncatechars:40 }}{% endif %}
+                                        </td>
+                                        <td class="text-start">
+                                            <a href="{% url 'inbox:detail' mail.pk %}" class="inbox-a-subject">
+                                                {{ mail.subject|default:"(no subject)" }}
+                                            </a>
+                                            {% if mail.attachments.all %}<i class="bi bi-paperclip text-secondary"></i>{% endif %}
+                                            <div class="inbox-snippet">{{ mail.snippet }}</div>
+                                        </td>
+                                        <td class="text-start text-nowrap">
+                                            {% if mail.client %}
+                                                <a href="{% url 'client:detail' mail.client.pk %}" class="badge text-bg-primary text-decoration-none">
+                                                    <i class="fa-regular fa-circle-user me-1"></i>{{ mail.client|truncatechars:25 }}
+                                                </a>
+                                            {% endif %}
+                                            {% if mail.lead %}
+                                                <a href="{% url 'lead:detail' mail.lead.pk %}" class="badge text-bg-info text-decoration-none">
+                                                    <i class="fa-solid fa-circle-user me-1"></i>{{ mail.lead|truncatechars:25 }}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end text-nowrap">{{ mail.received_at|date:"d.m.Y H:i" }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center fs-5 py-4">
+                                            {% if request.GET.q %}
+                                                No emails match your search...
+                                            {% elif folder == 'inbox' %}
+                                                Your inbox is empty. Click <strong>Sync Gmail</strong> to fetch your emails.
+                                            {% else %}
+                                                There are no emails here yet...
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+                {# Star toggle forms live outside the bulk form (forms cannot be nested) #}
+                {% for mail in emails %}
+                    <form id="star-form-{{ mail.id }}" method="post" action="{% url 'inbox:toggle_star' mail.pk %}" class="d-none">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    </form>
+                {% endfor %}
+
+                {% if is_paginated %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&folder={{ folder }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">&laquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}&folder={{ folder }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&folder={{ folder }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">&raquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="text-start">
+                    <a href="{% url 'dashboard:dashboard' %}" class="back-to-dashboard">
+                        <i class="fa-solid fa-arrow-left px-1"></i>Back to the dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('select-all')?.addEventListener('change', function () {
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = this.checked);
+        });
+    </script>
+
+{% endblock %}
