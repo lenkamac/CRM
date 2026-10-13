@@ -21,11 +21,11 @@ from django.urls import path, include
 from django.contrib.auth import views
 from userprofile.forms import LoginForm
 from userprofile.views import my_logout
-from core.views import index
+# from core.views import index
 
 urlpatterns = ([
     path('admin/', admin.site.urls),
-    path('', index, name='index'),
+    # path('', index, name='index'),
     path('dashboard/', include('dashboard.urls')),
     path('dashboard/', include('core.urls')),
     path('dashboard/account/', include('userprofile.urls')),
@@ -35,7 +35,7 @@ urlpatterns = ([
     path('dashboard/products/', include('product.urls')),
     path('dashboard/calendar/', include('calendarapp.urls')),
     path('dashboard/opportunities/', include('opportunity.urls')),
-    path('login/', views.LoginView.as_view(template_name='userprofile/login.html',
+    path('', views.LoginView.as_view(template_name='userprofile/login.html',
                                            authentication_form=LoginForm), name='login'),
     path('logout/', my_logout, name='logout'),
 ])+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -114,7 +114,7 @@ class CustomPasswordChangeView(PasswordChangeView):
 # Logout
 def my_logout(request):
     logout(request)
-    return redirect('index')
+    return redirect('login')
 
 # Delete account
 @login_required
@@ -124,6 +124,6 @@ def delete_account(request):
         logout(request)
         user.delete()
         messages.success(request, 'Your account has been deleted.')
-        return redirect('index')
+        return redirect('login')
 
     return render(request, 'userprofile/delete_account.html')
