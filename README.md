@@ -16,5 +16,7 @@ Here are screenshots from actuell project - Dashboard, clients or leads page.
 <img width="3840" height="2160" alt="dashboard2" src="https://github.com/user-attachments/assets/e1914397-bbf0-4b33-9b39-158e304e08bb" />
 <img width="3840" height="2160" alt="dashboard1" src="https://github.com/user-attachments/assets/1f4251f1-f036-4fad-9b1e-c9a767a50858" />
 
+Add Inbox with received and send email functionality
+<img width="3840" height="2160" alt="inbox" src="https://github.com/user-attachments/assets/9df6eba5-c4c6-4e0f-902d-936e1ff3a81f" />
 
 
