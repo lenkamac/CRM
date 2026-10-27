@@ -9,12 +9,12 @@
         <link rel="stylesheet" href="{% static 'userprofile/account.css' %}">
         <style>
             body {
-                background: linear-gradient(90deg, rgb(42, 50, 49) 7%, rgb(39, 60, 60) 32%, rgb(41, 71, 64) 66%, rgb(43, 86, 86) 90%);
+                background: linear-gradient(90deg, rgb(76 98 112) 7%, rgb(108, 127, 143) 32%, rgb(108, 127, 143) 66%, rgb(76, 98, 112) 90%);
                 min-height: 100vh;
             }
             .auth-tab-btn {
                 background-color: transparent;
-                color: rgba(255, 255, 255, 0.7);
+                color: rgb(243 242 242);
                 border: 1px solid rgba(255, 255, 255, 0.3);
                 padding: 0.5rem 2rem;
                 font-weight: 600;
@@ -68,17 +68,6 @@
                     <button class="auth-tab-btn active rounded-start" id="btn-login" type="button" onclick="switchTab('login')">Login</button>
                     <button class="auth-tab-btn rounded-end" id="btn-register" type="button" onclick="switchTab('register')">Register</button>
                 </div>
-
-                {% if messages %}
-                    <div class="mb-3">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show py-2" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
 
                 <!-- Login Panel -->
                 <div id="panel-login">
