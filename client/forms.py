@@ -48,7 +48,7 @@ class PurchaseForm(forms.ModelForm):
         model = Purchase
         fields = ['created_at', 'product', 'quantity', 'purchase_price', 'currency', 'notes']
         widgets = {
-            'created_at': forms.DateInput(attrs={
+            'created_at': forms.DateInput(format='%Y-%m-%d', attrs={
                 'class': 'form-control',
                 'type': 'date',
                 'id': 'id_created_at',

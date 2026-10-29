@@ -6,6 +6,7 @@ For Gmail use a Google App Password, not your normal password.
 """
 import email
 import imaplib
+import re
 from email.header import decode_header, make_header
 from email.utils import getaddresses, make_msgid, parseaddr, parsedate_to_datetime
 
@@ -93,16 +94,73 @@ def _match_contacts(user, address):
     return client, lead
 
 
+def _connect(readonly=True):
+    imap = imaplib.IMAP4_SSL(settings.MAIL_IMAP_HOST, settings.MAIL_IMAP_PORT)
+    imap.login(settings.MAIL_USER, settings.MAIL_PASSWORD)
+    imap.select('INBOX', readonly=readonly)
+    return imap
+
+
+def _logout(imap):
+    try:
+        imap.logout()
+    except Exception:
+        pass
+
+
+def _is_seen(fetch_response):
+    """Return True if the \\Seen flag is in a FETCH response line."""
+    return b'\\Seen' in imaplib.ParseFlags(fetch_response)
+
+
+def _sync_read_flags(imap, user):
+    """Copy the read/unread state of already stored emails from the mailbox to the CRM."""
+    known = dict(
+        Email.objects.filter(owner=user, folder=Email.INBOX, imap_uid__isnull=False).values_list('imap_uid', 'is_read')
+    )
+    if not known:
+        return
+    _, data = imap.uid('fetch', f'{min(known)}:{max(known)}', '(FLAGS)')
+    read_uids, unread_uids = [], []
+    for item in data or []:
+        line = item[0] if isinstance(item, tuple) else item
+        if not isinstance(line, bytes):
+            continue
+        match = re.search(rb'UID (\d+)', line)
+        if not match or int(match.group(1)) not in known:
+            continue
+        uid, seen = int(match.group(1)), _is_seen(line)
+        if seen != known[uid]:
+            (read_uids if seen else unread_uids).append(uid)
+    base = Email.objects.filter(owner=user, folder=Email.INBOX)
+    if read_uids:
+        base.filter(imap_uid__in=read_uids).update(is_read=True)
+    if unread_uids:
+        base.filter(imap_uid__in=unread_uids).update(is_read=False)
+
+
+def set_read_flag(emails, is_read):
+    """Mark the given CRM emails as read/unread in the mailbox too."""
+    uids = [str(m.imap_uid) for m in emails if m.folder == Email.INBOX and m.imap_uid]
+    if not uids:
+        return
+    _check_config()
+    imap = _connect(readonly=False)
+    try:
+        imap.uid('store', ','.join(uids), '+FLAGS' if is_read else '-FLAGS', '(\\Seen)')
+    finally:
+        _logout(imap)
+
+
 def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
     """Download new messages from the mailbox INBOX. Returns the number of new emails stored."""
     _check_config()
 
     last_uid = Email.objects.filter(owner=user, folder=Email.INBOX).aggregate(m=Max('imap_uid'))['m']
 
-    imap = imaplib.IMAP4_SSL(settings.MAIL_IMAP_HOST, settings.MAIL_IMAP_PORT)
+    imap = _connect()
     try:
-        imap.login(settings.MAIL_USER, settings.MAIL_PASSWORD)
-        imap.select('INBOX', readonly=True)
+        _sync_read_flags(imap, user)
 
         if last_uid:
             _, data = imap.uid('search', None, f'UID {last_uid + 1}:*')
@@ -117,10 +175,12 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
         created = 0
         for uid in uids:
             # BODY.PEEK keeps the message unread in Gmail
-            _, msg_data = imap.uid('fetch', str(uid), '(BODY.PEEK[])')
+            _, msg_data = imap.uid('fetch', str(uid), '(FLAGS BODY.PEEK[])')
             if not msg_data or not isinstance(msg_data[0], tuple):
                 continue
             msg = email.message_from_bytes(msg_data[0][1])
+            # FLAGS may come before or after the body in the response
+            is_read = any(_is_seen(p[0] if isinstance(p, tuple) else p) for p in msg_data if isinstance(p, (bytes, tuple)))
 
             message_id = (msg.get('Message-ID') or '').strip() or f'<imap-uid-{uid}@{settings.MAIL_IMAP_HOST}>'
             if Email.objects.filter(owner=user, folder=Email.INBOX, message_id=message_id).exists():
@@ -144,6 +204,7 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
                 body_text=text,
                 body_html=html,
                 received_at=_parse_date(msg.get('Date')),
+                is_read=is_read,
                 client=client,
                 lead=lead,
             )
@@ -153,10 +214,7 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
             created += 1
         return created
     finally:
-        try:
-            imap.logout()
-        except Exception:
-            pass
+        _logout(imap)
 
 
 def send_email(user, to, subject, body, cc='', attachments=None, reply_to_email=None):

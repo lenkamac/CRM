@@ -12,8 +12,16 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import ComposeEmailForm, LinkContactForm
-from .gmail_service import MailNotConfigured, fetch_emails, send_email
+from .gmail_service import MailNotConfigured, fetch_emails, send_email, set_read_flag
 from .models import Email, EmailAttachment
+
+
+def _push_read_flag(request, emails, is_read):
+    """Mirror a read/unread change to Gmail; the CRM change is kept even if this fails."""
+    try:
+        set_read_flag(emails, is_read)
+    except (MailNotConfigured, imaplib.IMAP4.error, OSError) as e:
+        messages.warning(request, f'Could not update the read status in Gmail: {e}')
 
 
 def _redirect_next(request):
@@ -68,6 +76,7 @@ def inbox_detail(request, pk):
     if not mail.is_read:
         mail.is_read = True
         mail.save(update_fields=['is_read'])
+        _push_read_flag(request, [mail], True)
 
     thread = Email.objects.filter(owner=request.user).filter(
         Q(in_reply_to=mail.message_id) | Q(message_id=mail.in_reply_to)
@@ -166,6 +175,7 @@ def inbox_toggle_read(request, pk):
     mail = get_object_or_404(Email, pk=pk, owner=request.user)
     mail.is_read = not mail.is_read
     mail.save(update_fields=['is_read'])
+    _push_read_flag(request, [mail], mail.is_read)
     return _redirect_next(request)
 
 
@@ -199,10 +209,10 @@ def inbox_bulk_action(request):
 
     if not ids:
         messages.warning(request, 'No emails selected.')
-    elif action == 'read':
-        emails.update(is_read=True)
-    elif action == 'unread':
-        emails.update(is_read=False)
+    elif action in ('read', 'unread'):
+        is_read = action == 'read'
+        emails.update(is_read=is_read)
+        _push_read_flag(request, emails, is_read)
     elif action == 'delete':
         for attachment in EmailAttachment.objects.filter(email__in=emails):
             attachment.file.delete(save=False)

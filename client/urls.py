@@ -20,5 +20,7 @@ urlpatterns = [
     path('<int:client_id>/file/<int:file_id>/delete/', views.delete_client_file, name='delete_client_file'),
     path('api/exchange-rate/', views.get_exchange_rate, name='exchange_rate'),
     path('<int:pk>/add-purchase/', AddPurchaseView.as_view(), name='add_purchase'),
+    path('edit/<int:purchase_id>/', views.edit_purchase, name='edit_purchase'),
+    path('delete/<int:purchase_id>/', views.delete_purchase, name='delete_purchase'),
     path('autocomplete/', views.client_autocomplete, name='autocomplete'),
 ]

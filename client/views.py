@@ -374,6 +374,30 @@ class AddPurchaseView(LoginRequiredMixin, View):
         return redirect('client:detail', pk=pk)
 
 
+@login_required
+def edit_purchase(request, purchase_id):
+    purchase = get_object_or_404(Purchase, id=purchase_id)
+
+    if request.method == 'POST':
+        form = PurchaseForm(request.POST, instance=purchase)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Purchase updated successfully')
+            return redirect('product:sales_list')
+    else:
+        form = PurchaseForm(instance=purchase)
+
+    return render(request, 'client/edit_purchase.html', {'form': form, 'purchase': purchase})
+
+
+@login_required
+def delete_purchase(request, purchase_id):
+    purchase = get_object_or_404(Purchase, id=purchase_id)
+    purchase.delete()
+    messages.success(request, 'Purchase deleted successfully')
+    return redirect('product:sales_list')
+
+
 # Get exchange rate API endpoint
 @login_required
 def get_exchange_rate(request):

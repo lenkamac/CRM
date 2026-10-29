@@ -156,6 +156,7 @@
                                                 </a>
                                             </th>
                                             <th class="text-start text-nowrap">Notes</th>
+                                            <th class="text-center text-nowrap">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -177,6 +178,14 @@
                                                 <span class="price-value">{{ purchase.total }}</span>
                                             </td>
                                             <td class="text-start text-nowrap">{{ purchase.notes|default:"-" }}</td>
+                                            <td class="text-center text-nowrap">
+                                                <a href="{% url 'client:edit_purchase' purchase.id %}" class="btn btn-sm fs-6 btn-outline-warning fw-bold">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </a>
+                                                <a href="{% url 'client:delete_purchase' purchase.id %}" class="btn btn-sm fs-6 btn-outline-danger fw-bold" onclick="return confirm('Are you sure you want to delete this product?');">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </a>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
