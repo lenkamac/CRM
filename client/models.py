@@ -91,10 +91,15 @@ class Purchase(models.Model):
         return f'{self.client} - {self.product.name} ({self.quantity})'
 
     def get_purchase_price(self):
-        """Return purchase price in the selected currency using real-time exchange rates"""
-        base_price = self.purchase_price if self.purchase_price else self.product.net_price
+        """Return purchase price in the selected currency.
 
-        # Convert to USD if currency is USD (assuming base price is in EUR)
+        purchase_price is stored in the purchase's own currency, so it is used as-is.
+        Only the product's net_price (stored in EUR) needs conversion as a fallback.
+        """
+        if self.purchase_price is not None:
+            return self.purchase_price
+
+        base_price = self.product.net_price
         if self.currency == self.USD:
             return CurrencyConverter.convert(base_price, 'EUR', 'USD')
 

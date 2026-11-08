@@ -573,7 +573,7 @@
                                         <th class="text-center">Currency</th>
                                         <th class="text-center">Date</th>
                                         <th class="text-start">Notes</th>
-                                        <th class="text-start">Action</th>
+                                        <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -598,7 +598,7 @@
                                                 <span class="text-muted">No notes</span>
                                             {% endif %}
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <a href="{% url 'client:edit_purchase' purchase.id %}" class="btn btn-sm fs-6 btn-outline-warning fw-bold">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
