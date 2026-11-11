@@ -1,6 +1,7 @@
 import imaplib
 import smtplib
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -8,9 +9,10 @@ from django.db.models import Q
 from django.http import FileResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.http import require_POST
 
+from .contact_extract import original_contact
 from .forms import ComposeEmailForm, LinkContactForm
 from .gmail_service import MailNotConfigured, fetch_emails, send_email, set_read_flag
 from .models import Email, EmailAttachment
@@ -84,10 +86,16 @@ def inbox_detail(request, pk):
 
     link_form = LinkContactForm(user=request.user, initial={'client': mail.client, 'lead': mail.lead})
 
+    # Prefill for "Create lead/client": for forwarded emails this is the original sender
+    contact = original_contact(mail, exclude=(settings.MAIL_USER, request.user.email))
+    prefill = urlencode({k: contact[k] for k in ('email', 'first_name', 'last_name', 'phone') if contact[k]})
+
     return render(request, 'inbox/inbox_detail.html', {
         'mail': mail,
         'thread': thread,
         'link_form': link_form,
+        'contact': contact,
+        'contact_prefill': prefill,
     })
 
 

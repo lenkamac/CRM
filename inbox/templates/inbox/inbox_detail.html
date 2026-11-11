@@ -140,12 +140,18 @@
                             <button type="submit" class="btn btn-sm inbox-btn w-100 mt-2">Save links</button>
                         </form>
 
-                        {% if mail.folder == 'inbox' and not mail.client and not mail.lead and mail.sender_email %}
+                        {% if mail.folder == 'inbox' and not mail.client and not mail.lead and contact.email %}
                             <hr>
-                            <a href="{% url 'lead:add' %}?email={{ mail.sender_email|urlencode }}&last_name={{ mail.sender_name|urlencode }}" class="btn btn-sm btn-outline-secondary w-100">
+                            {% if contact.forwarded %}
+                                <p class="small text-secondary mb-2">
+                                    <i class="bi bi-forward me-1"></i>Forwarded email &ndash; original sender:<br>
+                                    <strong>{{ contact.name|default:contact.email }}</strong>{% if contact.name %} &lt;{{ contact.email }}&gt;{% endif %}
+                                </p>
+                            {% endif %}
+                            <a href="{% url 'lead:add' %}?{{ contact_prefill }}" class="btn btn-sm btn-outline-secondary w-100">
                                 <i class="fas fa-plus me-1"></i>Create lead
                             </a>
-                            <a href="{% url 'client:add' %}?email={{ mail.sender_email|urlencode }}&last_name={{ mail.sender_name|urlencode }}" class="btn btn-sm btn-outline-secondary w-100 my-2">
+                            <a href="{% url 'client:add' %}?{{ contact_prefill }}" class="btn btn-sm btn-outline-secondary w-100 my-2">
                                 <i class="fas fa-plus me-1"></i>Create client
                             </a>
                         {% endif %}

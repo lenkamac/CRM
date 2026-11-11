@@ -98,6 +98,8 @@
 
 .product-detail-header {
     background-color: #13407a;
+    /* Keep the header (and its action dropdown) above the cards below it */
+    z-index: 1010;
 }
 
 .product-detail-header h4 {

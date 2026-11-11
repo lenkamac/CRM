@@ -18,6 +18,7 @@ from django.utils import timezone
 
 from client.models import Client
 from lead.models import Lead
+from .contact_extract import find_forwarded_sender, html_to_text
 from .models import Email, EmailAttachment
 
 INITIAL_FETCH_LIMIT = 50
@@ -188,7 +189,12 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
 
             sender_name, sender_email = parseaddr(_decode(msg.get('From')))
             text, html, attachments = _parse_message(msg)
-            client, lead = _match_contacts(user, sender_email)
+            subject = _decode(msg.get('Subject'))
+            # For forwarded emails link to the original sender, not the person who forwarded it
+            forwarded = find_forwarded_sender(subject, text or html_to_text(html), exclude=(settings.MAIL_USER, user.email))
+            client, lead = _match_contacts(user, forwarded[1] if forwarded else sender_email)
+            if forwarded and not (client or lead):
+                client, lead = _match_contacts(user, sender_email)
 
             mail = Email.objects.create(
                 owner=user,
@@ -200,7 +206,7 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
                 sender_email=sender_email,
                 to=_format_addresses(msg.get('To')),
                 cc=_format_addresses(msg.get('Cc')),
-                subject=_decode(msg.get('Subject')),
+                subject=subject,
                 body_text=text,
                 body_html=html,
                 received_at=_parse_date(msg.get('Date')),

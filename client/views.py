@@ -158,7 +158,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
     # Prefill from query string, e.g. "Create client" button in the inbox
     def get_initial(self):
         initial = super().get_initial()
-        for field in ('email', 'first_name', 'last_name'):
+        for field in ('email', 'first_name', 'last_name', 'phone'):
             if self.request.GET.get(field):
                 initial[field] = self.request.GET[field]
         return initial
