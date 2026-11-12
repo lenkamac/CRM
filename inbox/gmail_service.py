@@ -1,16 +1,16 @@
 """Mailbox integration: fetch messages over IMAP and send over SMTP.
 
-Works with any provider (Gmail, Yahoo, iCloud, Seznam, ...). Credentials and
-servers come from the MAIL_* variables in .env, see CrmSys/settings.py.
+Works with any provider (Gmail, Outlook, Yahoo, iCloud, Seznam, ...). Every CRM
+user connects their own mailbox in Inbox -> Settings (inbox.models.MailAccount).
 For Gmail use a Google App Password, not your normal password.
 """
 import email
 import imaplib
 import re
+import smtplib
 from email.header import decode_header, make_header
 from email.utils import getaddresses, make_msgid, parseaddr, parsedate_to_datetime
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db.models import Max
@@ -19,18 +19,64 @@ from django.utils import timezone
 from client.models import Client
 from lead.models import Lead
 from .contact_extract import find_forwarded_sender, html_to_text
-from .models import Email, EmailAttachment
+from .models import Email, EmailAttachment, MailAccount
 
 INITIAL_FETCH_LIMIT = 50
+TIMEOUT = 20
 
 
 class MailNotConfigured(Exception):
     pass
 
 
-def _check_config():
-    if not settings.MAIL_USER or not settings.MAIL_PASSWORD:
-        raise MailNotConfigured('Email is not configured. Add MAIL_USER and MAIL_PASSWORD to your .env file.')
+def get_account(user):
+    """Return the user's connected mailbox or raise MailNotConfigured."""
+    account = MailAccount.objects.filter(user=user).first()
+    if not account or not account.is_active:
+        raise MailNotConfigured('Your mailbox is not connected. Open Inbox -> Settings to connect it.')
+    if not account.password:
+        raise MailNotConfigured('The stored mailbox password is missing or invalid. Enter it again in Inbox -> Settings.')
+    return account
+
+
+def mailbox_address(user):
+    """Email address of the user's mailbox ('' if none) - used to skip the user's own address."""
+    return MailAccount.objects.filter(user=user).values_list('email_address', flat=True).first() or ''
+
+
+def _smtp_connection(account, password=None):
+    use_ssl = account.smtp_security == MailAccount.SSL
+    return get_connection(
+        backend='django.core.mail.backends.smtp.EmailBackend',
+        host=account.smtp_host,
+        port=account.smtp_port,
+        username=account.login,
+        password=password if password is not None else account.password,
+        use_ssl=use_ssl,
+        use_tls=not use_ssl,
+        timeout=TIMEOUT,
+        fail_silently=False,
+    )
+
+
+def check_connection(account, password):
+    """Try to log in to IMAP and SMTP with the given (unsaved) settings. Returns a list of error messages."""
+    errors = []
+    try:
+        imap = imaplib.IMAP4_SSL(account.imap_host, account.imap_port, timeout=TIMEOUT)
+        try:
+            imap.login(account.login, password)
+        finally:
+            _logout(imap)
+    except (imaplib.IMAP4.error, OSError) as e:
+        errors.append(f'Incoming mail (IMAP) failed: {e}')
+    try:
+        connection = _smtp_connection(account, password)
+        connection.open()
+        connection.close()
+    except (smtplib.SMTPException, OSError) as e:
+        errors.append(f'Outgoing mail (SMTP) failed: {e}')
+    return errors
 
 
 def _decode(value):
@@ -95,9 +141,9 @@ def _match_contacts(user, address):
     return client, lead
 
 
-def _connect(readonly=True):
-    imap = imaplib.IMAP4_SSL(settings.MAIL_IMAP_HOST, settings.MAIL_IMAP_PORT)
-    imap.login(settings.MAIL_USER, settings.MAIL_PASSWORD)
+def _connect(account, readonly=True):
+    imap = imaplib.IMAP4_SSL(account.imap_host, account.imap_port, timeout=TIMEOUT)
+    imap.login(account.login, account.password)
     imap.select('INBOX', readonly=readonly)
     return imap
 
@@ -140,13 +186,13 @@ def _sync_read_flags(imap, user):
         base.filter(imap_uid__in=unread_uids).update(is_read=False)
 
 
-def set_read_flag(emails, is_read):
-    """Mark the given CRM emails as read/unread in the mailbox too."""
-    uids = [str(m.imap_uid) for m in emails if m.folder == Email.INBOX and m.imap_uid]
+def set_read_flag(user, emails, is_read):
+    """Mark the given CRM emails of the user as read/unread in the mailbox too."""
+    uids = [str(m.imap_uid) for m in emails if m.owner_id == user.pk and m.folder == Email.INBOX and m.imap_uid]
     if not uids:
         return
-    _check_config()
-    imap = _connect(readonly=False)
+    account = get_account(user)
+    imap = _connect(account, readonly=False)
     try:
         imap.uid('store', ','.join(uids), '+FLAGS' if is_read else '-FLAGS', '(\\Seen)')
     finally:
@@ -155,11 +201,11 @@ def set_read_flag(emails, is_read):
 
 def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
     """Download new messages from the mailbox INBOX. Returns the number of new emails stored."""
-    _check_config()
+    account = get_account(user)
 
     last_uid = Email.objects.filter(owner=user, folder=Email.INBOX).aggregate(m=Max('imap_uid'))['m']
 
-    imap = _connect()
+    imap = _connect(account)
     try:
         _sync_read_flags(imap, user)
 
@@ -183,7 +229,7 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
             # FLAGS may come before or after the body in the response
             is_read = any(_is_seen(p[0] if isinstance(p, tuple) else p) for p in msg_data if isinstance(p, (bytes, tuple)))
 
-            message_id = (msg.get('Message-ID') or '').strip() or f'<imap-uid-{uid}@{settings.MAIL_IMAP_HOST}>'
+            message_id = (msg.get('Message-ID') or '').strip() or f'<imap-uid-{uid}@{account.imap_host}>'
             if Email.objects.filter(owner=user, folder=Email.INBOX, message_id=message_id).exists():
                 continue
 
@@ -191,7 +237,7 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
             text, html, attachments = _parse_message(msg)
             subject = _decode(msg.get('Subject'))
             # For forwarded emails link to the original sender, not the person who forwarded it
-            forwarded = find_forwarded_sender(subject, text or html_to_text(html), exclude=(settings.MAIL_USER, user.email))
+            forwarded = find_forwarded_sender(subject, text or html_to_text(html), exclude=(account.email_address, user.email))
             client, lead = _match_contacts(user, forwarded[1] if forwarded else sender_email)
             if forwarded and not (client or lead):
                 client, lead = _match_contacts(user, sender_email)
@@ -225,29 +271,21 @@ def fetch_emails(user, limit=INITIAL_FETCH_LIMIT):
 
 def send_email(user, to, subject, body, cc='', attachments=None, reply_to_email=None):
     """Send an email through the SMTP server and store a copy in the Sent folder."""
-    _check_config()
+    account = get_account(user)
 
     to_list = [a for _, a in getaddresses([to]) if a]
     cc_list = [a for _, a in getaddresses([cc]) if a]
-    message_id = make_msgid(domain=settings.MAIL_USER.split('@')[-1])
+    message_id = make_msgid(domain=account.email_address.split('@')[-1])
     headers = {'Message-ID': message_id}
     if reply_to_email:
         headers['In-Reply-To'] = reply_to_email.message_id
         headers['References'] = reply_to_email.message_id
 
-    connection = get_connection(
-        backend='django.core.mail.backends.smtp.EmailBackend',
-        host=settings.MAIL_SMTP_HOST,
-        port=settings.MAIL_SMTP_PORT,
-        username=settings.MAIL_USER,
-        password=settings.MAIL_PASSWORD,
-        use_ssl=settings.MAIL_SMTP_SSL,
-        use_tls=not settings.MAIL_SMTP_SSL,
-    )
+    connection = _smtp_connection(account)
     message = EmailMultiAlternatives(
         subject=subject,
         body=body,
-        from_email=settings.MAIL_USER,
+        from_email=account.from_header,
         to=to_list,
         cc=cc_list,
         headers=headers,
@@ -270,8 +308,8 @@ def send_email(user, to, subject, body, cc='', attachments=None, reply_to_email=
         folder=Email.SENT,
         message_id=message_id,
         in_reply_to=reply_to_email.message_id if reply_to_email else '',
-        sender_name=user.get_full_name() or user.username,
-        sender_email=settings.MAIL_USER,
+        sender_name=account.display_name or user.get_full_name() or user.username,
+        sender_email=account.email_address,
         to=', '.join(to_list),
         cc=', '.join(cc_list),
         subject=subject,

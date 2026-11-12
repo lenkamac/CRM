@@ -50,7 +50,7 @@
                                 </button>
                             </form>
                             <form method="post" action="{% url 'inbox:delete' mail.pk %}"
-                                  onsubmit="return confirm('Remove this email from the CRM? It stays in Gmail.');">
+                                  onsubmit="return confirm('Remove this email from the CRM? It stays in your mailbox.');">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm btn-light text-danger" title="Delete">
                                     <i class="bi bi-trash3"></i>

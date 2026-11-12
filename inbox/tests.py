@@ -1,3 +1,4 @@
+import imaplib
 import tempfile
 from email.message import EmailMessage as PyEmailMessage
 from unittest import mock
@@ -9,7 +10,7 @@ from django.urls import reverse
 
 from client.models import Client
 from .gmail_service import fetch_emails
-from .models import Email
+from .models import Email, MailAccount
 
 
 def _raw_message(uid):
@@ -25,15 +26,27 @@ def _raw_message(uid):
     return msg.as_bytes()
 
 
+def _account(user, address, password):
+    account = MailAccount(user=user, email_address=address, imap_host='imap.gmail.com',
+                          smtp_host='smtp.gmail.com')
+    account.password = password
+    account.save()
+    return account
+
+
 class FakeIMAP:
     uids = [1, 2, 3]
     seen = set()
 
-    def __init__(self, host, port=993):
-        pass
+    logins = []
+
+    def __init__(self, host, port=993, timeout=None):
+        self.host = host
 
     def login(self, user, password):
-        pass
+        if password == 'wrong':
+            raise imaplib.IMAP4.error('[AUTHENTICATIONFAILED] Invalid credentials')
+        FakeIMAP.logins.append((self.host, user, password))
 
     def select(self, mailbox, readonly=False):
         pass
@@ -59,14 +72,16 @@ class FakeIMAP:
         pass
 
 
-@override_settings(MAIL_USER='me@gmail.com', MAIL_PASSWORD='secret', MEDIA_ROOT=tempfile.mkdtemp(),
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(),
                    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class InboxTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('lenka', password='pw')
         self.client_obj = Client.objects.create(email='jane@example.com', last_name='Doe', created_by=self.user)
         self.client.login(username='lenka', password='pw')
+        self.account = _account(self.user, 'me@gmail.com', 'secret')
         FakeIMAP.seen = set()
+        FakeIMAP.logins = []
 
     @mock.patch('inbox.gmail_service.imaplib.IMAP4_SSL', FakeIMAP)
     def test_fetch_parses_links_and_deduplicates(self):
@@ -146,6 +161,91 @@ class InboxTests(TestCase):
         mail = Email.objects.create(owner=self.user, message_id='<y>', received_at='2026-10-01T10:00Z')
         response = self.client.post(reverse('inbox:toggle_star', args=[mail.pk]), {'next': 'https://evil.com/'})
         self.assertRedirects(response, reverse('inbox:list'))
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class MailSettingsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('lenka', password='pw')
+        self.client.login(username='lenka', password='pw')
+        FakeIMAP.logins = []
+
+    def _post(self, **extra):
+        data = {'email_address': 'lenka@gmail.com', 'imap_host': 'imap.gmail.com', 'imap_port': 993,
+                'smtp_host': 'smtp.gmail.com', 'smtp_port': 587, 'smtp_security': 'starttls',
+                'password': 'app-pass', 'test_connection': 'on'}
+        data.update(extra)
+        return self.client.post(reverse('inbox:settings'), data)
+
+    @mock.patch('inbox.gmail_service.get_connection')
+    @mock.patch('inbox.gmail_service.imaplib.IMAP4_SSL', FakeIMAP)
+    def test_connect_stores_encrypted_password(self, get_connection):
+        response = self._post()
+        self.assertRedirects(response, reverse('inbox:settings'))
+        account = MailAccount.objects.get(user=self.user)
+        self.assertTrue(account.is_connected)
+        self.assertEqual(account.password, 'app-pass')
+        self.assertNotIn('app-pass', account.password_encrypted)
+        self.assertEqual(FakeIMAP.logins, [('imap.gmail.com', 'lenka@gmail.com', 'app-pass')])
+        get_connection.return_value.open.assert_called_once()
+
+        # Saving again without a password keeps the stored one
+        self._post(password='', display_name='Lenka', test_connection='')
+        account.refresh_from_db()
+        self.assertEqual((account.password, account.display_name), ('app-pass', 'Lenka'))
+
+    @mock.patch('inbox.gmail_service.get_connection')
+    @mock.patch('inbox.gmail_service.imaplib.IMAP4_SSL', FakeIMAP)
+    def test_failed_connection_is_not_saved(self, get_connection):
+        response = self._post(password='wrong')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Incoming mail (IMAP) failed')
+        self.assertFalse(MailAccount.objects.exists())
+
+    def test_changing_mailbox_requires_password_and_resets_sync(self):
+        _account(self.user, 'lenka@gmail.com', 'app-pass')
+        mail = Email.objects.create(owner=self.user, imap_uid=7, message_id='<a>', received_at='2026-10-01T10:00Z')
+        response = self._post(email_address='lenka@seznam.cz', password='', test_connection='')
+        self.assertContains(response, 'Enter the password again')
+        self._post(email_address='lenka@seznam.cz', imap_host='imap.seznam.cz', password='new', test_connection='')
+        mail.refresh_from_db()
+        self.assertIsNone(mail.imap_uid)
+        self.assertEqual(MailAccount.objects.get().email_address, 'lenka@seznam.cz')
+
+    def test_disconnect_blocks_sending(self):
+        _account(self.user, 'lenka@gmail.com', 'app-pass')
+        Email.objects.create(owner=self.user, message_id='<a>', received_at='2026-10-01T10:00Z')
+        self.client.post(reverse('inbox:disconnect'))
+        account = MailAccount.objects.get()
+        self.assertFalse(account.is_connected)
+        self.assertEqual(account.password_encrypted, '')
+        self.assertEqual(Email.objects.count(), 1)
+
+        response = self.client.post(reverse('inbox:compose'), {'to': 'x@example.com', 'subject': 'Hi', 'body': 'Hi'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Email.objects.filter(folder=Email.SENT).count(), 0)
+        self.assertContains(response, 'not connected')
+
+        self.client.post(reverse('inbox:disconnect'), {'remove_emails': '1'})
+        self.assertEqual(Email.objects.count(), 0)
+
+    @mock.patch('inbox.gmail_service.imaplib.IMAP4_SSL', FakeIMAP)
+    def test_each_user_syncs_own_mailbox(self):
+        other = User.objects.create_user('other', password='pw')
+        _account(self.user, 'lenka@gmail.com', 'pass-1')
+        _account(other, 'other@gmail.com', 'pass-2')
+        fetch_emails(self.user)
+        fetch_emails(other)
+        self.assertEqual([(u, p) for _, u, p in FakeIMAP.logins],
+                         [('lenka@gmail.com', 'pass-1'), ('other@gmail.com', 'pass-2')])
+        self.assertEqual(Email.objects.filter(owner=other).count(), 3)
+
+    def test_settings_page_of_other_user_is_not_shown(self):
+        other = User.objects.create_user('other', password='pw')
+        _account(other, 'other@gmail.com', 'pass-2')
+        response = self.client.get(reverse('inbox:settings'))
+        self.assertNotContains(response, 'other@gmail.com')
+        self.assertContains(response, 'No mailbox connected yet')
 
 
 class ContactExtractTests(TestCase):

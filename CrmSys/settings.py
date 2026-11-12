@@ -172,16 +172,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ExchangeRate API Key
 EXCHANGE_RATE_API_KEY = os.getenv('EXCHANGE_RATE_API_KEY')
 
-# Inbox mailbox (IMAP for receiving, SMTP for sending) - works with any provider, defaults to Gmail
-# Old GMAIL_USER / GMAIL_APP_PASSWORD variables are still accepted as a fallback
-MAIL_USER = os.getenv('MAIL_USER') or os.getenv('GMAIL_USER')
-MAIL_PASSWORD = os.getenv('MAIL_PASSWORD') or os.getenv('GMAIL_APP_PASSWORD')
-MAIL_IMAP_HOST = os.getenv('MAIL_IMAP_HOST', 'imap.gmail.com')
-MAIL_IMAP_PORT = int(os.getenv('MAIL_IMAP_PORT', '993'))
-MAIL_SMTP_HOST = os.getenv('MAIL_SMTP_HOST', 'smtp.gmail.com')
-MAIL_SMTP_PORT = int(os.getenv('MAIL_SMTP_PORT', '587'))
-# True = SSL (usually port 465), False = STARTTLS (usually port 587)
-MAIL_SMTP_SSL = os.getenv('MAIL_SMTP_SSL', 'False').lower() in ('true', '1', 'yes')
+# Inbox: every user connects their own mailbox in Inbox -> Settings (stored in inbox.MailAccount).
+# Mailbox passwords are encrypted in the database with this key. If it is not set, a key derived
+# from SECRET_KEY is used - changing either one means users have to re-enter their mailbox password.
+MAIL_ENCRYPTION_KEY = os.getenv('MAIL_ENCRYPTION_KEY', '')
 
 # Cache settings for currency rates
 CACHES = {

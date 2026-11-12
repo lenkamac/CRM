@@ -1,12 +1,62 @@
 from django.db import models
 from django.contrib.auth.models import User
 import os
+from email.utils import formataddr
 
 from client.models import Client
 from lead.models import Lead
+from .crypto import decrypt, encrypt
 
 
 # Create your models here.
+class MailAccount(models.Model):
+    """Mailbox connection settings of one CRM user (IMAP for receiving, SMTP for sending)."""
+    SSL = 'ssl'
+    STARTTLS = 'starttls'
+
+    CHOICES_SMTP_SECURITY = (
+        (STARTTLS, 'STARTTLS (usually port 587)'),
+        (SSL, 'SSL/TLS (usually port 465)'),
+    )
+
+    user = models.OneToOneField(User, related_name='mail_account', on_delete=models.CASCADE)
+    email_address = models.EmailField()
+    display_name = models.CharField(max_length=255, blank=True)
+    username = models.CharField(max_length=255, blank=True, help_text='Login name, if it differs from the email address.')
+    password_encrypted = models.TextField(blank=True)
+    imap_host = models.CharField(max_length=255)
+    imap_port = models.PositiveIntegerField(default=993)
+    smtp_host = models.CharField(max_length=255)
+    smtp_port = models.PositiveIntegerField(default=587)
+    smtp_security = models.CharField(max_length=10, choices=CHOICES_SMTP_SECURITY, default=STARTTLS)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.email_address} ({self.user})'
+
+    @property
+    def login(self):
+        return self.username or self.email_address
+
+    @property
+    def password(self):
+        return decrypt(self.password_encrypted)
+
+    @password.setter
+    def password(self, value):
+        self.password_encrypted = encrypt(value)
+
+    @property
+    def is_connected(self):
+        return self.is_active and bool(self.password)
+
+    @property
+    def from_header(self):
+        name = self.display_name or self.user.get_full_name()
+        return formataddr((name, self.email_address)) if name else self.email_address
+
+
 class Email(models.Model):
     INBOX = 'inbox'
     SENT = 'sent'

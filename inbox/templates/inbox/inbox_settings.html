@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+	Inbox settings
+{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{% static 'inbox/css/inbox.css' %}">
+
+    <style>
+         body {
+             background-image: url("{% static 'images/34637.png' %}");
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-position: center;
+         }
+    </style>
+
+    <div class="container-fluid mx-auto" id="inbox-container">
+
+        <div class="row justify-content-center pt-md-3">
+            <div class="col-12 text-center">
+                <h4 class="fw-bolder">Inbox settings</h4>
+                {% include 'inbox/partials/messages.html' %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center my-3">
+            <div class="col-12 col-lg-8">
+
+                <!-- Connection status -->
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        {% if account.is_connected %}
+                            <div>
+                                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                Connected as <strong>{{ account.email_address }}</strong>
+                                <div class="small text-secondary">Last change {{ account.updated_at|date:"d.m.Y H:i" }}</div>
+                            </div>
+                            <form method="post" action="{% url 'inbox:disconnect' %}" class="d-flex flex-wrap align-items-center gap-2"
+                                  onsubmit="return confirm('Disconnect your mailbox? The saved password is deleted and no emails can be sent or synced until you connect again.');">
+                                {% csrf_token %}
+                                <div class="form-check small mb-0">
+                                    <input class="form-check-input" type="checkbox" name="remove_emails" value="1" id="remove-emails">
+                                    <label class="form-check-label" for="remove-emails">Also remove my synced emails from the CRM</label>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-box-arrow-right me-1"></i>Disconnect
+                                </button>
+                            </form>
+                        {% elif account %}
+                            <div>
+                                <i class="bi bi-x-circle-fill text-secondary me-1"></i>
+                                <strong>{{ account.email_address }}</strong> is disconnected.
+                                Enter your password below to connect it again.
+                            </div>
+                        {% else %}
+                            <div>
+                                <i class="bi bi-info-circle-fill text-primary me-1"></i>
+                                No mailbox connected yet. Fill in the form below to receive and send emails from the CRM.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Settings form -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger py-2">{{ error }}</div>
+                            {% endfor %}
+
+                            {% include 'inbox/partials/settings_field.html' with field=form.provider %}
+                            <div id="provider-hint" class="alert alert-info py-2 small d-none"></div>
+
+                            <h6 class="fw-bold mt-4">Account</h6>
+                            <div class="row">
+                                <div class="col-md-6">{% include 'inbox/partials/settings_field.html' with field=form.email_address %}</div>
+                                <div class="col-md-6">{% include 'inbox/partials/settings_field.html' with field=form.display_name %}</div>
+                                <div class="col-md-6">{% include 'inbox/partials/settings_field.html' with field=form.username %}</div>
+                                <div class="col-md-6">{% include 'inbox/partials/settings_field.html' with field=form.password %}</div>
+                            </div>
+
+                            <h6 class="fw-bold mt-3">Incoming mail (IMAP)</h6>
+                            <div class="row">
+                                <div class="col-md-8">{% include 'inbox/partials/settings_field.html' with field=form.imap_host %}</div>
+                                <div class="col-md-4">{% include 'inbox/partials/settings_field.html' with field=form.imap_port %}</div>
+                            </div>
+
+                            <h6 class="fw-bold mt-3">Outgoing mail (SMTP)</h6>
+                            <div class="row">
+                                <div class="col-md-5">{% include 'inbox/partials/settings_field.html' with field=form.smtp_host %}</div>
+                                <div class="col-md-3">{% include 'inbox/partials/settings_field.html' with field=form.smtp_port %}</div>
+                                <div class="col-md-4">{% include 'inbox/partials/settings_field.html' with field=form.smtp_security %}</div>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                {{ form.test_connection }}
+                                <label class="form-check-label" for="{{ form.test_connection.id_for_label }}">{{ form.test_connection.label }}</label>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn inbox-btn fw-bold">
+                                    <i class="bi bi-plug me-1"></i>{% if account.is_connected %}Save{% else %}Save and connect{% endif %}
+                                </button>
+                                <a href="{% url 'inbox:list' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                            <p class="small text-secondary mt-3 mb-0">
+                                <i class="bi bi-shield-lock me-1"></i>Your password is stored encrypted and is only used to
+                                connect to your own mailbox. Other CRM users cannot see your settings or emails.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="text-start">
+                    <a href="{% url 'inbox:list' %}" class="back-to-dashboard">
+                        <i class="fa-solid fa-arrow-left px-1"></i>Back to inbox
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{ providers|json_script:"mail-providers" }}
+    <script>
+        (function () {
+            const providers = JSON.parse(document.getElementById('mail-providers').textContent);
+            const select = document.getElementById('{{ form.provider.id_for_label }}');
+            const hint = document.getElementById('provider-hint');
+            const fields = ['imap_host', 'imap_port', 'smtp_host', 'smtp_port', 'smtp_security'];
+
+            function showHint(preset) {
+                hint.textContent = preset ? preset.hint : '';
+                hint.classList.toggle('d-none', !preset);
+            }
+
+            select.addEventListener('change', function () {
+                const preset = providers[this.value];
+                if (preset) {
+                    fields.forEach(name => { document.getElementById('id_' + name).value = preset[name]; });
+                }
+                showHint(preset);
+            });
+            showHint(providers[select.value]);
+        })();
+    </script>
+
+{% endblock %}
