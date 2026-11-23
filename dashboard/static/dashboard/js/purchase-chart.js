@@ -15,6 +15,150 @@
         '#d63384', '#6610f2', '#9fc4f3', '#4e886b', '#ebec3d', '#c3e748'
     ];
 
+    const FONT_FAMILY = 'Arial, sans-serif';
+    let hasChartData = false;
+
+    /**
+     * Width of a chart container (falls back to the viewport width)
+     */
+    function getContainerWidth(divId) {
+        const el = document.getElementById(divId);
+        return (el && el.clientWidth) ? el.clientWidth : window.innerWidth;
+    }
+
+    /**
+     * Responsive sizes based on the container width.
+     * compact = legend goes below the chart instead of to the right.
+     */
+    function getResponsiveSizes(width) {
+        if (width < 480) {
+            return { title: 14, base: 10, axis: 11, legend: 10, maxLabel: 18, compact: true };
+        }
+        if (width < 768) {
+            return { title: 16, base: 11, axis: 12, legend: 11, maxLabel: 24, compact: true };
+        }
+        return { title: 18, base: 12, axis: 14, legend: 12, maxLabel: 28, compact: false };
+    }
+
+    /**
+     * Escape characters that Plotly's pseudo-HTML would interpret
+     */
+    function escapeHtml(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    /**
+     * Reverse of escapeHtml – legend DOM text is shown unescaped
+     */
+    function unescapeHtml(text) {
+        return String(text)
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+    }
+
+    /**
+     * Show the full product name as a native tooltip when hovering
+     * a shortened ("…") legend item. Plotly has no legend tooltips,
+     * so we add an SVG <title> to each legend entry after every redraw.
+     */
+    function attachLegendTooltips(divId) {
+        const gd = document.getElementById(divId);
+        if (!gd || !gd.data) return;
+
+        const applyTooltips = function() {
+            // Map: displayed (short) label -> full name
+            const fullNames = {};
+            (gd.data || []).forEach(function(trace) {
+                if (trace.type === 'pie') {
+                    (trace.labels || []).forEach(function(label, i) {
+                        const full = trace.customdata && trace.customdata[i];
+                        if (full) fullNames[unescapeHtml(label)] = unescapeHtml(full);
+                    });
+                } else if (trace.name && trace.meta) {
+                    fullNames[unescapeHtml(trace.name)] = unescapeHtml(trace.meta);
+                }
+            });
+
+            gd.querySelectorAll('.legend .traces').forEach(function(item) {
+                const textEl = item.querySelector('.legendtext');
+                if (!textEl) return;
+                const shown = textEl.textContent;
+                const full = fullNames[shown];
+
+                const old = item.querySelector(':scope > title');
+                if (old) old.remove();
+                if (!full || full === shown) return;
+
+                const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                title.textContent = full;
+                item.insertBefore(title, item.firstChild);
+            });
+        };
+
+        // Legend is rebuilt on every redraw/toggle, so re-apply each time
+        if (!gd._legendTooltipsBound && typeof gd.on === 'function') {
+            gd.on('plotly_afterplot', applyTooltips);
+            gd._legendTooltipsBound = true;
+        }
+        applyTooltips();
+    }
+
+    /**
+     * Shorten a long label with an ellipsis (full name is kept for hover)
+     */
+    function shortenLabel(text, maxLength) {
+        const str = String(text);
+        return str.length > maxLength ? str.slice(0, maxLength - 1).trimEnd() + '…' : str;
+    }
+
+    /**
+     * Shorten labels and keep them unique (pie charts merge identical labels)
+     */
+    function shortenUniqueLabels(names, maxLength) {
+        const seen = {};
+        return names.map(function(name) {
+            let label = escapeHtml(shortenLabel(name, maxLength));
+            if (seen[label]) {
+                seen[label] += 1;
+                label = label + ' (' + seen[label] + ')';
+            } else {
+                seen[label] = 1;
+            }
+            return label;
+        });
+    }
+
+    /**
+     * Legend settings: right side on wide screens, horizontal below on narrow ones
+     */
+    function createLegend(sizes) {
+        const base = {
+            bgcolor: 'rgba(255,255,255,0.9)',
+            bordercolor: '#ddd',
+            borderwidth: 1,
+            font: { size: sizes.legend }
+        };
+        if (sizes.compact) {
+            return Object.assign(base, { orientation: 'h', x: 0, xanchor: 'left', y: -0.15, yanchor: 'top' });
+        }
+        return Object.assign(base, { orientation: 'v', x: 1.02, xanchor: 'left', y: 1, yanchor: 'top' });
+    }
+
+    /**
+     * Debounce helper for the resize handler
+     */
+    function debounce(fn, wait) {
+        let timer = null;
+        return function() {
+            clearTimeout(timer);
+            timer = setTimeout(fn, wait);
+        };
+    }
+
     /**
      * Initialize the purchase chart
      */
@@ -29,10 +173,11 @@
         const hasTotalData = purchaseChartData.products_total && Object.keys(purchaseChartData.products_total).length > 0;
 
         if (!hasEurData && !hasUsdData && !hasTotalData) {
-        showNoDataMessage();
-        renderEmptyPieMessages();
-        return;
-    }
+            showNoDataMessage();
+            renderEmptyPieMessages();
+            return;
+        }
+        hasChartData = true;
 
         // Initialize displays with current filter values
         const currencySelect = document.getElementById('purchaseCurrency');
@@ -64,52 +209,61 @@
         const products = purchaseChartData.products_total;
         if (!products || Object.keys(products).length === 0) return;
 
-        const labels = [];
+        const names = Object.keys(products);
         const quantities = [];
         const revenues = [];
 
-        Object.keys(products).forEach(function(productName) {
+        names.forEach(function(productName) {
             const d = products[productName];
-            labels.push(productName);
-            quantities.push(d.quantities.reduce(function(a, b) { return a + b; }, 0));
-            revenues.push(d.amounts_eur_total.reduce(function(a, b) { return a + b; }, 0));
+            quantities.push((d.quantities || []).reduce(function(a, b) { return a + b; }, 0));
+            revenues.push((d.amounts_eur_total || []).reduce(function(a, b) { return a + b; }, 0));
         });
 
-        const pieConfig = { responsive: true, displayModeBar: false };
-        const pieLegend = { font: { size: 11 }, bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#ddd', borderwidth: 1 };
-        const piePaperBg = 'rgb(250,250,248)';
+        renderPie('purchasePieQuantity', names, quantities, 'Total Products Sold',
+            '<b>%{customdata}</b><br>Qty: %{value:,}<br>Share: %{percent}<extra></extra>');
+        renderPie('purchasePieRevenue', names, revenues, 'Total Revenue (all in EUR)',
+            '<b>%{customdata}</b><br>Revenue: €%{value:,.2f}<br>Share: %{percent}<extra></extra>');
+    }
 
-        Plotly.newPlot('purchasePieQuantity', [{
+    /**
+     * Render one responsive pie chart
+     */
+    function renderPie(divId, names, values, title, hoverTemplate) {
+        const div = document.getElementById(divId);
+        if (!div) return;
+
+        const sizes = getResponsiveSizes(getContainerWidth(divId));
+        // Pies sit in half-width columns, so shorten labels a bit more
+        const labels = shortenUniqueLabels(names, Math.max(14, sizes.maxLabel - 6));
+
+        // Horizontal legend below needs extra height, one row per ~2 items
+        const height = sizes.compact ? 340 + Math.ceil(names.length / 2) * 22 : 380;
+        div.style.height = height + 'px';
+
+        Plotly.react(divId, [{
             type: 'pie',
             labels: labels,
-            values: quantities,
+            values: values,
+            customdata: names.map(escapeHtml),
             marker: { colors: colors },
-            hovertemplate: '<b>%{label}</b><br>Qty: %{value:,}<br>Share: %{percent}<extra></extra>',
-            textinfo: 'label+value'
+            hovertemplate: hoverTemplate,
+            // Only percentages on slices – names live in the legend/tooltip
+            textinfo: 'percent',
+            textposition: 'inside',
+            insidetextorientation: 'horizontal',
+            sort: true
         }], {
-            title: { text: 'Total Products Sold', font: { size: 16, family: 'Arial, sans-serif', color: '#333' } },
+            title: { text: title, font: { size: sizes.title - 2, family: FONT_FAMILY, color: '#333' } },
             showlegend: true,
-            legend: pieLegend,
+            legend: createLegend(sizes),
+            uniformtext: { minsize: 9, mode: 'hide' },
             margin: { t: 50, r: 10, b: 10, l: 10 },
-            paper_bgcolor: piePaperBg,
-            font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
-        }, pieConfig);
-
-        Plotly.newPlot('purchasePieRevenue', [{
-            type: 'pie',
-            labels: labels,
-            values: revenues,
-            marker: { colors: colors },
-            hovertemplate: '<b>%{label}</b><br>Revenue: €%{value:,.2f}<br>Share: %{percent}<extra></extra>',
-            textinfo: 'label+value'
-        }], {
-            title: { text: 'Total Revenue (all in EUR)', font: { size: 16, family: 'Arial, sans-serif', color: '#333' } },
-            showlegend: true,
-            legend: pieLegend,
-            margin: { t: 50, r: 10, b: 10, l: 10 },
-            paper_bgcolor: piePaperBg,
-            font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
-        }, pieConfig);
+            height: height,
+            paper_bgcolor: 'rgb(250,250,248)',
+            font: { family: FONT_FAMILY, size: sizes.base, color: '#333' }
+        }, { responsive: true, displayModeBar: false }).then(function() {
+            attachLegendTooltips(divId);
+        });
     }
 
     /**
@@ -129,17 +283,20 @@
         const dataType = dataTypeSelect.value;
         const currency = currencySelect.value;
 
-        const traces = createTraces(chartType, dataType, currency);
-        const layout = createLayout(dataType, currency, chartType);
+        const sizes = getResponsiveSizes(getContainerWidth('purchaseChart'));
+        const traces = createTraces(chartType, dataType, currency, sizes);
+        const layout = createLayout(dataType, currency, chartType, sizes, traces);
         const config = createConfig();
 
-        Plotly.newPlot('purchaseChart', traces, layout, config);
+        Plotly.react('purchaseChart', traces, layout, config).then(function() {
+            attachLegendTooltips('purchaseChart');
+        });
     }
 
     /**
      * Create chart traces for each product
      */
-    function createTraces(chartType, dataType, currency) {
+    function createTraces(chartType, dataType, currency, sizes) {
         // Select the correct product data based on data type and currency
         let products = {};
         if (dataType === 'total_products' || dataType === 'total_revenue') {
@@ -158,10 +315,8 @@
             }];
         }
 
-        const numProducts = Object.keys(products || {}).length || 1;
-
         if (chartType === 'pie') {
-            const labels = [];
+            const names = [];
             const values = [];
 
             Object.keys(products).forEach(productName => {
@@ -175,23 +330,26 @@
                 } else {
                     total = (productData.amounts || []).reduce(function (a, b){return a + b;}, 0);
                 }
-                labels.push(productName);
+                names.push(productName);
                 values.push(total);
             });
 
             const currencySymbol = currency === 'EUR' ? '€' : '$';
             const isAmount = dataType === 'amount' || dataType === 'total_revenue';
             const hoverTemplate = isAmount
-                ? '<b>%{label}</b><br>Value: ' + currencySymbol + '%{value:,.2f}<br>Share: %{percent}<extra></extra>'
-                : '<b>%{label}</b><br>Value: %{value:,}<br>Share: %{percent}<extra></extra>';
+                ? '<b>%{customdata}</b><br>Value: ' + currencySymbol + '%{value:,.2f}<br>Share: %{percent}<extra></extra>'
+                : '<b>%{customdata}</b><br>Value: %{value:,}<br>Share: %{percent}<extra></extra>';
 
             return [{
                 type: 'pie',
-                labels: labels,
+                labels: shortenUniqueLabels(names, sizes.maxLabel),
                 values: values,
+                customdata: names.map(escapeHtml),
                 marker: { colors: colors },
                 hovertemplate: hoverTemplate,
-                textinfo: 'label+value',
+                textinfo: 'percent',
+                textposition: 'inside',
+                insidetextorientation: 'horizontal',
                 hole: 0
             }];
         }
@@ -218,20 +376,17 @@
                 traces.push({
                     x: productData.quantities || [],
                     y: amounts,
-                    name: productName,
+                    name: escapeHtml(shortenLabel(productName, sizes.maxLabel)),
+                    meta: escapeHtml(productName),
                     type: 'scatter',
                     mode: 'markers',
                     marker: {
                         color: colors[colorIndex % colors.length],
-                        colorscale: 'Viridis',
-                        cmin: 0,
-                        cmax: numProducts - 1,
-                        showscale: false,
-                        size: 10,
+                        size: sizes.compact ? 8 : 10,
                         opacity: 0.8,
                         line: { color: 'white', width: 1 }
                     },
-                    hovertemplate: '<b>' + productName + '</b><br>Quantity: %{x}<br>Price: ' + currencySymbol + '%{y:,.2f}<extra></extra>'
+                    hovertemplate: '<b>%{meta}</b><br>Quantity: %{x}<br>Price: ' + currencySymbol + '%{y:,.2f}<extra></extra>'
                 });
 
                 colorIndex++;
@@ -261,16 +416,11 @@
             traces.push({
                 x: productData.dates || [],
                 y: yData,
-                name: productName,
+                name: escapeHtml(shortenLabel(productName, sizes.maxLabel)),
+                meta: escapeHtml(productName),
                 type: 'bar',
-                marker: {
-                    color: colors[colorIndex % colors.length],
-                    colorscale: 'Viridis',
-                    cmin: 0,
-                    cmax: numProducts - 1,
-                    showscale: false
-                },
-                hovertemplate: createHoverTemplate(dataType, productName, currency)
+                marker: { color: colors[colorIndex % colors.length] },
+                hovertemplate: createHoverTemplate(dataType, currency)
             });
 
             colorIndex++;
@@ -282,31 +432,31 @@
     /**
      * Create hover template
      */
-    function createHoverTemplate(dataType, productName, currency) {
+    function createHoverTemplate(dataType, currency) {
         const currencySymbol = currency === 'EUR' ? '€' : '$';
 
         if (dataType === 'quantity') {
-            return '<b>' + productName + '</b><br>' +
+            return '<b>%{meta}</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Quantity: %{y}<br>' +
                    '<extra></extra>';
         } else if (dataType === 'total_products') {
-            return '<b>' + productName + '</b><br>' +
+            return '<b>%{meta}</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Total Products Sold: %{y}<br>' +
                    '<extra></extra>';
         } else if (dataType === 'amount') {
-            return '<b>' + productName + '</b><br>' +
+            return '<b>%{meta}</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Amount: ' + currencySymbol + '%{y:,.2f}<br>' +
                    '<extra></extra>';
         } else if (dataType === 'total_revenue') {
-            return '<b>' + productName + '</b><br>' +
+            return '<b>%{meta}</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Total Revenue: ' + currencySymbol + '%{y:,.2f}<br>' +
                    '<extra></extra>';
         } else {
-            return '<b>' + productName + '</b><br>' +
+            return '<b>%{meta}</b><br>' +
                    'Date: %{x|%Y-%m-%d}<br>' +
                    'Value: %{y}<br>' +
                    '<extra></extra>';
@@ -316,7 +466,7 @@
     /**
      * Create chart layout
      */
-    function createLayout(dataType, currency, chartType) {
+    function createLayout(dataType, currency, chartType, sizes, traces) {
         let chartTitle;
         if (dataType === 'quantity') chartTitle = 'Product Purchases (Quantity)';
         else if (dataType === 'total_products') chartTitle = 'Total Products Sold';
@@ -324,47 +474,65 @@
         else if (dataType === 'total_revenue') chartTitle = 'Total Revenue';
         else chartTitle = 'Product Purchases';
 
+        // Number of legend entries (pie has one trace with many labels)
+        const legendItems = chartType === 'pie'
+            ? ((traces[0] && traces[0].labels) ? traces[0].labels.length : 0)
+            : traces.length;
+        // Below-chart legend needs extra height so it doesn't squash the plot
+        const height = sizes.compact ? 420 + Math.ceil(legendItems / 2) * 22 : 500;
+
+        const common = {
+            title: {
+                text: chartTitle,
+                font: { size: sizes.title, family: FONT_FAMILY, color: '#333' },
+                automargin: true
+            },
+            showlegend: true,
+            legend: createLegend(sizes),
+            height: height,
+            plot_bgcolor: 'rgba(255,255,255,1)',
+            paper_bgcolor: 'rgb(250,250,248)',
+            font: { family: FONT_FAMILY, size: sizes.base, color: '#333' }
+        };
+
         if (chartType === 'pie') {
-            return {
-                title: { text: chartTitle, font: { size: 18, family: 'Arial, sans-serif', color: '#333' } },
-                showlegend: true,
-                legend: { font: { size: 12 }, bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#ddd', borderwidth: 1 },
-                margin: { t: 60, r: 20, b: 20, l: 20 },
-                plot_bgcolor: 'rgba(255,255,255,1)',
-                paper_bgcolor: 'rgb(250,250,248)',
-                font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
-            };
+            return Object.assign(common, {
+                uniformtext: { minsize: 9, mode: 'hide' },
+                margin: { t: 60, r: 20, b: 20, l: 20 }
+            });
         }
 
         const currencySymbol = currency === 'EUR' ? '€' : '$';
+        // Right margin is small: Plotly auto-expands it to fit the legend
+        const margin = sizes.compact
+            ? { t: 50, r: 10, b: 20, l: 10 }
+            : { t: 60, r: 20, b: 60, l: 20 };
+
+        const axisBase = {
+            gridcolor: '#e5e5e5',
+            showgrid: true,
+            zeroline: false,
+            automargin: true,
+            tickfont: { size: sizes.base }
+        };
 
         if (chartType === 'scatter') {
-            return {
-                title: { text: 'Quantity vs Price', font: { size: 18, family: 'Arial, sans-serif', color: '#333' } },
-                xaxis: {
-                    title: { text: 'Quantity', font: { size: 14, color: '#666' } },
-                    gridcolor: '#e5e5e5',
-                    showgrid: true,
-                    zeroline: false,
+            common.title.text = 'Quantity vs Price';
+            return Object.assign(common, {
+                xaxis: Object.assign({}, axisBase, {
+                    title: { text: 'Quantity', font: { size: sizes.axis, color: '#666' } },
                     tickformat: ','
-                },
-                yaxis: {
-                    title: { text: 'Price (' + currencySymbol + ')', font: { size: 14, color: '#666' } },
-                    gridcolor: '#e5e5e5',
-                    showgrid: true,
-                    zeroline: false,
+                }),
+                yaxis: Object.assign({}, axisBase, {
+                    title: { text: 'Price (' + currencySymbol + ')', font: { size: sizes.axis, color: '#666' } },
                     tickformat: ',.2f',
                     tickprefix: currencySymbol
-                },
+                }),
                 hovermode: 'closest',
-                showlegend: true,
-                legend: { x: 1.02, xanchor: 'left', y: 1, yanchor: 'top', bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#ddd', borderwidth: 1, font: { size: 12 } },
-                margin: { t: 60, r: 150, b: 80, l: 80 },
-                plot_bgcolor: 'rgba(255,255,255,1)',
-                paper_bgcolor: 'rgb(250,250,248)',
-                font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
-            };
+                margin: margin
+            });
         }
+
         let yAxisTitle, tickFormat, tickPrefix;
 
         if (dataType === 'quantity' || dataType === 'total_products') {
@@ -377,44 +545,22 @@
             tickPrefix = currencySymbol;
         }
 
-        return {
-            title: {
-                text: chartTitle,
-                font: { size: 18, family: 'Arial, sans-serif', color: '#333' }
-            },
-            xaxis: {
-                title: { text: 'Date', font: { size: 14, color: '#666' } },
+        return Object.assign(common, {
+            xaxis: Object.assign({}, axisBase, {
+                // On narrow screens drop the "Date" title to leave room for the legend
+                title: sizes.compact ? undefined : { text: 'Date', font: { size: sizes.axis, color: '#666' } },
                 type: 'date',
                 tickformat: '%Y-%m-%d',
-                gridcolor: '#e5e5e5',
-                showgrid: true,
-                zeroline: false
-            },
-            yaxis: {
-                title: { text: yAxisTitle, font: { size: 14, color: '#666' } },
-                gridcolor: '#e5e5e5',
-                showgrid: true,
-                zeroline: false,
+                nticks: sizes.compact ? 4 : undefined
+            }),
+            yaxis: Object.assign({}, axisBase, {
+                title: { text: yAxisTitle, font: { size: sizes.axis, color: '#666' } },
                 tickformat: tickFormat,
                 tickprefix: tickPrefix
-            },
+            }),
             hovermode: 'closest',
-            showlegend: true,
-            legend: {
-                x: 1.02,
-                xanchor: 'left',
-                y: 1,
-                yanchor: 'top',
-                bgcolor: 'rgba(255,255,255,0.9)',
-                bordercolor: '#ddd',
-                borderwidth: 1,
-                font: { size: 12 }
-            },
-            margin: { t: 60, r: 150, b: 80, l: 80 },
-            plot_bgcolor: 'rgba(255,255,255,1)',
-            paper_bgcolor: 'rgb(250,250,248)',
-            font: { family: 'Arial, sans-serif', size: 12, color: '#333' }
-        };
+            margin: margin
+        });
     }
 
     /**
@@ -568,6 +714,13 @@
             initPurchaseChart(window.purchaseChartData);
         }
     });
+
+    // Re-render on resize so font sizes, label length and legend position adapt
+    window.addEventListener('resize', debounce(function() {
+        if (!hasChartData) return;
+        renderPurchaseChart();
+        renderStatsPies();
+    }, 250));
 
     // Expose init function globally if needed
     window.initPurchaseChart = initPurchaseChart;

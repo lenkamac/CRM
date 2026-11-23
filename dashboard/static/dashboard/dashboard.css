@@ -33,6 +33,9 @@
 
 /* Responsive design*/
 
+
+
+
 @media (max-width: 576px) {
     .purchase-filters label {
         font-size: 0.75rem !important;
