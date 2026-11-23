@@ -29,15 +29,6 @@
             <div class="col-12 text-center">
                 {% include 'inbox/partials/messages.html' %}
             </div>
-            {% if not mail_account.is_connected %}
-                <div class="col-12 col-lg-8">
-                    <div class="alert alert-warning text-center mb-0">
-                        <i class="bi bi-exclamation-triangle me-1"></i>
-                        Your mailbox is not connected, so emails cannot be synced or sent.
-                        <a href="{% url 'inbox:settings' %}" class="alert-link">Connect it in Settings</a>.
-                    </div>
-                </div>
-            {% endif %}
         </div>
 
         <div class="row my-3">
@@ -150,7 +141,9 @@
                                             </button>
                                         </td>
                                         <td class="text-start text-nowrap">
-                                            {% if mail.folder == 'sent' %}{{ mail.to|truncatechars:40 }}{% else %}{{ mail.display_sender|truncatechars:40 }}{% endif %}
+                                            <a href="{% url 'inbox:detail' mail.pk %}" class="inbox-a-subject">
+                                                {% if mail.folder == 'sent' %}{{ mail.to|truncatechars:40 }}{% else %}{{ mail.display_sender|truncatechars:40 }}{% endif %}
+                                            </a>
                                         </td>
                                         <td class="text-start">
                                             <a href="{% url 'inbox:detail' mail.pk %}" class="inbox-a-subject">

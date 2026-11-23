@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+	Inbox
+{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{% static 'inbox/css/inbox.css' %}">
+
+    <style>
+         body {
+             background-image: url("{% static 'images/34637.png' %}");
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-position: center;
+         }
+    </style>
+
+    <div class="container-fluid mx-auto" id="inbox-container">
+
+        <div class="row justify-content-center pt-md-3">
+            <div class="col-12 text-center">
+                <h4 class="fw-bolder">Inbox</h4>
+                {% include 'inbox/partials/messages.html' %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center my-4">
+            <div class="col-12 col-md-8 col-lg-5">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body py-5">
+                        <i class="bi bi-envelope-slash text-secondary" style="font-size: 3rem;"></i>
+                        <h5 class="fw-bold mt-3">Your inbox is not connected</h5>
+                        <p class="text-secondary mb-4">
+                            Connect your mailbox in Settings to receive, read and send emails from the CRM.
+                        </p>
+                        <a href="{% url 'inbox:settings' %}" class="btn inbox-btn fw-bold">
+                            <i class="bi bi-gear me-1"></i>Go to Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

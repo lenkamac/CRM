@@ -181,7 +181,7 @@ class MailSettingsTests(TestCase):
     @mock.patch('inbox.gmail_service.imaplib.IMAP4_SSL', FakeIMAP)
     def test_connect_stores_encrypted_password(self, get_connection):
         response = self._post()
-        self.assertRedirects(response, reverse('inbox:settings'))
+        self.assertRedirects(response, reverse('inbox:list'))
         account = MailAccount.objects.get(user=self.user)
         self.assertTrue(account.is_connected)
         self.assertEqual(account.password, 'app-pass')
@@ -215,19 +215,43 @@ class MailSettingsTests(TestCase):
     def test_disconnect_blocks_sending(self):
         _account(self.user, 'lenka@gmail.com', 'app-pass')
         Email.objects.create(owner=self.user, message_id='<a>', received_at='2026-10-01T10:00Z')
-        self.client.post(reverse('inbox:disconnect'))
+        response = self.client.post(reverse('inbox:disconnect'))
+        self.assertRedirects(response, reverse('inbox:not_connected'))
         account = MailAccount.objects.get()
         self.assertFalse(account.is_connected)
         self.assertEqual(account.password_encrypted, '')
         self.assertEqual(Email.objects.count(), 1)
 
         response = self.client.post(reverse('inbox:compose'), {'to': 'x@example.com', 'subject': 'Hi', 'body': 'Hi'})
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('inbox:not_connected'))
         self.assertEqual(Email.objects.filter(folder=Email.SENT).count(), 0)
-        self.assertContains(response, 'not connected')
 
         self.client.post(reverse('inbox:disconnect'), {'remove_emails': '1'})
         self.assertEqual(Email.objects.count(), 0)
+
+    def test_disconnected_inbox_hides_emails(self):
+        _account(self.user, 'lenka@gmail.com', 'app-pass')
+        mail = Email.objects.create(owner=self.user, message_id='<a>', subject='Hidden offer',
+                                    received_at='2026-10-01T10:00Z')
+        self.client.post(reverse('inbox:disconnect'))
+
+        for url in (reverse('inbox:list'), reverse('inbox:detail', args=[mail.pk])):
+            response = self.client.get(url, follow=True)
+            self.assertRedirects(response, reverse('inbox:not_connected'))
+            self.assertNotContains(response, 'Hidden offer')
+            self.assertContains(response, 'not connected')
+            self.assertContains(response, reverse('inbox:settings'))
+
+        # After reconnecting the inbox is shown again
+        account = MailAccount.objects.get()
+        account.password = 'app-pass'
+        account.is_active = True
+        account.save()
+        self.assertRedirects(self.client.get(reverse('inbox:not_connected')), reverse('inbox:list'))
+        self.assertContains(self.client.get(reverse('inbox:list')), 'Hidden offer')
+
+    def test_inbox_without_account_shows_not_connected(self):
+        self.assertRedirects(self.client.get(reverse('inbox:list')), reverse('inbox:not_connected'))
 
     @mock.patch('inbox.gmail_service.imaplib.IMAP4_SSL', FakeIMAP)
     def test_each_user_syncs_own_mailbox(self):

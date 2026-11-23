@@ -9,6 +9,7 @@ urlpatterns = [
     path('compose/', views.inbox_compose, name='compose'),
     path('settings/', views.inbox_settings, name='settings'),
     path('settings/disconnect/', views.inbox_disconnect, name='disconnect'),
+    path('not-connected/', views.inbox_not_connected, name='not_connected'),
     path('sync/', views.inbox_sync, name='sync'),
     path('bulk/', views.inbox_bulk_action, name='bulk_action'),
     path('<int:pk>/', views.inbox_detail, name='detail'),

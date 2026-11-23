@@ -1,5 +1,6 @@
 import imaplib
 import smtplib
+from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -28,6 +29,21 @@ def _push_read_flag(request, emails, is_read):
         messages.warning(request, f'Could not update the read status in your mailbox: {e}')
 
 
+def _is_connected(user):
+    account = MailAccount.objects.filter(user=user).first()
+    return bool(account and account.is_connected)
+
+
+def mailbox_required(view):
+    """Inbox pages are only available with a connected mailbox, otherwise show the 'not connected' page."""
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        if not _is_connected(request.user):
+            return redirect('inbox:not_connected')
+        return view(request, *args, **kwargs)
+    return wrapper
+
+
 def _redirect_next(request):
     next_url = request.POST.get('next')
     if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
@@ -38,6 +54,7 @@ def _redirect_next(request):
 # Create your views here.
 # Inbox list (inbox / unread / starred / sent)
 @login_required
+@mailbox_required
 def inbox_list(request):
     folder = request.GET.get('folder', 'inbox')
     emails = Email.objects.filter(owner=request.user).select_related('client', 'lead').prefetch_related('attachments')
@@ -76,6 +93,7 @@ def inbox_list(request):
 
 # Email detail page
 @login_required
+@mailbox_required
 def inbox_detail(request, pk):
     mail = get_object_or_404(Email, pk=pk, owner=request.user)
     if not mail.is_read:
@@ -104,6 +122,7 @@ def inbox_detail(request, pk):
 
 # Compose a new email (optionally prefilled with ?to=)
 @login_required
+@mailbox_required
 def inbox_compose(request):
     if request.method == 'POST':
         form = ComposeEmailForm(request.POST, request.FILES)
@@ -118,6 +137,7 @@ def inbox_compose(request):
 
 # Reply to an email
 @login_required
+@mailbox_required
 def inbox_reply(request, pk):
     original = get_object_or_404(Email, pk=pk, owner=request.user)
 
@@ -164,6 +184,7 @@ def _send(request, form, reply_to_email=None):
 
 # Download new emails from the mailbox
 @login_required
+@mailbox_required
 @require_POST
 def inbox_sync(request):
     try:
@@ -181,6 +202,7 @@ def inbox_sync(request):
 
 
 @login_required
+@mailbox_required
 @require_POST
 def inbox_toggle_read(request, pk):
     mail = get_object_or_404(Email, pk=pk, owner=request.user)
@@ -191,6 +213,7 @@ def inbox_toggle_read(request, pk):
 
 
 @login_required
+@mailbox_required
 @require_POST
 def inbox_toggle_star(request, pk):
     mail = get_object_or_404(Email, pk=pk, owner=request.user)
@@ -201,6 +224,7 @@ def inbox_toggle_star(request, pk):
 
 # Removes the email from the CRM only, the message stays in the mailbox
 @login_required
+@mailbox_required
 @require_POST
 def inbox_delete(request, pk):
     mail = get_object_or_404(Email, pk=pk, owner=request.user)
@@ -212,6 +236,7 @@ def inbox_delete(request, pk):
 
 
 @login_required
+@mailbox_required
 @require_POST
 def inbox_bulk_action(request):
     ids = request.POST.getlist('email_ids')
@@ -233,6 +258,7 @@ def inbox_bulk_action(request):
 
 # Link an email to a client / lead
 @login_required
+@mailbox_required
 @require_POST
 def inbox_link_contact(request, pk):
     mail = get_object_or_404(Email, pk=pk, owner=request.user)
@@ -246,6 +272,7 @@ def inbox_link_contact(request, pk):
 
 
 @login_required
+@mailbox_required
 def inbox_attachment(request, pk):
     attachment = get_object_or_404(EmailAttachment, pk=pk, email__owner=request.user)
     return FileResponse(attachment.file.open('rb'), as_attachment=True, filename=attachment.filename)
@@ -283,7 +310,7 @@ def inbox_settings(request):
                 account.is_active = True
                 account.save()
                 messages.success(request, f'Mailbox {account.email_address} is connected.')
-                return redirect('inbox:settings')
+                return redirect('inbox:list')
     else:
         form = MailAccountForm(instance=account, initial={'display_name': request.user.get_full_name()} if not account else None)
 
@@ -309,4 +336,12 @@ def inbox_disconnect(request):
         messages.success(request, f'Mailbox disconnected and {count} email(s) removed from the CRM.')
     else:
         messages.success(request, 'Mailbox disconnected. Emails can no longer be sent or synced until you connect again.')
-    return redirect('inbox:settings')
+    return redirect('inbox:not_connected')
+
+
+# Shown instead of the inbox while no mailbox is connected
+@login_required
+def inbox_not_connected(request):
+    if _is_connected(request.user):
+        return redirect('inbox:list')
+    return render(request, 'inbox/inbox_not_connected.html')
